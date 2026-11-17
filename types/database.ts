@@ -1010,7 +1010,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      fixtures_with_prediction_flag: {
+        Args: { p_fixture_ids: number[] }
+        Returns: {
+          fixture_id: number
+          has_prediction: boolean
+        }[]
+      }
+      get_fixture_public_context: {
+        Args: { p_fixture_id: number }
+        Returns: Json
+      }
       is_admin: { Args: never; Returns: boolean }
+      is_fixture_visible: { Args: { p_fixture_id: number }; Returns: boolean }
       is_valid_1x2_probabilities: { Args: { p: Json }; Returns: boolean }
     }
     Enums: {

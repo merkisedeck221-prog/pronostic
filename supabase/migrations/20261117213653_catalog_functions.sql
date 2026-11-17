@@ -9,10 +9,10 @@
 -- =============================================================================
 
 -- Index pour la forme récente et les confrontations directes (équipe + date).
-drop index if exists public.fixtures_home_team_id_idx;
-drop index if exists public.fixtures_away_team_id_idx;
-create index fixtures_home_team_kickoff_idx on public.fixtures (home_team_id, kickoff_at desc);
-create index fixtures_away_team_kickoff_idx on public.fixtures (away_team_id, kickoff_at desc);
+-- Les index simples existants (fixtures_home_team_id_idx, fixtures_away_team_id_idx)
+-- sont conservés : aucune suppression dans cette migration.
+create index if not exists fixtures_home_team_kickoff_idx on public.fixtures (home_team_id, kickoff_at desc);
+create index if not exists fixtures_away_team_kickoff_idx on public.fixtures (away_team_id, kickoff_at desc);
 
 -- -----------------------------------------------------------------------------
 -- Visibilité d'un match pour les utilisateurs (RG-F2-1) : publié ET compétition active.
