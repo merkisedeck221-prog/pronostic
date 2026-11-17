@@ -44,3 +44,7 @@ next-env.d.ts
 # supabase CLI (cache local)
 supabase/.temp/
 supabase/.branches/
+
+# rapports et réponses brutes des scripts de synchronisation
+sync-report.json
+api-samples/

@@ -149,6 +149,7 @@ export type Database = {
           api_league_id: number
           category: Database["public"]["Enums"]["competition_category"]
           country: string | null
+          coverage: Json
           created_at: string
           current_season: number | null
           id: number
@@ -164,6 +165,7 @@ export type Database = {
           api_league_id: number
           category: Database["public"]["Enums"]["competition_category"]
           country?: string | null
+          coverage?: Json
           created_at?: string
           current_season?: number | null
           id?: never
@@ -179,6 +181,7 @@ export type Database = {
           api_league_id?: number
           category?: Database["public"]["Enums"]["competition_category"]
           country?: string | null
+          coverage?: Json
           created_at?: string
           current_season?: number | null
           id?: never

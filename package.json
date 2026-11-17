@@ -12,7 +12,9 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:security": "vitest run --config vitest.security.config.mts",
-    "db:types": "supabase gen types typescript --project-id ${SUPABASE_PROJECT_REF:-pgeytactmugqskdzsxnw} --schema public > types/database.ts"
+    "db:types": "supabase gen types typescript --project-id ${SUPABASE_PROJECT_REF:-pgeytactmugqskdzsxnw} --schema public > types/database.ts",
+    "discover:leagues": "NODE_OPTIONS=--conditions=react-server tsx scripts/discover-leagues.ts",
+    "sync": "NODE_OPTIONS=--conditions=react-server tsx scripts/run-sync.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -44,6 +46,7 @@
     "eslint-config-next": "16.4.6",
     "supabase": "^3.2.0",
     "tailwindcss": "4.3.3",
+    "tsx": "^4.23.15",
     "typescript": "^5",
     "vitest": "^5.1.0"
   },
