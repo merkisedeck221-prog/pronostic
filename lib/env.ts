@@ -27,7 +27,9 @@ export const DEFAULT_TIMEZONE_FALLBACK = "Africa/Porto-Novo";
 const clientSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: requiredUrl(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: required(),
-  NEXT_PUBLIC_APP_URL: requiredUrl(),
+  // Facultative : l'origine des liens envoyés par e-mail est lue sur la requête
+  // (lib/auth/origin.ts) ; cette valeur ne sert que de repli.
+  NEXT_PUBLIC_APP_URL: z.preprocess(blankToUndefined, z.url({ error: "URL valide attendue" }).optional()),
   DEFAULT_TIMEZONE: z.preprocess(blankToUndefined, z.string().default(DEFAULT_TIMEZONE_FALLBACK)),
 });
 
@@ -99,7 +101,33 @@ export function getClientEnv(): ClientEnv {
   return clientEnvCache;
 }
 
-/** Variables secrètes : serveur uniquement. */
+type ServerKey = keyof ServerEnv;
+
+/**
+ * Valide uniquement les variables serveur demandées. Permet à une fonctionnalité
+ * (ex. promotion admin) de fonctionner sans exiger les clés d'une autre (ex. OpenAI).
+ */
+export function parseServerEnvKeys<K extends ServerKey>(
+  source: EnvSource,
+  keys: readonly K[],
+): Pick<ServerEnv, K> {
+  // Casts : le typage générique de .pick() ne suit pas un K générique ; le
+  // résultat est bien validé par le sous-schéma correspondant aux clés demandées.
+  const mask = Object.fromEntries(keys.map((key) => [key, true])) as never;
+  const result = serverSchema.pick(mask).safeParse(source);
+  if (!result.success) throw new Error(formatIssues("serveur", result.error));
+  return result.data as unknown as Pick<ServerEnv, K>;
+}
+
+/** Variables secrètes demandées : serveur uniquement. */
+export function getServerEnvKeys<K extends ServerKey>(keys: readonly K[]): Pick<ServerEnv, K> {
+  if (typeof window !== "undefined") {
+    throw new Error("getServerEnvKeys() ne doit jamais être appelé dans le navigateur.");
+  }
+  return parseServerEnvKeys(process.env, keys);
+}
+
+/** Toutes les variables secrètes : serveur uniquement. */
 export function getServerEnv(): ServerEnv {
   if (typeof window !== "undefined") {
     throw new Error("getServerEnv() ne doit jamais être appelé dans le navigateur.");

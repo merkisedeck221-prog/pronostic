@@ -6,8 +6,10 @@ const nextConfig: NextConfig = {
   env: {
     DEFAULT_TIMEZONE: process.env.DEFAULT_TIMEZONE || "Africa/Porto-Novo",
   },
-  cacheComponents: true,
-  partialPrefetching: true,
+  // Cache Components désactivé (phase 3) : l'application est presque entièrement
+  // authentifiée ; les contrôles d'accès doivent bloquer le rendu serveur pour
+  // renvoyer de vrais 307 / 404, et aucun contenu utilisateur ne doit être mis
+  // en cache côté serveur (règle de sécurité n° 8).
   turbopack: {
     rules: {
       "*.css": {

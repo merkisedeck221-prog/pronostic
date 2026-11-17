@@ -1,9 +1,29 @@
-// Page provisoire : le formulaire arrive en phase 3 (authentification).
-export default function InscriptionPage() {
+import type { Metadata } from "next";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { AuthCard } from "@/components/auth/auth-card";
+import { SignUpForm } from "@/components/auth/sign-up-form";
+import { getCurrentUser } from "@/lib/auth/session";
+
+export const metadata: Metadata = { title: "Inscription · Pronostics IA" };
+
+export default async function SignUpPage() {
+  if (await getCurrentUser()) redirect("/tableau-de-bord");
+
   return (
-    <main className="mx-auto w-full max-w-xl flex-1 px-4 py-16">
-      <h1 className="text-2xl font-semibold tracking-tight">Inscription</h1>
-      <p className="mt-2 text-muted-foreground">Bientôt disponible.</p>
-    </main>
+    <AuthCard
+      title="Créer un compte"
+      description="Inscrivez-vous pour débloquer les pronostics de l'IA."
+      footer={
+        <p className="text-muted-foreground">
+          Déjà inscrit ?{" "}
+          <Link href="/connexion" className="font-medium text-foreground underline underline-offset-4">
+            Se connecter
+          </Link>
+        </p>
+      }
+    >
+      <SignUpForm />
+    </AuthCard>
   );
 }

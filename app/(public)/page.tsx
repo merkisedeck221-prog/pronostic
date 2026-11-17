@@ -1,10 +1,14 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { buttonVariants } from "@/components/ui/button";
+import { getCurrentUser } from "@/lib/auth/session";
 import { cn } from "@/lib/utils";
 
 // Accueil provisoire (section 4). La vraie landing page viendra avec la phase design.
-// La redirection des utilisateurs connectés vers /tableau-de-bord arrive en phase 3.
-export default function HomePage() {
+export default async function HomePage() {
+  // Un utilisateur connecté va directement à son tableau de bord.
+  if (await getCurrentUser()) redirect("/tableau-de-bord");
+
   return (
     <main className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center gap-8 px-4 py-16">
       <div className="space-y-4">
