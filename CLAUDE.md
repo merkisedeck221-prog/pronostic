@@ -59,6 +59,14 @@
 - Tâches dans `lib/sync/` (une fonction par tâche, idempotente, journalisée dans `sync_runs`), exposées par `/api/cron/[job]` (Bearer `CRON_SECRET`, comparaison en temps constant) et planifiées par Supabase Cron (secrets dans Vault). Détails : [docs/sync.md](docs/sync.md).
 - Scripts manuels : `npm run discover:leagues`, `npm run sync -- <tâches>` (tsx, condition `react-server` pour `server-only`).
 
+## Moteur IA (phase 6)
+
+- Pipeline `lib/ai/` : dossier (`match_contexts.summary`, format section 8) → OpenAI (sortie structurée stricte) → `validate.ts` → `save_ai_generation()` (SQL, une transaction, serveur uniquement). Détails : [docs/ai.md](docs/ai.md).
+- Le schéma Zod `lib/ai/schema.ts` est la **source unique** du format de sortie (JSON Schema strict dérivé).
+- Tout changement de comportement du prompt = **nouvelle version** (`lib/ai/prompts/v2.ts`, `PROMPT_VERSION`), jamais une modification silencieuse de v1.
+- Jamais de régénération automatique d'un match qui a des pronostics ; régénération admin refusée dès qu'il existe un déblocage (RG-F5-6).
+- Les tests n'appellent jamais OpenAI : client simulé.
+
 ## Fonctionnalités d'abord, pas de design
 
 Interface sobre avec les composants shadcn/ui par défaut. **Aucun travail de design (couleurs, illustrations, animations, landing page) avant la phase dédiée**, qui se fera à partir des inspirations fournies par le porteur du projet.
@@ -75,6 +83,7 @@ npm run test:coverage  # Vitest avec couverture
 npm run test:security  # tests de sécurité RLS contre Supabase DEV (clé secrète requise, voir docs/database.md)
 npm run discover:leagues   # découverte des compétitions API-Football (~13 appels, écrit docs/leagues.md)
 npm run sync -- sync-fixtures   # lancer une ou plusieurs tâches de synchronisation à la main
+npm run ai:sample          # génération réelle sur 3 matchs (contrôle qualité du prompt)
 
 # Types Supabase (après CHAQUE migration) — projet dev par défaut, sinon SUPABASE_PROJECT_REF
 npm run db:types

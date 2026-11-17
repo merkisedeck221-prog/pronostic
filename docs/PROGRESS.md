@@ -12,7 +12,7 @@ Tenu par Claude Code. Référence : [cahier-des-charges.md](cahier-des-charges.m
 | 3. Authentification | Inscription, connexion, mot de passe, profil, rôles | Un compte se crée avec profil et portefeuille ; les pages privées et admin sont protégées | En validation |
 | 4. Synchronisation | Client API-Football, tâches `sync-*`, Supabase Cron, journal | Les matchs des 14 prochains jours apparaissent en base ; le quota est respecté | En cours (code prêt ; découverte et synchro réelle en attente des secrets) |
 | 5. Catalogue | Compétitions, matchs à venir, fiche match gratuite | Navigation complète jusqu'à la fiche d'un match réel | En validation (en attente de données réelles, phase 4) |
-| 6. Moteur IA | Dossiers, prompt v1, appel OpenAI, validation, stockage | Les matchs à moins de 48 h ont leurs 4 pronostics, cohérents et en français | À faire |
+| 6. Moteur IA | Dossiers, prompt v1, appel OpenAI, validation, stockage | Les matchs à moins de 48 h ont leurs 4 pronostics, cohérents et en français | En cours (code prêt ; génération réelle en attente des secrets et des données) |
 | 7. Crédits et déblocage | Portefeuille, prix, déblocage par marché et par match | Les 5 tests obligatoires de la section 11 passent | À faire |
 | 8. Recharge simulée | Packs, fournisseur `mock`, page de résultat | Une recharge simulée crédite le compte une seule fois | À faire |
 | 9. Résolution et suivi | `settle-predictions`, remboursements, Mes pronostics, Performances | Un match terminé met à jour les statuts ; les taux affichés sont justes | À faire |
@@ -272,3 +272,51 @@ Statuts possibles : À faire · En cours · En validation · Validée.
 ### Prochaine phase
 
 **Phase 6 — Moteur IA** : dossiers de match (`build-contexts`), prompt v1, appel OpenAI, validation Zod, stockage.
+
+---
+
+## Phase 6 — Moteur IA
+
+**Date** : 17 novembre 2026 · **Branche** : `phase-6-ai` (créée depuis `phase-5-catalog`)
+
+### Ce qui a été fait
+
+- **Dossier de match** (`lib/ai/context/`) : `buildMatchContext()` appelle `/predictions` et `/injuries` via le client API-Football (garde-fou budgétaire ; appel sauté si la compétition ne le couvre pas), lit classement, derniers résultats et confrontations en base, enregistre `match_contexts.raw` et `summary` au format de la section 8 (dont `data_quality`). Résumeur pur testé sur un match de championnat et un amical international.
+- **Prompt v1** (`lib/ai/prompts/v1.ts`, `PROMPT_VERSION = 'v1'`) : analyste rigoureux, données du dossier uniquement, rien d'inventé, terrain neutre, amicaux moins fiables, prédiction d'API-Football = simple indice, aucun « sûr / garanti / certain », règles de cohérence entre marchés rappelées.
+- **Schéma de sortie** (`lib/ai/schema.ts`) : Zod = source unique ; JSON Schema strict dérivé (`z.toJSONSchema` + toutes propriétés obligatoires, `additionalProperties: false`, mots-clés non garantis retirés et revérifiés par Zod).
+- **Appel OpenAI** (`lib/ai/generate.ts`, SDK officiel) : `OPENAI_MODEL`, température 0,3 (omise pour les modèles de raisonnement qui la refusent), `response_format` strict, 60 s max, tokens et coût estimé (`lib/ai/pricing.ts`, tarifs configurables).
+- **Validation** (`lib/ai/validate.ts`) : entiers 0-100, 1N2 à 100 ±1 puis normalisé, sélection 1N2 = issue la plus probable, score exact cohérent avec OVER/UNDER, BTTS et 1N2, sélections binaires ≥ 50 %, `high` interdit (amical ou historique mince), mots interdits. Un seul nouvel essai avec les erreurs, sinon statut `failed`.
+- **Enregistrement** : migration `ai_generation` — fonction SQL `save_ai_generation()` (une transaction, `service_role` uniquement) : une ligne par marché **actif** (libellé français clair, `published`, `pending`, version, `prompt_version`), `prediction_analyses`, `ai_generation_runs` ; mode `initial` refusé si des pronostics existent ; mode `regenerate` refusé s'il existe un déblocage ou un pronostic figé, archive dans `prediction_revisions`, version + 1.
+- **Tâches** `build-contexts` et `generate-predictions` (route cron + Supabase Cron toutes les heures, :11 et :31), lots de 5, limite `AI_DAILY_GENERATION_LIMIT`, pas plus de 2 échecs par match et par jour.
+- **Régénération admin** `regeneratePredictions(fixtureId)` (`lib/ai/actions.ts`, `requireAdmin()`, journal d'audit).
+- **Script** `npm run ai:sample` et tâches `build-contexts`, `generate-predictions`, `ai-sample` dans le workflow GitHub.
+- **Tests** : 120 tests unitaires (dont 37 pour le moteur IA : résumeur, validation valide/invalide, JSON Schema strict, libellés, coût, appel OpenAI simulé avec nouvel essai et abandon).
+- `docs/ai.md`.
+
+### Vérifications effectuées
+
+- SQL (transaction annulée) : `save_ai_generation` enregistre 3 marchés et ignore un marché désactivé (noté dans le run), refuse un 2e enregistrement initial, régénère avec archivage (3 révisions) et version 2, refuse la régénération dès qu'un déblocage existe, refuse l'appel par un utilisateur connecté (42501).
+- Supabase Cron : 6 tâches planifiées (dont `build-contexts` et `generate-predictions`).
+
+### Décisions prises
+
+- Enregistrement dans une fonction SQL (vraie transaction, impossible avec des appels REST successifs).
+- Dossier : `home_record` pour l'équipe qui reçoit, `away_record` pour celle qui se déplace ; `is_neutral_venue` déduit (phase finale d'un tournoi de sélections).
+- Validation renforcée au-delà de la section 8 : score exact aussi cohérent avec le 1N2, sélections binaires ≥ 50 %.
+- Délai OpenAI réduit dynamiquement pour rester sous `maxDuration` (60 s) de la route cron ; les lots de 5 sont un maximum par exécution.
+- Pas de modèle OpenAI imposé dans le code ni le workflow : `OPENAI_MODEL` obligatoire.
+
+### Écarts / points bloqués
+
+- **Génération réelle sur 3 matchs (étape 9) non exécutée** : pas de clé OpenAI ni API-Football dans la session, et aucune donnée de match en base tant que la synchronisation (phase 4) n'a pas tourné. Prête via le workflow (tâche `ai-sample`) dès que les secrets sont ajoutés. Le prompt v1 n'a donc pas encore été confronté à de vraies réponses.
+- Réponses `/predictions` et `/injuries` de test construites d'après la documentation (à remplacer par les réponses réelles de l'artefact).
+- Tarifs OpenAI indicatifs (à vérifier).
+
+### Dettes techniques
+
+- `regeneratePredictions` peut dépasser la durée par défaut d'une Server Action sur Vercel : à appeler depuis une page avec `maxDuration` suffisant (phase 10).
+- Pas encore de purge des anciens `match_contexts.raw` (volumineux).
+
+### Prochaine phase
+
+**Phase 7 — Crédits et déblocage** : portefeuille, prix (`get_unlock_price`), `unlock_prediction`, `get_fixture_predictions`, affichage des pronostics sur la fiche match, les 5 tests obligatoires de la section 11.
