@@ -28,7 +28,8 @@
 - **Interface en français ; code, tables, colonnes, noms de fichiers techniques en anglais.** URL des pages en français.
 - **Heures stockées en UTC**, affichées dans le fuseau de l'utilisateur, par défaut **`Africa/Porto-Novo`** (`DEFAULT_TIMEZONE`).
 - 1 crédit = 1 entier. Pas de décimales.
-- Types TypeScript générés depuis Supabase dans `types/`, régénérés après **chaque** migration.
+- Types TypeScript générés depuis Supabase dans `types/database.ts`, régénérés après **chaque** migration. Les clients Supabase sont typés avec `Database`.
+- Toute nouvelle table : RLS activée + politiques explicites + déclencheur `set_updated_at` ; ajouter un test dans `tests/security/` pour toute règle d'accès sensible.
 - Tests : **Vitest** pour la logique métier (prix, résolution, validation IA, paiement), **Playwright** pour le parcours « inscription → recharge → déblocage ».
 
 ## Règles de sécurité NON NÉGOCIABLES (section 11)
@@ -56,13 +57,16 @@ npm run lint           # ESLint
 npm run typecheck      # next typegen + tsc --noEmit
 npm test               # Vitest (une passe)
 npm run test:coverage  # Vitest avec couverture
+npm run test:security  # tests de sécurité RLS contre Supabase DEV (clé secrète requise, voir docs/database.md)
 
-# Génération des types Supabase (après chaque migration)
-npx supabase gen types typescript --project-id <PROJECT_REF> --schema public > types/database.ts
+# Types Supabase (après CHAQUE migration) — projet dev par défaut, sinon SUPABASE_PROJECT_REF
+npm run db:types
 # Application des migrations sur le projet lié
 npx supabase link --project-ref <PROJECT_REF>
-npx supabase db push
+npx supabase db push --include-seed
 ```
+
+Projet Supabase de développement : `pronostics` (réf. `pgeytactmugqskdzsxnw`). Détails du schéma et des politiques : [docs/database.md](docs/database.md).
 
 Dans une session Claude Code avec l'intégration Supabase, on peut aussi utiliser `apply_migration` et `generate_typescript_types` — en gardant **toujours** le fichier SQL correspondant dans `supabase/migrations/`.
 

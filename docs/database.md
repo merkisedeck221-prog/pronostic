@@ -1,0 +1,182 @@
+# Base de données (Supabase)
+
+Référence : [cahier des charges](cahier-des-charges.md), sections 5, 6, 10 et 11.
+Projet de **développement** : `pronostics` (réf. `pgeytactmugqskdzsxnw`, région eu-west-1, PostgreSQL 17).
+
+## Migrations
+
+Fichiers SQL versionnés dans `supabase/migrations/`, appliqués dans l'ordre :
+
+| Fichier | Contenu |
+|---|---|
+| `20261117181542_enums_and_helpers.sql` | 8 types énumérés, déclencheur générique `set_updated_at()` |
+| `20261117181606_accounts.sql` | `profiles`, `admin_audit_log`, `is_admin()`, protection des colonnes sensibles |
+| `20261117181638_football.sql` | `competitions`, `teams`, `fixtures`, `standings`, `match_contexts` |
+| `20261117181710_predictions.sql` | `markets`, `predictions`, `prediction_analyses`, `prediction_revisions`, `ai_generation_runs` |
+| `20261117181754_credits.sql` | `wallets`, `credit_transactions`, `unlocks`, `pricing_rules`, `credit_packs`, `topups` |
+| `20261117181808_settings_and_runs.sql` | `app_settings`, `sync_runs` |
+| `20261117181851_rls_policies.sql` | RLS sur les 20 tables, politiques, retrait des privilèges d'écriture |
+| `20261117181926_handle_new_user.sql` | Déclencheur `on_auth_user_created` → `handle_new_user()` |
+
+Données de départ : `supabase/seed.sql` (4 marchés, 5 règles de prix, 3 packs, 6 paramètres). Idempotent (`ON CONFLICT DO NOTHING`) : relancé, il ne réécrase jamais une valeur modifiée depuis l'admin. Aucune compétition : elles arrivent en phase 4.
+
+### Appliquer les migrations
+
+Avec le CLI Supabase (installé en dépendance de développement ; nécessite `npx supabase login` ou la variable `SUPABASE_ACCESS_TOKEN`) :
+
+```bash
+npx supabase link --project-ref pgeytactmugqskdzsxnw
+npx supabase db push              # applique les migrations manquantes
+npx supabase db push --include-seed   # idem + seed.sql
+```
+
+Sans le CLI : coller le contenu de chaque fichier, dans l'ordre, dans le *SQL Editor* du tableau de bord Supabase, puis `seed.sql`.
+
+Depuis Claude Code (intégration Supabase) : `apply_migration` puis `execute_sql` pour le seed, **en gardant toujours le fichier SQL correspondant dans `supabase/migrations/`**, avec le numéro de version renvoyé par `list_migrations` (les noms des fichiers locaux doivent correspondre aux versions distantes).
+
+### Régénérer les types TypeScript
+
+Après **chaque** migration :
+
+```bash
+npm run db:types   # écrit types/database.ts (projet : $SUPABASE_PROJECT_REF, défaut = dev)
+```
+
+### Règles pour les futures migrations
+
+- Toute nouvelle table : `created_at`, `updated_at`, déclencheur `set_updated_at`, **RLS activée** et politiques explicites.
+- Les privilèges d'écriture de `anon` (et `TRUNCATE` de `authenticated`) sont retirés par défaut sur les nouvelles tables (`alter default privileges`). Pour une table écrite seulement par le serveur, retirer aussi `insert, update, delete` à `authenticated`.
+- Fonctions `SECURITY DEFINER` : toujours `set search_path = ''` et noms qualifiés (`public.…`).
+
+## Schéma
+
+### Types énumérés
+
+| Type | Valeurs |
+|---|---|
+| `user_role` | `user`, `admin` |
+| `competition_category` | `club_league`, `international` |
+| `transaction_type` | `topup`, `unlock`, `bonus`, `refund`, `admin_adjustment` |
+| `topup_status` | `pending`, `succeeded`, `failed`, `cancelled` |
+| `prediction_status` | `published`, `hidden` |
+| `prediction_result` | `pending`, `won`, `lost`, `void` |
+| `confidence_level` | `low`, `medium`, `high` |
+| `run_status` | `running`, `success`, `partial`, `failed` |
+
+### Tables et relations
+
+```
+auth.users ─1:1─ profiles ─1:1─ wallets
+                    │
+                    ├─< credit_transactions >─┐ (unlocks.transaction_id)
+                    ├─< unlocks >── fixtures, markets
+                    ├─< topups >── credit_packs
+                    ├─< admin_audit_log (admin_id)
+                    └─< prediction_revisions (changed_by)
+
+competitions ─< fixtures >── teams (home_team_id, away_team_id)
+     │             ├─1:1─ match_contexts
+     │             ├─1:1─ prediction_analyses
+     │             ├─< predictions >── markets ─< prediction_revisions
+     │             └─< ai_generation_runs
+     ├─< standings >── teams
+     └─< pricing_rules >── markets
+
+app_settings, sync_runs : tables autonomes
+```
+
+| Domaine | Table | Clé | Points clés |
+|---|---|---|---|
+| Comptes | `profiles` | `id` = `auth.users.id` | `role`, `is_banned`, `terms_accepted_at` protégés ; fuseau par défaut `Africa/Porto-Novo` |
+| | `admin_audit_log` | `id` | qui / quoi / avant / après / motif |
+| Football | `competitions` | `id` ; `api_league_id`, `slug` uniques | `is_active` (défaut `false`), `category`, `type` (`league`/`cup`) |
+| | `teams` | `id` ; `api_team_id` unique | `is_national` |
+| | `fixtures` | `id` ; `api_fixture_id` unique | heures UTC ; `ft_home/ft_away` = temps réglementaire ; `original_kickoff_at` pour les reports ; index sur `kickoff_at`, `competition_id`, `status_short` |
+| | `standings` | `id` ; unique (compétition, saison, groupe, équipe) | `form` au format `WDL` |
+| | `match_contexts` | `id` ; `fixture_id` unique | dossier IA (contient la prédiction API-Football) |
+| Pronostics | `markets` | `code` | 4 marchés au départ |
+| | `predictions` | `id` ; unique (`fixture_id`, `market_code`) | probabilités 0-100 (`CHECK`), `probabilities` 1N2 validées, `is_locked`, `version`, `prompt_version` |
+| | `prediction_analyses` | `id` ; `fixture_id` unique | `key_factors` = tableau JSON |
+| | `prediction_revisions` | `id` | historique (RG-F5-6) |
+| | `ai_generation_runs` | `id` | tokens, coût, durée, erreur |
+| Crédits | `wallets` | `user_id` | `CHECK (balance >= 0)` |
+| | `credit_transactions` | `id` | montant signé cohérent avec le type ; `balance_after >= 0` ; index (`user_id`, `created_at`) ; bonus de bienvenue unique par compte |
+| | `unlocks` | `id` ; `UNIQUE NULLS NOT DISTINCT (user_id, fixture_id, market_code)` | `market_code` NULL = match complet |
+| | `pricing_rules` | `id` ; `UNIQUE NULLS NOT DISTINCT (scope, market_code, competition_id)` | `scope` `market` (avec marché) ou `match_bundle` (sans) ; `competition_id` NULL = règle générale |
+| | `credit_packs` | `id` ; `name` unique | prix en XOF |
+| | `topups` | `id` (uuid) ; `provider_ref` unique | statut `pending` → `succeeded` |
+| Pilotage | `app_settings` | `key` | `value` jsonb ; `is_public` |
+| | `sync_runs` | `id` | journal des tâches |
+
+## Sécurité : RLS et privilèges
+
+La RLS est **activée sur les 20 tables**. Sans politique, une table est inaccessible via l'API ; la clé secrète (`service_role`, serveur uniquement) contourne la RLS.
+
+En plus des politiques, les **privilèges** d'écriture sont retirés (défense en profondeur) :
+
+- `anon` : aucun `INSERT`, `UPDATE`, `DELETE`, `TRUNCATE` sur aucune table ;
+- `authenticated` : aucun `TRUNCATE` ; aucune écriture sur `wallets`, `credit_transactions`, `unlocks`, `topups`, `admin_audit_log`, `prediction_revisions`, `ai_generation_runs`, `sync_runs` ; pas d'`INSERT` sur `profiles`.
+
+### Politiques par table
+
+« Admin » = `is_admin()` : profil `role = 'admin'` et non suspendu.
+
+| Table | Lecture | Écriture via l'API |
+|---|---|---|
+| `profiles` | son profil ; admin : tous | `UPDATE` de son profil (sauf `role`, `is_banned`, `terms_accepted_at` : déclencheur) ; admin : `UPDATE`/`DELETE` de tous, sauf son propre rôle et sa propre suspension |
+| `admin_audit_log` | admin | aucune (fonctions serveur) |
+| `competitions` | tous (anonyme compris) : actives ; admin : toutes | admin |
+| `teams` | tous | admin |
+| `fixtures` | tous : publiées **et** compétition active ; admin : toutes | admin |
+| `standings` | tous | admin |
+| `match_contexts` | **admin uniquement** | admin |
+| `markets` | tous : actifs ; admin : tous | admin |
+| `predictions` | **admin uniquement** (utilisateurs : future fonction `get_fixture_predictions`) | admin |
+| `prediction_analyses` | **admin uniquement** | admin |
+| `prediction_revisions` | admin | aucune (serveur) |
+| `ai_generation_runs` | admin | aucune (serveur) |
+| `wallets` | son portefeuille ; admin : tous | **aucune** |
+| `credit_transactions` | ses transactions ; admin : toutes | **aucune** |
+| `unlocks` | ses déblocages ; admin : tous | **aucune** |
+| `topups` | ses recharges ; admin : toutes | **aucune** (serveur) |
+| `pricing_rules` | tous : actives ; admin : toutes | admin |
+| `credit_packs` | tous : actifs ; admin : tous | admin |
+| `app_settings` | tous : `is_public` ; admin : toutes | admin |
+| `sync_runs` | admin | aucune (serveur) |
+
+### Fonctions
+
+| Fonction | Type | Rôle |
+|---|---|---|
+| `is_admin()` | `SECURITY DEFINER`, `STABLE` | utilisée par les politiques ; exécutable par `anon`/`authenticated` (nécessaire à la RLS ; ne renvoie que le statut de l'appelant) |
+| `protect_profile_columns()` | déclencheur | bloque la modification de `role`, `is_banned`, `terms_accepted_at`, `id` |
+| `handle_new_user()` | `SECURITY DEFINER`, déclencheur sur `auth.users` | crée `profiles` + `wallets` ; crédite `welcome_credits` (transaction `bonus`, une seule fois) ; non exécutable via l'API |
+| `set_updated_at()` | déclencheur | `updated_at = now()` |
+| `is_valid_1x2_probabilities(jsonb)` | `IMMUTABLE` | contrainte `CHECK` sur `predictions.probabilities` |
+| `rls_auto_enable()` | fournie par Supabase | déclencheur d'événement qui active la RLS sur les nouvelles tables |
+
+Les fonctions de crédits (`unlock_prediction`, `apply_topup`, `refund_fixture`…) arrivent en phases 7 à 9.
+
+### Désigner le premier administrateur
+
+Le rôle `admin` ne s'attribue jamais depuis l'application par l'utilisateur lui-même (RG-F1-3). Dans le *SQL Editor* de Supabase :
+
+```sql
+update public.profiles
+set role = 'admin'
+where id = (select id from auth.users where email = 'adresse@exemple.com');
+```
+
+(La promotion automatique via `ADMIN_EMAILS` arrive en phase 3.)
+
+## Tests de sécurité
+
+`tests/security/` (Vitest) : deux utilisateurs de test, un match et un pronostic sont créés avec la clé secrète, puis **toutes les vérifications passent par la clé publique**. Les données de test sont supprimées à la fin.
+
+```bash
+npm run test:security
+```
+
+Variables requises (`.env.local`, projet de **dev** uniquement) : `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
+
+En CI (GitHub Actions, `.github/workflows/ci.yml`), les mêmes valeurs viennent des secrets du dépôt : `SUPABASE_DEV_URL`, `SUPABASE_DEV_ANON_KEY`, `SUPABASE_DEV_SERVICE_ROLE_KEY`.

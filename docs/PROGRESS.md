@@ -7,8 +7,8 @@ Tenu par Claude Code. Référence : [cahier-des-charges.md](cahier-des-charges.m
 | Phase | Livrable | Critère de validation | Statut |
 |---|---|---|---|
 | 0. Préparation (porteur du projet) | Comptes et clés : GitHub, Vercel, Supabase, API-Football, OpenAI | Toutes les clés sont réunies et Claude Code accède à GitHub, Vercel et Supabase | En cours |
-| 1. Initialisation | Projet Next.js, `CLAUDE.md`, dépôt GitHub, déploiement Vercel | L'URL Vercel affiche l'accueil provisoire | En validation (déployée : https://pronostic-brown.vercel.app) |
-| 2. Base de données | Les 20 tables, la RLS, les fonctions SQL, les données de départ | Les migrations passent ; les tests de sécurité SQL sont au vert | À faire |
+| 1. Initialisation | Projet Next.js, `CLAUDE.md`, dépôt GitHub, déploiement Vercel | L'URL Vercel affiche l'accueil provisoire | Validée |
+| 2. Base de données | Les 20 tables, la RLS, les fonctions SQL, les données de départ | Les migrations passent ; les tests de sécurité SQL sont au vert | En validation |
 | 3. Authentification | Inscription, connexion, mot de passe, profil, rôles | Un compte se crée avec profil et portefeuille ; les pages privées et admin sont protégées | À faire |
 | 4. Synchronisation | Client API-Football, tâches `sync-*`, Supabase Cron, journal | Les matchs des 14 prochains jours apparaissent en base ; le quota est respecté | À faire |
 | 5. Catalogue | Compétitions, matchs à venir, fiche match gratuite | Navigation complète jusqu'à la fiche d'un match réel | À faire |
@@ -78,3 +78,56 @@ Statuts possibles : À faire · En cours · En validation · Validée.
 ### Prochaine phase
 
 **Phase 2 — Base de données** : les 20 tables, la RLS, les fonctions SQL `SECURITY DEFINER`, `seed.sql`, et les tests de sécurité SQL. Prérequis : projet Supabase « dev » accessible.
+
+---
+
+## Phase 2 — Base de données
+
+**Date** : 17 novembre 2026 · **Branche** : `phase-2-database` · **Projet Supabase** : `pronostics` (dev, réf. `pgeytactmugqskdzsxnw`)
+
+### Ce qui a été fait
+
+- 8 migrations SQL commentées dans `supabase/migrations/`, appliquées au projet de dev (noms de fichiers alignés sur les versions distantes) :
+  types énumérés, 20 tables en 5 domaines, clés étrangères, `NOT NULL`, valeurs par défaut, `created_at`/`updated_at` + déclencheur générique, index de recherche, contraintes d'intégrité.
+- Contraintes clés : `wallets.balance >= 0`, `unlocks UNIQUE NULLS NOT DISTINCT (user_id, fixture_id, market_code)`, `topups.provider_ref UNIQUE`, `predictions UNIQUE (fixture_id, market_code)`, probabilités 0-100 (y compris le JSON 1N2), signe du montant cohérent avec le type de transaction, bonus de bienvenue unique par compte.
+- `is_admin()` (`SECURITY DEFINER`, `STABLE`) ; déclencheur de protection de `role`, `is_banned`, `terms_accepted_at`.
+- RLS activée sur les 20 tables avec les politiques de la section 10 ; privilèges d'écriture retirés à `anon` et, sur les tables sensibles, à `authenticated` (défense en profondeur).
+- Déclencheur `handle_new_user` : profil (nom, pays, téléphone, date CGU depuis les métadonnées), portefeuille à 0, bonus de bienvenue si `welcome_credits > 0`.
+- `supabase/seed.sql` idempotent, appliqué : 4 marchés, 5 règles de prix, 3 packs, 6 paramètres.
+- `types/database.ts` généré ; script `npm run db:types` (CLI Supabase en dépendance de dev) ; clients Supabase typés.
+- Tests d'intégration `tests/security/rls.test.ts` (22 tests) + script `npm run test:security`.
+- Workflow GitHub Actions `.github/workflows/ci.yml` : lint, typecheck, tests, build, puis tests de sécurité.
+- `docs/database.md` : schéma, relations, politiques par table, commandes.
+
+### Vérifications effectuées
+
+- Simulation SQL (transaction annulée) avec deux utilisateurs, un anonyme et un admin : isolation des profils, portefeuilles et transactions ; écritures directes refusées (`42501`) ; auto-promotion admin refusée ; 0 pronostic visible pour un utilisateur ou un anonyme alors qu'une ligne existe ; lecture publique des marchés, packs, tarifs et paramètres ; un admin ne peut ni se rétrograder lui-même ni modifier un solde directement.
+- Bonus de bienvenue testé avec `welcome_credits = 5` (transaction annulée) : solde 5, transaction `bonus` avec `balance_after = 5`.
+- Seed relancé : aucun doublon, valeurs existantes conservées.
+- Conseiller de sécurité Supabase : seule alerte, `is_admin()` exécutable par `anon`/`authenticated` (voulu, nécessaire à la RLS) et `rls_auto_enable()` (fonction fournie par Supabase).
+
+### Décisions prises
+
+- Identifiants `bigint` (identity) pour les données, `uuid` pour les utilisateurs et les recharges.
+- `fixtures.is_published` vaut `true` par défaut (la synchronisation publie, l'admin peut masquer) ; `competitions.is_active` vaut `false` par défaut.
+- `run_status` comprend aussi `running` et `partial` (lot terminé avec des erreurs partielles).
+- `app_settings.is_public` ajouté pour distinguer les clés lisibles par tous.
+- `terms_accepted_at` protégé comme `role` et `is_banned` (preuve d'acceptation des CGU).
+- Un admin ne peut pas modifier son propre rôle ni sa propre suspension.
+- Seed en `ON CONFLICT DO NOTHING` : il ne réécrase jamais une valeur modifiée depuis l'admin.
+
+### Écarts avec le cahier des charges
+
+- Les fonctions SQL de crédits et de pronostics de la section 10 (`get_unlock_price`, `unlock_prediction`, `get_fixture_predictions`, `apply_topup`, `admin_adjust_balance`, `refund_fixture`, `settle_fixture`) ne sont **pas** dans cette phase : le prompt de phase 2 ne demandait que `is_admin()` et `handle_new_user()`. Elles viendront en phases 7 à 9.
+- `terms_accepted_at` est nullable en base : l'obligation (RG-F1-1) sera imposée par le formulaire d'inscription en phase 3 (un compte créé depuis le tableau de bord Supabase n'a pas de date).
+- Aucune politique ne bloque encore un compte suspendu (RG-F1-2) côté données : à traiter en phase 3 (pages) et 7 (fonctions de déblocage).
+
+### Dettes techniques / points ouverts
+
+- **Tests de sécurité non exécutés depuis Claude Code** : la clé secrète Supabase ne peut pas être transmise à la session sans risque. Ils s'exécutent dans GitHub Actions dès que les 3 secrets du dépôt sont ajoutés (voir résumé de phase). Les mêmes règles ont été vérifiées en SQL.
+- Protection Vercel (SSO) à régler avant la phase 4 (cron).
+- `npm audit` : vulnérabilités dans des dépendances de développement (ESLint, CLI Supabase).
+
+### Prochaine phase
+
+**Phase 3 — Authentification** : inscription (avec date CGU obligatoire), connexion, mot de passe oublié, profil, promotion `ADMIN_EMAILS`, `proxy.ts` (session), protection des pages privées et admin, blocage des comptes suspendus.
