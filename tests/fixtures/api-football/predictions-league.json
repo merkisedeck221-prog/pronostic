@@ -1,0 +1,70 @@
+{
+  "get": "predictions",
+  "parameters": { "fixture": "1300002" },
+  "errors": [],
+  "results": 1,
+  "paging": { "current": 1, "total": 1 },
+  "response": [
+    {
+      "predictions": {
+        "winner": { "id": 33, "name": "Manchester United", "comment": "Win or draw" },
+        "win_or_draw": true,
+        "under_over": "-3.5",
+        "goals": { "home": "-2.5", "away": "-1.5" },
+        "advice": "Double chance : Manchester United or draw",
+        "percent": { "home": "45%", "draw": "30%", "away": "25%" }
+      },
+      "league": { "id": 39, "name": "Premier League", "country": "England", "season": 2026 },
+      "teams": {
+        "home": {
+          "id": 33, "name": "Manchester United", "logo": "https://media.api-sports.io/football/teams/33.png",
+          "last_5": { "form": "60%", "att": "70%", "def": "55%", "goals": { "for": { "total": 8, "average": 1.6 }, "against": { "total": 5, "average": 1 } } },
+          "league": {
+            "form": "WDLWWDWLWW",
+            "fixtures": { "played": { "home": 6, "away": 6, "total": 12 }, "wins": { "home": 4, "away": 2, "total": 6 }, "draws": { "home": 1, "away": 2, "total": 3 }, "loses": { "home": 1, "away": 2, "total": 3 } },
+            "goals": {
+              "for": { "total": { "home": 12, "away": 8, "total": 20 }, "average": { "home": "2.0", "away": "1.3", "total": "1.7" } },
+              "against": { "total": { "home": 5, "away": 9, "total": 14 }, "average": { "home": "0.8", "away": "1.5", "total": "1.2" } }
+            }
+          }
+        },
+        "away": {
+          "id": 40, "name": "Liverpool", "logo": "https://media.api-sports.io/football/teams/40.png",
+          "last_5": { "form": "80%", "att": "85%", "def": "60%", "goals": { "for": { "total": 11, "average": 2.2 }, "against": { "total": 4, "average": 0.8 } } },
+          "league": {
+            "form": "WWWDWWLWDW",
+            "fixtures": { "played": { "home": 6, "away": 6, "total": 12 }, "wins": { "home": 5, "away": 3, "total": 8 }, "draws": { "home": 1, "away": 2, "total": 3 }, "loses": { "home": 0, "away": 1, "total": 1 } },
+            "goals": {
+              "for": { "total": { "home": 15, "away": 11, "total": 26 }, "average": { "home": "2.5", "away": "1.8", "total": "2.2" } },
+              "against": { "total": { "home": 4, "away": 6, "total": 10 }, "average": { "home": "0.7", "away": "1.0", "total": "0.8" } }
+            }
+          }
+        }
+      },
+      "comparison": { "form": { "home": "40%", "away": "60%" }, "total": { "home": "44.5%", "away": "55.5%" } },
+      "h2h": [
+        {
+          "fixture": { "id": 1100001, "date": "2026-04-12T15:30:00+00:00", "status": { "long": "Match Finished", "short": "FT", "elapsed": 90 } },
+          "league": { "id": 39, "season": 2025, "round": "Regular Season - 32" },
+          "teams": { "home": { "id": 40, "name": "Liverpool" }, "away": { "id": 33, "name": "Manchester United" } },
+          "goals": { "home": 1, "away": 1 },
+          "score": { "halftime": { "home": 0, "away": 1 }, "fulltime": { "home": 1, "away": 1 } }
+        },
+        {
+          "fixture": { "id": 1000002, "date": "2025-12-14T16:30:00+00:00", "status": { "long": "Match Finished", "short": "FT", "elapsed": 90 } },
+          "league": { "id": 39, "season": 2025, "round": "Regular Season - 16" },
+          "teams": { "home": { "id": 33, "name": "Manchester United" }, "away": { "id": 40, "name": "Liverpool" } },
+          "goals": { "home": 0, "away": 2 },
+          "score": { "halftime": { "home": 0, "away": 1 }, "fulltime": { "home": 0, "away": 2 } }
+        },
+        {
+          "fixture": { "id": 900003, "date": "2025-03-30T15:30:00+00:00", "status": { "long": "Match Finished", "short": "FT", "elapsed": 90 } },
+          "league": { "id": 39, "season": 2024, "round": "Regular Season - 30" },
+          "teams": { "home": { "id": 40, "name": "Liverpool" }, "away": { "id": 33, "name": "Manchester United" } },
+          "goals": { "home": 3, "away": 2 },
+          "score": { "halftime": { "home": 1, "away": 1 }, "fulltime": { "home": 3, "away": 2 } }
+        }
+      ]
+    }
+  ]
+}

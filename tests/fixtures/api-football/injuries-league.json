@@ -1,0 +1,15 @@
+{
+  "get": "injuries",
+  "parameters": { "fixture": "1300002" },
+  "errors": [],
+  "results": 3,
+  "paging": { "current": 1, "total": 1 },
+  "response": [
+    { "player": { "id": 1001, "name": "L. Shaw", "photo": "", "type": "Missing Fixture", "reason": "Muscle Injury" },
+      "team": { "id": 33, "name": "Manchester United", "logo": "" }, "fixture": { "id": 1300002, "timezone": "UTC", "date": "2026-11-22T17:30:00+00:00" }, "league": { "id": 39, "season": 2026 } },
+    { "player": { "id": 1002, "name": "M. Mount", "photo": "", "type": "Questionable", "reason": "Knock" },
+      "team": { "id": 33, "name": "Manchester United", "logo": "" }, "fixture": { "id": 1300002, "timezone": "UTC", "date": "2026-11-22T17:30:00+00:00" }, "league": { "id": 39, "season": 2026 } },
+    { "player": { "id": 2001, "name": "A. Becker", "photo": "", "type": "Missing Fixture", "reason": "Suspended" },
+      "team": { "id": 40, "name": "Liverpool", "logo": "" }, "fixture": { "id": 1300002, "timezone": "UTC", "date": "2026-11-22T17:30:00+00:00" }, "league": { "id": 39, "season": 2026 } }
+  ]
+}
