@@ -1,0 +1,101 @@
+name: API-Football (lancement manuel)
+
+# Découverte des compétitions et synchronisation, lancées À LA MAIN :
+#  - depuis main : onglet Actions > « API-Football (lancement manuel) » > Run workflow ;
+#  - depuis une branche de phase : en modifiant .github/api-football-request
+#    (une ligne : le nom de la tâche), car GitHub n'affiche le bouton
+#    « Run workflow » que pour les workflows présents sur la branche par défaut.
+# Chaque appel compte dans le quota quotidien d'API-Football (100 en gratuit).
+on:
+  push:
+    branches: ["phase-*"]
+    paths: [".github/api-football-request"]
+  workflow_dispatch:
+    inputs:
+      task:
+        description: "Tâche à lancer"
+        required: true
+        type: choice
+        options:
+          - discover-leagues
+          - sync-initial
+          - sync-competitions
+          - sync-fixtures
+          - sync-standings
+          - sync-results
+
+concurrency:
+  group: api-football
+  cancel-in-progress: false
+
+jobs:
+  run:
+    name: API-Football
+    runs-on: ubuntu-latest
+    env:
+      # Secrets du dépôt (Settings > Secrets and variables > Actions) — projet Supabase de DEV.
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_DEV_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_DEV_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_DEV_SERVICE_ROLE_KEY }}
+      API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
+      API_FOOTBALL_DAILY_BUDGET: ${{ vars.API_FOOTBALL_DAILY_BUDGET || '90' }}
+      SAVE_API_SAMPLES: api-samples
+    steps:
+      - uses: actions/checkout@v4
+      - name: Déterminer la tâche
+        id: task
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then task="${{ inputs.task }}"; else task="$(head -n1 .github/api-football-request | tr -d '[:space:]')"; fi
+          case "$task" in
+            none) echo "Aucune tâche demandée." ;;
+            discover-leagues|sync-initial|sync-competitions|sync-fixtures|sync-standings|sync-results) ;;
+            *) echo "::error::Tâche inconnue : '$task'"; exit 1 ;;
+          esac
+          echo "name=$task" >> "$GITHUB_OUTPUT"
+          echo "Tâche : $task"
+      - name: Vérifier la présence des secrets
+        if: steps.task.outputs.name != 'none'
+        run: |
+          missing=0
+          for name in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY API_FOOTBALL_KEY; do
+            if [ -z "${!name}" ]; then echo "::error::Secret manquant pour $name (voir docs/sync.md)"; missing=1; fi
+          done
+          exit $missing
+      - uses: actions/setup-node@v4
+        if: steps.task.outputs.name != 'none'
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+        if: steps.task.outputs.name != 'none'
+
+      - name: Découverte des compétitions
+        if: steps.task.outputs.name == 'discover-leagues'
+        run: npm run discover:leagues
+
+      - name: Synchronisation initiale (competitions, fixtures, standings)
+        if: steps.task.outputs.name == 'sync-initial'
+        run: npm run sync -- sync-competitions sync-fixtures sync-standings
+
+      - name: Synchronisation (tâche unique)
+        if: startsWith(steps.task.outputs.name, 'sync-') && steps.task.outputs.name != 'sync-initial'
+        run: npm run sync -- ${{ steps.task.outputs.name }}
+
+      - name: Résultat dans le résumé de l'exécution
+        if: always()
+        run: |
+          if [ -f docs/leagues.md ] && [ "${{ steps.task.outputs.name }}" = "discover-leagues" ]; then cat docs/leagues.md >> "$GITHUB_STEP_SUMMARY"; fi
+          if [ -f sync-report.json ]; then { echo '```json'; cat sync-report.json; echo '```'; } >> "$GITHUB_STEP_SUMMARY"; fi
+
+      # Réponses brutes (sans la clé) et rapports, pour constituer les réponses de test.
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.task.outputs.name != 'none'
+        with:
+          name: api-football-${{ steps.task.outputs.name }}
+          path: |
+            docs/leagues.md
+            docs/leagues.json
+            sync-report.json
+            api-samples/
+          if-no-files-found: ignore
+          retention-days: 14
