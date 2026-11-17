@@ -11,7 +11,7 @@ Tenu par Claude Code. Référence : [cahier-des-charges.md](cahier-des-charges.m
 | 2. Base de données | Les 20 tables, la RLS, les fonctions SQL, les données de départ | Les migrations passent ; les tests de sécurité SQL sont au vert | En validation |
 | 3. Authentification | Inscription, connexion, mot de passe, profil, rôles | Un compte se crée avec profil et portefeuille ; les pages privées et admin sont protégées | En validation |
 | 4. Synchronisation | Client API-Football, tâches `sync-*`, Supabase Cron, journal | Les matchs des 14 prochains jours apparaissent en base ; le quota est respecté | En cours (code prêt ; découverte et synchro réelle en attente des secrets) |
-| 5. Catalogue | Compétitions, matchs à venir, fiche match gratuite | Navigation complète jusqu'à la fiche d'un match réel | À faire |
+| 5. Catalogue | Compétitions, matchs à venir, fiche match gratuite | Navigation complète jusqu'à la fiche d'un match réel | En validation (en attente de données réelles, phase 4) |
 | 6. Moteur IA | Dossiers, prompt v1, appel OpenAI, validation, stockage | Les matchs à moins de 48 h ont leurs 4 pronostics, cohérents et en français | À faire |
 | 7. Crédits et déblocage | Portefeuille, prix, déblocage par marché et par match | Les 5 tests obligatoires de la section 11 passent | À faire |
 | 8. Recharge simulée | Packs, fournisseur `mock`, page de résultat | Une recharge simulée crédite le compte une seule fois | À faire |
@@ -232,3 +232,43 @@ Statuts possibles : À faire · En cours · En validation · Validée.
 ### Prochaine phase
 
 **Phase 5 — Catalogue** : compétitions, matchs à venir, fiche match gratuite.
+
+---
+
+## Phase 5 — Catalogue
+
+**Date** : 17 novembre 2026 · **Branche** : `phase-5-catalog` (créée depuis `phase-4-sync`)
+
+### Ce qui a été fait
+
+- `lib/utils/dates.ts` : fuseau de l'utilisateur (`profiles.timezone`, sinon `DEFAULT_TIMEZONE`, sinon Africa/Porto-Novo), formats français (« sam. 22 nov. à 16:00 »), « Aujourd'hui / Demain / Hier » sur le calendrier de l'utilisateur, périodes de `/matchs`, regroupement par jour.
+- `lib/utils/match-status.ts` : libellés français des statuts API-Football et catégorie (à venir, en cours, terminé, annulé ou reporté).
+- Migration `catalog_functions` : `is_fixture_visible`, `fixtures_with_prediction_flag` (booléen seulement), `get_fixture_public_context` (forme, classement, confrontations ; dossier lu par liste blanche), index (équipe, date) pour la forme et les confrontations.
+- `lib/catalog/` : requêtes en lecture seule avec le client utilisateur (RLS), jointures PostgREST (compétition + équipes en une requête), un seul appel pour toutes les pastilles, limites (60 matchs à venir, 10 résultats, 300 matchs par période, 500 pastilles).
+- Pages : `/competitions` (Championnats / International, nombre de matchs sur 7 jours), `/competitions/[slug]` (onglets Matchs à venir groupés par date, Classement si disponible, 10 derniers Résultats), `/matchs` (`?periode=aujourdhui|demain|7-jours`, `?competition=<slug>`, groupé par compétition puis par heure, pastille « Pronostic disponible »), `/matchs/[id]` (en-tête, score final et mi-temps après le match, Forme V/N/D, Classement, Confrontations directes, emplacement « Pronostics IA », mention légale). Squelettes de chargement, états vides explicites, métadonnées françaises.
+- **404** : match non publié, de compétition inactive, inexistant ou identifiant invalide ; compétition inactive ou inexistante.
+- Tests : 83 tests unitaires (dont dates avec changements de jour et heure d'été, statuts) ; intégration `tests/security/catalog.test.ts` (aucune clé de pronostic dans le contexte public, `null` pour un match invisible, pastille booléenne, pages 200/404).
+
+### Vérifications effectuées
+
+- SQL (transaction annulée) : forme calculée correctement (V/N/D, prolongations prises en compte, matchs non terminés ignorés), confrontations complétées par le dossier sans champ superflu, **aucune fuite** (`provider_prediction`, `advice`, sélection, probabilités, explication), `null` pour un match caché ou d'une compétition inactive, pastille limitée aux matchs visibles.
+- Expérience Next.js : `notFound()` dans une **mise en page** donne un vrai **404** même avec `loading.tsx`, alors que dans la page (sous le squelette) il donne **200**. D'où les mises en page `competitions/[slug]/layout.tsx` et `matchs/[id]/layout.tsx` qui vérifient l'existence avant le squelette (requête mise en cache pour la requête en cours).
+- Sans session : toutes les pages du catalogue redirigent vers `/connexion?next=…` (307).
+
+### Décisions prises
+
+- Les fonctions du catalogue sont `SECURITY DEFINER` et exécutables par `anon` (alerte Supabase acceptée, données déjà publiques + booléen).
+- Forme : matchs terminés en base d'abord (toutes compétitions), sinon la forme du classement ou du dossier (`last5`).
+- Logos API-Football affichés via `next/image` **non optimisé** (pas de consommation du quota d'images Vercel Hobby).
+- Filtre de compétition par formulaire GET (fonctionne sans JavaScript).
+- Les anciens index simples `fixtures_home_team_id_idx` / `fixtures_away_team_id_idx` sont conservés (suppression refusée lors de l'application).
+
+### Écarts / limites
+
+- **Aucune donnée réelle en base** tant que la découverte et la synchronisation (phase 4) n'ont pas tourné : les pages affichent leurs états vides. La navigation jusqu'à la fiche d'un match réel (critère de validation) reste à vérifier après la synchronisation.
+- Tests d'intégration exécutés en CI seulement (secrets GitHub requis).
+- Le score affiché après un match est le score final (prolongations comprises) ; le statut précise « après prolongations » ou « aux tirs au but ». Le score des tirs au but n'est pas stocké.
+
+### Prochaine phase
+
+**Phase 6 — Moteur IA** : dossiers de match (`build-contexts`), prompt v1, appel OpenAI, validation Zod, stockage.

@@ -17,6 +17,9 @@ Fichiers SQL versionnés dans `supabase/migrations/`, appliqués dans l'ordre :
 | `20261117181808_settings_and_runs.sql` | `app_settings`, `sync_runs` |
 | `20261117181851_rls_policies.sql` | RLS sur les 20 tables, politiques, retrait des privilèges d'écriture |
 | `20261117181926_handle_new_user.sql` | Déclencheur `on_auth_user_created` → `handle_new_user()` |
+| `20261117210641_competitions_coverage.sql` | Colonne `competitions.coverage` (phase 4) |
+| `20261117210710_cron_sync_jobs.sql` | pg_cron + pg_net, `private.invoke_sync_job()`, 4 tâches planifiées (phase 4) |
+| `20261117213653_catalog_functions.sql` | Fonctions du catalogue et index équipe + date (phase 5) |
 
 Données de départ : `supabase/seed.sql` (4 marchés, 5 règles de prix, 3 packs, 6 paramètres). Idempotent (`ON CONFLICT DO NOTHING`) : relancé, il ne réécrase jamais une valeur modifiée depuis l'admin. Aucune compétition : elles arrivent en phase 4.
 
@@ -154,6 +157,11 @@ En plus des politiques, les **privilèges** d'écriture sont retirés (défense 
 | `set_updated_at()` | déclencheur | `updated_at = now()` |
 | `is_valid_1x2_probabilities(jsonb)` | `IMMUTABLE` | contrainte `CHECK` sur `predictions.probabilities` |
 | `rls_auto_enable()` | fournie par Supabase | déclencheur d'événement qui active la RLS sur les nouvelles tables |
+| `is_fixture_visible(fixture_id)` | `SECURITY DEFINER`, `STABLE` | vrai si le match est publié et sa compétition active (RG-F2-1) |
+| `fixtures_with_prediction_flag(fixture_ids[])` | `SECURITY DEFINER`, `STABLE` | pastille « Pronostic disponible » : **un booléen** par match visible (500 au plus), aucun contenu |
+| `get_fixture_public_context(fixture_id)` | `SECURITY DEFINER`, `STABLE` | partie gratuite d'une fiche match : forme (5 matchs), classement des deux équipes, 5 confrontations directes ; `match_contexts.summary` lu par **liste blanche** (`last5`, `date/home/away/score`), jamais `provider_prediction` ; `NULL` si le match n'est pas visible |
+
+Les trois fonctions du catalogue sont exécutables par `anon` (alerte du conseiller Supabase acceptée) : elles ne renvoient que des données déjà publiques par la RLS (matchs publiés, classements, équipes) et un booléen ; elles serviront aussi à la page publique Performances.
 
 Les fonctions de crédits (`unlock_prediction`, `apply_topup`, `refund_fixture`…) arrivent en phases 7 à 9.
 
