@@ -50,6 +50,7 @@ Statuts possibles : À faire · En cours · En validation · Validée.
 - `lib/utils.ts` (créé par shadcn) déplacé en `lib/utils/index.ts` pour respecter le dossier `lib/utils/` ; l'import `@/lib/utils` reste valable.
 - `typecheck` lance `next typegen` avant `tsc` pour que les types de routes de Next 16 soient toujours à jour.
 - Next 16 active **Cache Components** par défaut : conservé. À surveiller dès qu'on lira des données utilisateur (règle « jamais de cache serveur d'un contenu débloqué »).
+- Environnement Claude Code : création d'un environnement cloud « pronostic » autorisant `ui.shadcn.com` (registre shadcn bloqué par défaut). Il faudra y ajouter `v3.football.api-sports.io` et `api.openai.com` pour tester les phases 4 et 6 depuis la session.
 - Dépôt GitHub : le dépôt privé `merkisedeck221-prog/pronostic` existait déjà (vide) : il est réutilisé au lieu d'en créer un avec `gh`.
 
 ### Écarts avec le cahier des charges / le prompt
@@ -57,6 +58,10 @@ Statuts possibles : À faire · En cours · En validation · Validée.
 - Composant **`form`** : dans le style shadcn actuel (Base UI), `form` n'existe plus et est remplacé par **`field`** (`Field`, `FieldLabel`, `FieldError`…), compatible avec n'importe quelle librairie de formulaire. `field` a été installé à la place.
 - La redirection d'un utilisateur connecté de `/` vers `/tableau-de-bord` sera faite en phase 3 (nécessite l'authentification).
 - `.env.local` contient deux valeurs par défaut non sensibles (`DEFAULT_TIMEZONE`, `PAYMENT_PROVIDER=mock`) reprises de `.env.example` ; tout le reste est vide.
+
+### Blocage en cours
+
+- **Vercel** : la création du projet depuis Claude Code a été refusée (403, droits insuffisants de l'intégration Vercel sur l'équipe `merkisedeck`). Le porteur du projet doit importer le dépôt lui-même dans Vercel (*Add New → Project → Import* `merkisedeck221-prog/pronostic`, framework Next.js, réglages par défaut). Le build ne nécessite aucune variable pour l'instant. Le critère de validation de la phase 1 (« l'URL Vercel affiche l'accueil provisoire ») sera vérifié dès que ce sera fait.
 
 ### Dettes techniques
 
