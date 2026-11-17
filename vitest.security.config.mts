@@ -7,6 +7,7 @@ import { defineConfig } from "vitest/config";
  * projet Supabase de DÉVELOPPEMENT, jamais contre la production.
  * Variables lues dans .env.local (ou dans l'environnement, ex. CI) :
  * NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY.
+ * Prérequis : `npm run build` avec ces mêmes variables (les tests HTTP utilisent `next start`).
  */
 export default defineConfig(({ mode }) => ({
   resolve: {
@@ -17,6 +18,8 @@ export default defineConfig(({ mode }) => ({
   test: {
     environment: "node",
     include: ["tests/security/**/*.test.ts"],
+    // Démarre l'application compilée (next start) pour les tests HTTP.
+    globalSetup: ["tests/security/global-setup.ts"],
     env: loadEnv(mode, process.cwd(), ""),
     testTimeout: 30_000,
     hookTimeout: 60_000,

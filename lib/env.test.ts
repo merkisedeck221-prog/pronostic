@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseClientEnv, parseServerEnv } from "./env";
+import { parseClientEnv, parseServerEnv, parseServerEnvKeys } from "./env";
 
 const validServer = {
   SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
@@ -17,6 +17,11 @@ describe("parseClientEnv", () => {
       NEXT_PUBLIC_APP_URL: "http://localhost:3000",
     });
     expect(env.DEFAULT_TIMEZONE).toBe("Africa/Porto-Novo");
+  });
+
+  it("accepte l'absence de NEXT_PUBLIC_APP_URL (facultative)", () => {
+    const env = parseClientEnv({ NEXT_PUBLIC_SUPABASE_URL: "https://abc.supabase.co", NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon" });
+    expect(env.NEXT_PUBLIC_APP_URL).toBeUndefined();
   });
 
   it("traite une chaîne vide comme absente et donne un message clair", () => {
@@ -58,5 +63,16 @@ describe("parseServerEnv", () => {
 
   it("refuse un CRON_SECRET trop court", () => {
     expect(() => parseServerEnv({ ...validServer, CRON_SECRET: "court" })).toThrow(/CRON_SECRET/);
+  });
+});
+
+describe("parseServerEnvKeys", () => {
+  it("ne valide que les clés demandées", () => {
+    const env = parseServerEnvKeys({ SUPABASE_SERVICE_ROLE_KEY: "k" }, ["SUPABASE_SERVICE_ROLE_KEY", "ADMIN_EMAILS"]);
+    expect(env).toEqual({ SUPABASE_SERVICE_ROLE_KEY: "k", ADMIN_EMAILS: [] });
+  });
+
+  it("signale une clé demandée manquante", () => {
+    expect(() => parseServerEnvKeys({}, ["SUPABASE_SERVICE_ROLE_KEY"])).toThrow(/SUPABASE_SERVICE_ROLE_KEY/);
   });
 });

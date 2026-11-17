@@ -37,6 +37,8 @@ jobs:
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_DEV_URL }}
       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_DEV_ANON_KEY }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_DEV_SERVICE_ROLE_KEY }}
+      NEXT_PUBLIC_APP_URL: http://localhost:3210
+      TEST_APP_PORT: "3210"
     steps:
       - name: Vérifier la présence des secrets
         run: |
@@ -51,4 +53,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # Build avec les variables du projet DEV : les tests HTTP démarrent `next start`.
+      - run: npm run build
       - run: npm run test:security
