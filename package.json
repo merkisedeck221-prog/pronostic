@@ -10,7 +10,9 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:security": "vitest run --config vitest.security.config.mts",
+    "db:types": "supabase gen types typescript --project-id ${SUPABASE_PROJECT_REF:-pgeytactmugqskdzsxnw} --schema public > types/database.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
@@ -40,6 +42,7 @@
     "@vitest/coverage-v8": "^5.1.0",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
+    "supabase": "^3.2.0",
     "tailwindcss": "4.3.3",
     "typescript": "^5",
     "vitest": "^5.1.0"
