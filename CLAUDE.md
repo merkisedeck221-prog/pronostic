@@ -44,6 +44,14 @@
 8. Jamais de mise en cache serveur d'un contenu débloqué qui pourrait être servi à un autre utilisateur.
 9. Aucun secret commité : `.env*` est ignoré par Git (sauf `.env.example`, sans valeurs).
 
+## Authentification (phase 3)
+
+- `proxy.ts` (ancien middleware) rafraîchit la session Supabase à chaque requête et pose l'en-tête `x-pathname` ; il ne protège rien lui-même.
+- Protection CÔTÉ SERVEUR dans `lib/auth/session.ts` : `getCurrentUser()`, `requireUser()` (redirection `/connexion?next=…`, `BannedAccountError` si suspendu), `requireAdmin()` (`is_admin()` en SQL, sinon `notFound()`). Toute page privée, Server Action ou route handler doit appeler l'un d'eux, même si la mise en page le fait déjà.
+- Formulaires : schéma Zod partagé (`lib/auth/schemas.ts`) validé dans le navigateur (`useZodForm`) **et** dans la Server Action (`validateForm`). Messages en français.
+- `next` après connexion : toujours passer par `safeNextPath()` (pas de redirection ouverte).
+- Cache Components est **désactivé** : les contrôles d'accès doivent bloquer le rendu (vrais 307/404) et aucun contenu utilisateur n'est mis en cache côté serveur.
+
 ## Fonctionnalités d'abord, pas de design
 
 Interface sobre avec les composants shadcn/ui par défaut. **Aucun travail de design (couleurs, illustrations, animations, landing page) avant la phase dédiée**, qui se fera à partir des inspirations fournies par le porteur du projet.

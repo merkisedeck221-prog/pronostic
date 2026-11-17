@@ -9,7 +9,7 @@ Tenu par Claude Code. Référence : [cahier-des-charges.md](cahier-des-charges.m
 | 0. Préparation (porteur du projet) | Comptes et clés : GitHub, Vercel, Supabase, API-Football, OpenAI | Toutes les clés sont réunies et Claude Code accède à GitHub, Vercel et Supabase | En cours |
 | 1. Initialisation | Projet Next.js, `CLAUDE.md`, dépôt GitHub, déploiement Vercel | L'URL Vercel affiche l'accueil provisoire | Validée |
 | 2. Base de données | Les 20 tables, la RLS, les fonctions SQL, les données de départ | Les migrations passent ; les tests de sécurité SQL sont au vert | En validation |
-| 3. Authentification | Inscription, connexion, mot de passe, profil, rôles | Un compte se crée avec profil et portefeuille ; les pages privées et admin sont protégées | À faire |
+| 3. Authentification | Inscription, connexion, mot de passe, profil, rôles | Un compte se crée avec profil et portefeuille ; les pages privées et admin sont protégées | En validation |
 | 4. Synchronisation | Client API-Football, tâches `sync-*`, Supabase Cron, journal | Les matchs des 14 prochains jours apparaissent en base ; le quota est respecté | À faire |
 | 5. Catalogue | Compétitions, matchs à venir, fiche match gratuite | Navigation complète jusqu'à la fiche d'un match réel | À faire |
 | 6. Moteur IA | Dossiers, prompt v1, appel OpenAI, validation, stockage | Les matchs à moins de 48 h ont leurs 4 pronostics, cohérents et en français | À faire |
@@ -131,3 +131,57 @@ Statuts possibles : À faire · En cours · En validation · Validée.
 ### Prochaine phase
 
 **Phase 3 — Authentification** : inscription (avec date CGU obligatoire), connexion, mot de passe oublié, profil, promotion `ADMIN_EMAILS`, `proxy.ts` (session), protection des pages privées et admin, blocage des comptes suspendus.
+
+---
+
+## Phase 3 — Authentification
+
+**Date** : 17 novembre 2026 · **Branche** : `phase-3-auth` (créée depuis `phase-2-database`, dont elle dépend)
+
+### Ce qui a été fait
+
+- **Proxy** (`proxy.ts`, nom Next 16 du middleware) : rafraîchissement de la session Supabase à chaque requête (`@supabase/ssr`, `getClaims()`), en-tête `x-pathname` pour le paramètre `next` (valeur du client toujours écrasée).
+- **Trois mises en page** :
+  - `app/(public)` : en-tête simple et pied de page avec la mention obligatoire ;
+  - `app/(app)` : session exigée (sinon `307 /connexion?next=…`), compte suspendu bloqué avec message, en-tête avec navigation, solde (`wallets`) et menu utilisateur (Profil, Administration si admin, Déconnexion) ;
+  - `app/admin` : `is_admin()` vérifié côté serveur, sinon **404** (visiteur, utilisateur, admin suspendu).
+- **Pages** : `/inscription` (avec écran « Vérifiez votre boîte mail »), `/connexion` (retour vers `next`), `/mot-de-passe-oublie`, `/reinitialiser-mot-de-passe`, `/auth/callback` (flux PKCE `?code=` et `?token_hash=&type=`), `/profil` (nom, pays, téléphone, fuseau ; mot de passe ; déconnexion), `/tableau-de-bord` minimal, `/cgu` et `/jeu-responsable` (textes provisoires section 11), `/admin` minimal. L'accueil redirige un utilisateur connecté vers `/tableau-de-bord`.
+- Pages provisoires « Bientôt disponible » pour `/matchs`, `/competitions`, `/mes-pronostics`, `/portefeuille`, `/recharger` (cibles de la navigation).
+- **Formulaires** : schémas Zod partagés (`lib/auth/schemas.ts`) validés dans le navigateur et dans les Server Actions (`lib/auth/actions.ts`) ; erreurs Supabase traduites en français (`lib/auth/errors.ts`) sans révéler si un e-mail a un compte.
+- **Promotion `ADMIN_EMAILS`** (`lib/auth/admin-promotion.ts`) : au callback et à chaque connexion, rôle `user` → `admin` avec la clé secrète, journalisé dans `admin_audit_log` ; ne bloque jamais la connexion.
+- **Utilitaires** `lib/auth/session.ts` : `getCurrentUser()`, `requireUser()`, `requireAdmin()` (profil typé).
+- **Tests** : unitaires (schémas Zod, `safeNextPath`, promotion admin simulée, formatage, env) — 35 au total ; intégration `tests/security/admin-access.test.ts` (application démarrée + vraie session Supabase : 404 sur `/admin` pour un utilisateur, 200 pour un admin, 404 pour un admin suspendu, message pour un compte suspendu, redirections).
+- `docs/database.md` : promotion admin automatique et commande SQL manuelle (avec journal d'audit).
+
+### Vérifications effectuées (localement, Supabase volontairement injoignable)
+
+- Codes HTTP : `/tableau-de-bord`, `/profil`, `/matchs` → `307 /connexion?next=…` (encodé) ; `/admin` → `404` ; callback invalide → `307 /connexion?erreur=lien-invalide` ; en-tête `x-pathname` falsifié ignoré ; `?next=https://…` neutralisé.
+- Navigateur (Playwright, 390 px) : erreurs Zod en français sous chaque champ, Bénin par défaut, case CGU obligatoire, message d'erreur serveur affiché, e-mail conservé et mot de passe vidé après une erreur.
+
+### Décisions prises
+
+- **Cache Components désactivé** (`next.config.ts`) : avec lui, toute lecture de session doit être en streaming derrière `<Suspense>`, et un `notFound()`/`redirect()` arrivé après le début du flux ne change plus le code HTTP (un non-admin recevrait 200 au lieu de 404). Désactivé, les contrôles bloquent le rendu, donnent de vrais 307/404, et rien d'utilisateur n'est mis en cache côté serveur (règle n° 8).
+- `getCurrentUser()` appelle `connection()` : les pages dépendant de la session ne sont jamais pré-rendues au build (constaté sur un build sans variables).
+- `getServerEnvKeys([...])` : validation des seules variables nécessaires (la promotion admin ne dépend plus des clés OpenAI/API-Football).
+- `NEXT_PUBLIC_APP_URL` devient **facultative** : l'origine des liens d'e-mail est lue sur la requête (fonctionne sur chaque URL de prévisualisation).
+- Callback d'authentification à `/auth/callback` (route technique, pas une page).
+- Liste de pays : Afrique francophone + diaspora fréquente (codes ISO, libellés via `Intl`), Bénin par défaut ; fuseaux : liste courte, `Africa/Porto-Novo` par défaut.
+- Correction d'un bug hérité de shadcn : la police Geist n'était pas appliquée (variable `--font-sans` circulaire).
+
+### Écarts avec le cahier des charges / le prompt
+
+- « Middleware » → `proxy.ts` (renommage imposé par Next 16, même rôle).
+- Le changement de mot de passe depuis le profil ne redemande pas l'ancien (Supabase ne l'exige pas par défaut) ; option « Secure password change » activable dans Supabase si souhaité.
+- Le tableau de bord minimal renvoie vers des pages provisoires (construites en phases 5 à 9).
+
+### Dettes techniques / points ouverts
+
+- **E-mails Supabase** : le service d'envoi par défaut de Supabase est **fortement limité** (quelques e-mails par heure, destiné aux tests). Un **SMTP personnalisé** (Resend, Brevo, Postmark, SES…) sera nécessaire en production — **phase 12**. Les modèles d'e-mails (confirmation, réinitialisation) devront aussi être traduits en français.
+- **Configuration Supabase Auth à faire par le porteur du projet** : *Site URL* et *Redirect URLs* (voir le résumé de phase).
+- **Variables Vercel** : celles créées par l'intégration Supabase ne ciblent que *Production* ; à étendre à *Preview* pour tester les branches.
+- Tests d'intégration HTTP exécutés en CI seulement (clé secrète requise) ; secrets GitHub encore à ajouter.
+- Pas encore de limitation de débit propre à l'application (on s'appuie sur celle de Supabase Auth).
+
+### Prochaine phase
+
+**Phase 4 — Synchronisation** : client API-Football, tâches `sync-*`, Supabase Cron, journal `sync_runs`. Prérequis : clé API-Football, `CRON_SECRET`, et réglage de la protection Vercel pour `/api/cron/*`.

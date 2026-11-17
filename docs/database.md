@@ -157,17 +157,31 @@ En plus des politiques, les **privilèges** d'écriture sont retirés (défense 
 
 Les fonctions de crédits (`unlock_prediction`, `apply_topup`, `refund_fixture`…) arrivent en phases 7 à 9.
 
-### Désigner le premier administrateur
+### Désigner un administrateur
 
-Le rôle `admin` ne s'attribue jamais depuis l'application par l'utilisateur lui-même (RG-F1-3). Dans le *SQL Editor* de Supabase :
+Le rôle `admin` ne s'attribue jamais depuis l'application par l'utilisateur lui-même (RG-F1-3). Deux méthodes :
+
+**1. Automatique (`ADMIN_EMAILS`)** — renseigner l'adresse dans la variable d'environnement `ADMIN_EMAILS` (liste séparée par des virgules) sur Vercel. À la prochaine connexion (ou au retour du lien de confirmation), le serveur passe le rôle de `user` à `admin` avec la clé secrète et écrit une ligne `promote_admin` dans `admin_audit_log` (`lib/auth/admin-promotion.ts`). Jamais de rétrogradation automatique.
+
+**2. Manuelle (SQL)** — dans le *SQL Editor* de Supabase (le compte doit déjà exister) :
 
 ```sql
-update public.profiles
-set role = 'admin'
-where id = (select id from auth.users where email = 'adresse@exemple.com');
+with target as (
+  select id from auth.users where email = lower('adresse@exemple.com')
+),
+promoted as (
+  update public.profiles p
+     set role = 'admin'
+    from target
+   where p.id = target.id and p.role = 'user'
+  returning p.id
+)
+insert into public.admin_audit_log (admin_id, action, entity, entity_id, before, after, reason)
+select null, 'promote_admin', 'profiles', id::text, '{"role":"user"}', '{"role":"admin"}', 'Promotion manuelle (SQL Editor)'
+from promoted;
 ```
 
-(La promotion automatique via `ADMIN_EMAILS` arrive en phase 3.)
+Pour retirer le rôle : même requête avec `'user'` à la place de `'admin'` (et l'inverse dans `before`/`after`, action `demote_admin`). Un admin suspendu (`is_banned = true`) perd immédiatement l'accès à `/admin` : `is_admin()` exige un compte non suspendu.
 
 ## Tests de sécurité
 
