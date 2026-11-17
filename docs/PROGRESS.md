@@ -7,7 +7,7 @@ Tenu par Claude Code. Référence : [cahier-des-charges.md](cahier-des-charges.m
 | Phase | Livrable | Critère de validation | Statut |
 |---|---|---|---|
 | 0. Préparation (porteur du projet) | Comptes et clés : GitHub, Vercel, Supabase, API-Football, OpenAI | Toutes les clés sont réunies et Claude Code accède à GitHub, Vercel et Supabase | En cours |
-| 1. Initialisation | Projet Next.js, `CLAUDE.md`, dépôt GitHub, déploiement Vercel | L'URL Vercel affiche l'accueil provisoire | En validation |
+| 1. Initialisation | Projet Next.js, `CLAUDE.md`, dépôt GitHub, déploiement Vercel | L'URL Vercel affiche l'accueil provisoire | En validation (déployée : https://pronostic-brown.vercel.app) |
 | 2. Base de données | Les 20 tables, la RLS, les fonctions SQL, les données de départ | Les migrations passent ; les tests de sécurité SQL sont au vert | À faire |
 | 3. Authentification | Inscription, connexion, mot de passe, profil, rôles | Un compte se crée avec profil et portefeuille ; les pages privées et admin sont protégées | À faire |
 | 4. Synchronisation | Client API-Football, tâches `sync-*`, Supabase Cron, journal | Les matchs des 14 prochains jours apparaissent en base ; le quota est respecté | À faire |
@@ -59,14 +59,20 @@ Statuts possibles : À faire · En cours · En validation · Validée.
 - La redirection d'un utilisateur connecté de `/` vers `/tableau-de-bord` sera faite en phase 3 (nécessite l'authentification).
 - `.env.local` contient deux valeurs par défaut non sensibles (`DEFAULT_TIMEZONE`, `PAYMENT_PROVIDER=mock`) reprises de `.env.example` ; tout le reste est vide.
 
-### Blocage en cours
+### Déploiement Vercel
 
-- **Vercel** : la création du projet depuis Claude Code a été refusée (403, droits insuffisants de l'intégration Vercel sur l'équipe `merkisedeck`). Le porteur du projet doit importer le dépôt lui-même dans Vercel (*Add New → Project → Import* `merkisedeck221-prog/pronostic`, framework Next.js, réglages par défaut). Le build ne nécessite aucune variable pour l'instant. Le critère de validation de la phase 1 (« l'URL Vercel affiche l'accueil provisoire ») sera vérifié dès que ce sera fait.
+- Projet Vercel `pronostic` (équipe MERKISEDECK, Hobby), relié à `merkisedeck221-prog/pronostic`, branche de production `main`, déploiement automatique à chaque push.
+- Premier déploiement `dpl_419Kiqn14998cDZYLMeX7JFNvoad` (commit `88fdb36`) : **READY**, build en 28 s sans erreur.
+- URL : https://pronostic-brown.vercel.app (alias : `pronostic-merkisedeck.vercel.app`, `pronostic-git-main-merkisedeck.vercel.app`).
+- Vérifié : `/` affiche l'accueil provisoire (titre, 3 lignes, boutons, mention 18 ans), `/inscription` répond 200.
+- La première création du projet par Claude Code a été refusée (403) ; le porteur du projet l'a importé, puis a élargi les droits de l'intégration Vercel.
 
 ### Dettes techniques
 
 - `npm audit` signale des vulnérabilités « high » dans des dépendances **de développement** d'ESLint (`picomatch` via `eslint-config-next`). Aucun impact en production ; à revoir quand `eslint-config-next` publiera un correctif (ne pas lancer `npm audit fix --force`, qui rétrograde Next).
 - Pas encore de types Supabase générés (`types/database.ts`) : à faire en phase 2 ; les clients Supabase seront alors typés avec `Database`.
+- **Protection Vercel (SSO) active sur tous les déploiements sauf domaines personnalisés** : il faut être connecté à Vercel pour voir le site. À traiter avant la phase 4, sinon Supabase Cron ne pourra pas appeler `/api/cron/*` (options : domaine personnalisé, *Protection Bypass for Automation*, ou désactivation de la protection en production).
+- `engines.node: ">=22"` : Vercel avertit d'une montée de version automatique ; le projet Vercel est réglé sur Node 26.x. À figer si une incompatibilité apparaît.
 - Pas encore de `proxy.ts` (rafraîchissement de session Supabase) : phase 3.
 
 ### Prochaine phase
