@@ -1024,6 +1024,18 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_fixture_visible: { Args: { p_fixture_id: number }; Returns: boolean }
       is_valid_1x2_probabilities: { Args: { p: Json }; Returns: boolean }
+      save_ai_generation: {
+        Args: {
+          p_analysis: Json
+          p_changed_by?: string
+          p_fixture_id: number
+          p_mode: string
+          p_predictions: Json
+          p_reason?: string
+          p_run: Json
+        }
+        Returns: Json
+      }
     }
     Enums: {
       competition_category: "club_league" | "international"

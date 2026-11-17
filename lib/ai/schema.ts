@@ -1,0 +1,84 @@
+import { z } from "zod";
+
+/**
+ * Format de sortie imposé à l'IA (section 8). Source de vérité UNIQUE : ce
+ * schéma Zod. Le JSON Schema strict envoyé à OpenAI (Structured Outputs) en
+ * est dérivé par `toOpenAiJsonSchema()`.
+ */
+
+const probability = z.number().int().min(0).max(100);
+const confidence = z.enum(["low", "medium", "high"]);
+const reasoning = z.string().min(1).describe("Explication de 2 à 4 phrases, en français.");
+
+export const predictionOutputSchema = z.object({
+  summary: z.string().min(1).describe("Analyse globale du match en un paragraphe (français)."),
+  key_factors: z.array(z.string().min(1)).min(3).max(5).describe("3 à 5 facteurs clés, en français."),
+  markets: z.object({
+    MATCH_RESULT: z.object({
+      selection: z.enum(["1", "N", "2"]).describe("1 = domicile, N = nul, 2 = extérieur."),
+      probabilities: z.object({ home: probability, draw: probability, away: probability }),
+      confidence,
+      reasoning,
+    }),
+    EXACT_SCORE: z.object({
+      selection: z.string().regex(/^\d{1,2}-\d{1,2}$/).describe("Score au temps réglementaire, ex. « 2-1 » (domicile-extérieur)."),
+      probability,
+      confidence,
+      reasoning,
+    }),
+    OVER_UNDER_2_5: z.object({
+      selection: z.enum(["OVER", "UNDER"]),
+      probability: probability.describe("Probabilité de la sélection choisie, en %."),
+      confidence,
+      reasoning,
+    }),
+    BTTS: z.object({
+      selection: z.enum(["YES", "NO"]),
+      probability: probability.describe("Probabilité de la sélection choisie, en %."),
+      confidence,
+      reasoning,
+    }),
+  }),
+});
+
+export type PredictionOutput = z.infer<typeof predictionOutputSchema>;
+export type MarketCode = keyof PredictionOutput["markets"];
+export const MARKET_CODES = ["MATCH_RESULT", "EXACT_SCORE", "OVER_UNDER_2_5", "BTTS"] as const satisfies readonly MarketCode[];
+
+/** Mots-clés JSON Schema non garantis par le mode strict d'OpenAI : retirés (Zod les revérifie). */
+const UNSUPPORTED_KEYWORDS = new Set([
+  "$schema",
+  "minimum",
+  "maximum",
+  "exclusiveMinimum",
+  "exclusiveMaximum",
+  "minLength",
+  "maxLength",
+  "minItems",
+  "maxItems",
+  "pattern",
+  "format",
+]);
+
+type JsonSchema = { [key: string]: unknown };
+
+function strictify(node: unknown): unknown {
+  if (Array.isArray(node)) return node.map(strictify);
+  if (!node || typeof node !== "object") return node;
+  const out: JsonSchema = {};
+  for (const [key, value] of Object.entries(node as JsonSchema)) {
+    if (UNSUPPORTED_KEYWORDS.has(key)) continue;
+    out[key] = strictify(value);
+  }
+  if (out.type === "object" && out.properties && typeof out.properties === "object") {
+    // Mode strict : toutes les propriétés obligatoires, aucune propriété supplémentaire.
+    out.required = Object.keys(out.properties as JsonSchema);
+    out.additionalProperties = false;
+  }
+  return out;
+}
+
+/** JSON Schema strict pour `response_format: { type: "json_schema", strict: true }`. */
+export function toOpenAiJsonSchema(): JsonSchema {
+  return strictify(z.toJSONSchema(predictionOutputSchema, { target: "draft-7" })) as JsonSchema;
+}

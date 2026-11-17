@@ -2,17 +2,19 @@ import "server-only";
 
 import { z } from "zod";
 import { syncCompetitions, syncFixtures, syncResults, syncStandings } from "./jobs";
+import { buildContexts, generatePredictions } from "./jobs-ai";
 import { runJob, type RunJobOptions, type SyncJob, type SyncSummary } from "./runner";
 
 /**
- * Registre des tâches planifiées (section 7). build-contexts,
- * generate-predictions et settle-predictions arrivent aux phases 6 et 9.
+ * Registre des tâches planifiées (section 7). settle-predictions arrive en phase 9.
  */
 export const SYNC_JOBS = {
   "sync-competitions": syncCompetitions,
   "sync-fixtures": syncFixtures,
   "sync-standings": syncStandings,
   "sync-results": syncResults,
+  "build-contexts": buildContexts,
+  "generate-predictions": generatePredictions,
 } satisfies Record<string, SyncJob>;
 
 export type SyncJobName = keyof typeof SYNC_JOBS;
