@@ -23,6 +23,9 @@ on:
           - sync-fixtures
           - sync-standings
           - sync-results
+          - build-contexts
+          - generate-predictions
+          - ai-sample
 
 concurrency:
   group: api-football
@@ -39,6 +42,9 @@ jobs:
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_DEV_SERVICE_ROLE_KEY }}
       API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
       API_FOOTBALL_DAILY_BUDGET: ${{ vars.API_FOOTBALL_DAILY_BUDGET || '90' }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+      AI_DAILY_GENERATION_LIMIT: ${{ vars.AI_DAILY_GENERATION_LIMIT || '20' }}
       SAVE_API_SAMPLES: api-samples
     steps:
       - uses: actions/checkout@v4
@@ -48,7 +54,7 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then task="${{ inputs.task }}"; else task="$(head -n1 .github/api-football-request | tr -d '[:space:]')"; fi
           case "$task" in
             none) echo "Aucune tâche demandée." ;;
-            discover-leagues|sync-initial|sync-competitions|sync-fixtures|sync-standings|sync-results) ;;
+            discover-leagues|sync-initial|sync-competitions|sync-fixtures|sync-standings|sync-results|build-contexts|generate-predictions|ai-sample) ;;
             *) echo "::error::Tâche inconnue : '$task'"; exit 1 ;;
           esac
           echo "name=$task" >> "$GITHUB_OUTPUT"
@@ -60,6 +66,11 @@ jobs:
           for name in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY API_FOOTBALL_KEY; do
             if [ -z "${!name}" ]; then echo "::error::Secret manquant pour $name (voir docs/sync.md)"; missing=1; fi
           done
+          case "${{ steps.task.outputs.name }}" in
+            generate-predictions|ai-sample)
+              if [ -z "$OPENAI_API_KEY" ]; then echo "::error::Secret manquant pour OPENAI_API_KEY (voir docs/ai.md)"; missing=1; fi
+              if [ -z "$OPENAI_MODEL" ]; then echo "::error::Variable de dépôt OPENAI_MODEL manquante (voir docs/ai.md)"; missing=1; fi ;;
+          esac
           exit $missing
       - uses: actions/setup-node@v4
         if: steps.task.outputs.name != 'none'
@@ -77,15 +88,20 @@ jobs:
         if: steps.task.outputs.name == 'sync-initial'
         run: npm run sync -- sync-competitions sync-fixtures sync-standings
 
-      - name: Synchronisation (tâche unique)
-        if: startsWith(steps.task.outputs.name, 'sync-') && steps.task.outputs.name != 'sync-initial'
+      - name: Synchronisation ou tâche IA (tâche unique)
+        if: (startsWith(steps.task.outputs.name, 'sync-') && steps.task.outputs.name != 'sync-initial') || steps.task.outputs.name == 'build-contexts' || steps.task.outputs.name == 'generate-predictions'
         run: npm run sync -- ${{ steps.task.outputs.name }}
+
+      - name: Génération réelle sur 3 matchs (contrôle qualité du prompt)
+        if: steps.task.outputs.name == 'ai-sample'
+        run: npm run ai:sample -- 3
 
       - name: Résultat dans le résumé de l'exécution
         if: always()
         run: |
           if [ -f docs/leagues.md ] && [ "${{ steps.task.outputs.name }}" = "discover-leagues" ]; then cat docs/leagues.md >> "$GITHUB_STEP_SUMMARY"; fi
           if [ -f sync-report.json ]; then { echo '```json'; cat sync-report.json; echo '```'; } >> "$GITHUB_STEP_SUMMARY"; fi
+          if [ -f ai-sample-report.json ]; then { echo '```json'; cat ai-sample-report.json; echo '```'; } >> "$GITHUB_STEP_SUMMARY"; fi
 
       # Réponses brutes (sans la clé) et rapports, pour constituer les réponses de test.
       - uses: actions/upload-artifact@v4
@@ -96,6 +112,7 @@ jobs:
             docs/leagues.md
             docs/leagues.json
             sync-report.json
+            ai-sample-report.json
             api-samples/
           if-no-files-found: ignore
           retention-days: 14

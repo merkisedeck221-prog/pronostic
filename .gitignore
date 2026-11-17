@@ -48,3 +48,4 @@ supabase/.branches/
 # rapports et réponses brutes des scripts de synchronisation
 sync-report.json
 api-samples/
+ai-sample-report.json
