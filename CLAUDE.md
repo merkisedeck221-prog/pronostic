@@ -52,6 +52,13 @@
 - `next` après connexion : toujours passer par `safeNextPath()` (pas de redirection ouverte).
 - Cache Components est **désactivé** : les contrôles d'accès doivent bloquer le rendu (vrais 307/404) et aucun contenu utilisateur n'est mis en cache côté serveur.
 
+## Synchronisation API-Football (phase 4)
+
+- **Quota** : forfait gratuit = 100 requêtes/jour. Tout appel passe par `ApiFootballClient` (garde-fou `API_FOOTBALL_DAILY_BUDGET` basé sur `sync_runs.api_calls`). Les tests unitaires utilisent **uniquement** les réponses enregistrées de `tests/fixtures/api-football/`, jamais l'API réelle.
+- Les pages ne contactent jamais API-Football : elles lisent la base.
+- Tâches dans `lib/sync/` (une fonction par tâche, idempotente, journalisée dans `sync_runs`), exposées par `/api/cron/[job]` (Bearer `CRON_SECRET`, comparaison en temps constant) et planifiées par Supabase Cron (secrets dans Vault). Détails : [docs/sync.md](docs/sync.md).
+- Scripts manuels : `npm run discover:leagues`, `npm run sync -- <tâches>` (tsx, condition `react-server` pour `server-only`).
+
 ## Fonctionnalités d'abord, pas de design
 
 Interface sobre avec les composants shadcn/ui par défaut. **Aucun travail de design (couleurs, illustrations, animations, landing page) avant la phase dédiée**, qui se fera à partir des inspirations fournies par le porteur du projet.
@@ -66,6 +73,8 @@ npm run typecheck      # next typegen + tsc --noEmit
 npm test               # Vitest (une passe)
 npm run test:coverage  # Vitest avec couverture
 npm run test:security  # tests de sécurité RLS contre Supabase DEV (clé secrète requise, voir docs/database.md)
+npm run discover:leagues   # découverte des compétitions API-Football (~13 appels, écrit docs/leagues.md)
+npm run sync -- sync-fixtures   # lancer une ou plusieurs tâches de synchronisation à la main
 
 # Types Supabase (après CHAQUE migration) — projet dev par défaut, sinon SUPABASE_PROJECT_REF
 npm run db:types

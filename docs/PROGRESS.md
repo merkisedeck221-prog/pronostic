@@ -10,7 +10,7 @@ Tenu par Claude Code. Référence : [cahier-des-charges.md](cahier-des-charges.m
 | 1. Initialisation | Projet Next.js, `CLAUDE.md`, dépôt GitHub, déploiement Vercel | L'URL Vercel affiche l'accueil provisoire | Validée |
 | 2. Base de données | Les 20 tables, la RLS, les fonctions SQL, les données de départ | Les migrations passent ; les tests de sécurité SQL sont au vert | En validation |
 | 3. Authentification | Inscription, connexion, mot de passe, profil, rôles | Un compte se crée avec profil et portefeuille ; les pages privées et admin sont protégées | En validation |
-| 4. Synchronisation | Client API-Football, tâches `sync-*`, Supabase Cron, journal | Les matchs des 14 prochains jours apparaissent en base ; le quota est respecté | À faire |
+| 4. Synchronisation | Client API-Football, tâches `sync-*`, Supabase Cron, journal | Les matchs des 14 prochains jours apparaissent en base ; le quota est respecté | En cours (code prêt ; découverte et synchro réelle en attente des secrets) |
 | 5. Catalogue | Compétitions, matchs à venir, fiche match gratuite | Navigation complète jusqu'à la fiche d'un match réel | À faire |
 | 6. Moteur IA | Dossiers, prompt v1, appel OpenAI, validation, stockage | Les matchs à moins de 48 h ont leurs 4 pronostics, cohérents et en français | À faire |
 | 7. Crédits et déblocage | Portefeuille, prix, déblocage par marché et par match | Les 5 tests obligatoires de la section 11 passent | À faire |
@@ -185,3 +185,50 @@ Statuts possibles : À faire · En cours · En validation · Validée.
 ### Prochaine phase
 
 **Phase 4 — Synchronisation** : client API-Football, tâches `sync-*`, Supabase Cron, journal `sync_runs`. Prérequis : clé API-Football, `CRON_SECRET`, et réglage de la protection Vercel pour `/api/cron/*`.
+
+---
+
+## Phase 4 — Synchronisation
+
+**Date** : 17 novembre 2026 · **Branche** : `phase-4-sync` (créée depuis `phase-3-auth`)
+
+### Ce qui a été fait
+
+- **Client API-Football** (`lib/api-football/`, serveur uniquement) : appel générique typé (Zod), `x-apisports-key`, `timezone=UTC`, délai de 15 s, 2 nouvelles tentatives (1 s, 2 s) sur erreur réseau/429/5xx, lecture du quota (en-têtes) et du champ `errors` (réponse 200 en erreur = échec sans nouvelle tentative), **garde-fou budgétaire** avant chaque requête (somme de `sync_runs.api_calls` du jour UTC ≥ `API_FOOTBALL_DAILY_BUDGET` → refus sans appel).
+- Schémas Zod `/leagues`, `/teams`, `/fixtures`, `/standings`, `/status` et convertisseurs purs vers nos tables (`convert.ts`).
+- **Tâches** (`lib/sync/`) : `syncCompetitions`, `syncFixtures`, `syncStandings`, `syncResults` ; exécuteur commun qui journalise dans `sync_runs` (début, fin, statut `success`/`partial`/`failed`, appels — mis à jour après chaque appel —, éléments, quota, erreurs) et coupe avant la limite de temps.
+- **Route** `app/api/cron/[job]/route.ts` : GET/POST, `Authorization: Bearer CRON_SECRET` comparé en temps constant (SHA-256 + `timingSafeEqual`), 401 sinon, 404 tâche inconnue, résumé JSON, `maxDuration = 60`.
+- **Migrations** : colonne `competitions.coverage` ; `pg_cron` + `pg_net`, fonction `private.invoke_sync_job()` qui lit `app_url`, `cron_secret` (et `vercel_bypass_secret`) dans **Vault**, 4 tâches planifiées. Appliquées au projet dev (tâches actives mais inertes tant que Vault est vide).
+- **Action admin** `runSyncJobAction(job)` (`requireAdmin()`, journal d'audit) pour la phase 10.
+- **Scripts** : `npm run discover:leagues` (écrit `docs/leagues.md` / `docs/leagues.json`, rien en base de données métier) et `npm run sync -- <tâches>`.
+- **Workflow GitHub** « API-Football (lancement manuel) » : exécute ces scripts avec les secrets du dépôt et enregistre les réponses brutes en artefact.
+- **Tests** : 56 tests unitaires (convertisseurs, garde-fou budgétaire, nouvelles tentatives, erreurs dans un 200, authentification cron) sur des réponses enregistrées.
+- `docs/sync.md` : fonctionnement, commandes Vault, requêtes de vérification, protection Vercel.
+
+### Vérifications effectuées
+
+- Route en local : 401 sans en-tête / mauvais secret / secret sans « Bearer », 404 tâche inconnue, 405 autre méthode, erreur propre si Supabase indisponible.
+- Supabase dev : migrations appliquées, `cron.job` contient les 4 tâches aux bonnes fréquences.
+
+### Décisions prises
+
+- `competitions.coverage` (jsonb) ajoutée : décide de `sync-standings` (type `league` ou couverture classement) et servira à la phase 6 (`predictions`, `injuries`).
+- `is_published` n'est jamais envoyé par la synchronisation (choix de l'admin préservé) ; `original_kickoff_at` = premier coup d'envoi connu (détection des reports > 48 h, RG-F5-7).
+- `ft_home/ft_away` = `score.fulltime` d'API-Football (score à 90 min + temps additionnel, RG-F4-1).
+- Protection Vercel : en-tête `x-vercel-protection-bypass` optionnel envoyé par pg_net (secret Vault).
+- Exécutions manuelles via GitHub Actions (déclencheur par fichier `.github/api-football-request` sur les branches `phase-*`, car `workflow_dispatch` n'apparaît que sur `main`).
+
+### Écarts / points bloqués
+
+- **Clé API-Football non fournie à la session** : le script de découverte, l'insertion des compétitions et la synchronisation réelle (étapes 2, 3 et 9 du prompt) **n'ont pas encore été exécutés**. Ils le seront via GitHub Actions dès que les secrets seront ajoutés.
+- Réponses de test **construites d'après la documentation** (valeurs fictives) ; à remplacer par les réponses réelles de l'artefact du workflow.
+
+### Dettes techniques
+
+- Les tâches build-contexts, generate-predictions, settle-predictions arrivent en phases 6 et 9.
+- Pas encore de purge de `sync_runs` / `net._http_response` (à prévoir).
+- `npm audit` : dépendances de développement (inchangé).
+
+### Prochaine phase
+
+**Phase 5 — Catalogue** : compétitions, matchs à venir, fiche match gratuite.
