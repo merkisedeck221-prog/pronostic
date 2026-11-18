@@ -34,7 +34,7 @@ export default async function AdminFixturesPage({ searchParams }: PageProps<"/ad
   const range = fixturePeriodRange(period);
   let query = supabase
     .from("fixtures")
-    .select("id, kickoff_at, status_short, is_published, goals_home, goals_away, competition:competitions(name), home:teams!fixtures_home_team_id_fkey(name), away:teams!fixtures_away_team_id_fkey(name)")
+    .select("id, kickoff_at, status_short, is_published, goals_home, goals_away, last_synced_at, competition:competitions(name), home:teams!fixtures_home_team_id_fkey(name), away:teams!fixtures_away_team_id_fkey(name)")
     .order("kickoff_at", { ascending: sort === "date_asc" })
     .limit(2000);
   if (range.from) query = query.gte("kickoff_at", range.from.toISOString());
@@ -127,6 +127,7 @@ export default async function AdminFixturesPage({ searchParams }: PageProps<"/ad
               </TableHead>
               <TableHead>Match</TableHead>
               <TableHead>Statut</TableHead>
+              <TableHead>Dernière synchro</TableHead>
               <TableHead className="text-right">Pronostics</TableHead>
               <TableHead className="text-right">Déblocages</TableHead>
               <TableHead>Publication</TableHead>
@@ -135,7 +136,7 @@ export default async function AdminFixturesPage({ searchParams }: PageProps<"/ad
           <TableBody>
             {rows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-muted-foreground">
+                <TableCell colSpan={7} className="text-center text-muted-foreground">
                   Aucun match pour ces filtres.
                 </TableCell>
               </TableRow>
@@ -154,6 +155,9 @@ export default async function AdminFixturesPage({ searchParams }: PageProps<"/ad
                 </TableCell>
                 <TableCell>
                   <StatusBadge status={f.status_short} showUpcoming />
+                </TableCell>
+                <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                  {f.last_synced_at ? formatDateTime(f.last_synced_at, tz) : "Jamais"}
                 </TableCell>
                 <TableCell className="text-right tabular-nums">{predCount.get(f.id) ?? 0}</TableCell>
                 <TableCell className="text-right tabular-nums">{unlockCount.get(f.id) ?? 0}</TableCell>

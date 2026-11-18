@@ -100,6 +100,17 @@ export const PERIODS: { value: Period; label: string }[] = [
   { value: "7-jours", label: "7 jours" },
 ];
 
+/** Fenêtre par défaut des matchs (paramètre) : entier de 1 à 14 jours. */
+export function clampWindowDays(value: unknown): number {
+  const n = typeof value === "number" ? value : Number(value);
+  return Number.isInteger(n) && n >= 1 && n <= 14 ? n : DEFAULT_WINDOW_DAYS;
+}
+
+/** Libellés des périodes avec la fenêtre configurée (« 7 jours », « 10 jours »…). */
+export function periodOptions(windowDays: number = DEFAULT_WINDOW_DAYS): { value: Period; label: string }[] {
+  return PERIODS.map((p) => (p.value === "7-jours" ? { ...p, label: `${clampWindowDays(windowDays)} jours` } : p));
+}
+
 export function parsePeriod(value: unknown): Period {
   return value === "aujourdhui" || value === "demain" || value === "7-jours" ? value : "7-jours";
 }
@@ -108,9 +119,17 @@ export function parsePeriod(value: unknown): Period {
  * Bornes UTC [from, to[ d'une période, calculées sur le calendrier de l'utilisateur :
  *  - aujourd'hui : de minuit à minuit (matchs déjà joués du jour compris) ;
  *  - demain : journée entière du lendemain ;
- *  - 7 jours : de maintenant à la fin du 7e jour (RG-F2-4).
+ *  - N jours (« 7-jours » dans l'URL) : de maintenant à la fin du N-ième jour,
+ *    N = app_settings.fixtures_window_days, 7 par défaut (RG-F2-4).
  */
-export function periodRange(period: Period, timezone: string, now: Date = new Date()): { from: Date; to: Date } {
+export const DEFAULT_WINDOW_DAYS = 7;
+
+export function periodRange(
+  period: Period,
+  timezone: string,
+  now: Date = new Date(),
+  windowDays: number = DEFAULT_WINDOW_DAYS,
+): { from: Date; to: Date } {
   const today = dayKey(now, timezone);
   const startToday = startOfDayInTimezone(today, timezone);
   const startTomorrow = startOfDayInTimezone(shiftDayKey(today, 1), timezone);
@@ -120,7 +139,7 @@ export function periodRange(period: Period, timezone: string, now: Date = new Da
     case "demain":
       return { from: startTomorrow, to: startOfDayInTimezone(shiftDayKey(today, 2), timezone) };
     case "7-jours":
-      return { from: now, to: startOfDayInTimezone(shiftDayKey(today, 8), timezone) };
+      return { from: now, to: startOfDayInTimezone(shiftDayKey(today, clampWindowDays(windowDays) + 1), timezone) };
   }
 }
 

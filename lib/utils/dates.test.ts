@@ -7,6 +7,8 @@ import {
   groupByDay,
   parsePeriod,
   periodRange,
+  clampWindowDays,
+  periodOptions,
   relativeDayLabel,
   resolveTimezone,
 } from "./dates";
@@ -72,6 +74,16 @@ describe("périodes de /matchs", () => {
     const { from, to } = periodRange("7-jours", PORTO_NOVO, now);
     expect(from).toEqual(now);
     expect(to.toISOString()).toBe("2026-11-28T23:00:00.000Z");
+  });
+
+  it("fenêtre paramétrable (RG-F2-4) : 3 jours, valeurs invalides → 7", () => {
+    const { to } = periodRange("7-jours", PORTO_NOVO, now, 3);
+    const { to: to7 } = periodRange("7-jours", PORTO_NOVO, now, 99);
+    expect(to.getTime()).toBeLessThan(to7.getTime());
+    expect(to7.getTime()).toBe(periodRange("7-jours", PORTO_NOVO, now).to.getTime());
+    expect(clampWindowDays("10")).toBe(10);
+    expect(clampWindowDays(0)).toBe(7);
+    expect(periodOptions(10).find((p) => p.value === "7-jours")?.label).toBe("10 jours");
   });
 
   it("valeur inconnue → 7 jours", () => {

@@ -54,6 +54,17 @@ export default async function ProfilePage() {
           </form>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Supprimer mon compte</CardTitle>
+        </CardHeader>
+        <CardContent className="text-sm text-muted-foreground">
+          Vous pouvez demander la suppression de votre compte et de vos données personnelles (e-mail, nom d&apos;affichage,
+          pays, téléphone) en écrivant au support depuis l&apos;adresse e-mail de votre compte. La demande est traitée à la
+          main par un administrateur. Les crédits restants ne sont pas remboursables.
+        </CardContent>
+      </Card>
     </main>
   );
 }

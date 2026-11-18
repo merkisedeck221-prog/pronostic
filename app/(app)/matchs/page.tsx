@@ -8,7 +8,8 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth/session";
 import { getCompetitionsOverview, getPredictionFlags, listFixtures, type FixtureListItem } from "@/lib/catalog/queries";
 import { cn } from "@/lib/utils";
-import { PERIODS, parsePeriod, periodRange, resolveTimezone, type Period } from "@/lib/utils/dates";
+import { clampWindowDays, parsePeriod, periodOptions, periodRange, resolveTimezone, type Period } from "@/lib/utils/dates";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Matchs à venir · Pronostics IA",
@@ -28,10 +29,16 @@ export default async function FixturesPage({ searchParams }: PageProps<"/matchs"
   const period = parsePeriod(params.periode);
   const competitionSlug = typeof params.competition === "string" ? params.competition : undefined;
 
-  const competitions = await getCompetitionsOverview();
+  // Fenêtre par défaut paramétrable (RG-F2-4) : app_settings.fixtures_window_days.
+  const supabase = await createClient();
+  const [competitions, { data: windowSetting }] = await Promise.all([
+    getCompetitionsOverview(),
+    supabase.from("app_settings").select("value").eq("key", "fixtures_window_days").maybeSingle(),
+  ]);
+  const windowDays = clampWindowDays(windowSetting?.value);
   const selected = competitionSlug ? competitions.find((c) => c.slug === competitionSlug) : undefined;
 
-  const fixtures = await listFixtures(periodRange(period, timezone), selected?.id);
+  const fixtures = await listFixtures(periodRange(period, timezone, new Date(), windowDays), selected?.id);
   const flags = await getPredictionFlags(fixtures.map((fixture) => fixture.id));
 
   // Groupes par compétition (ordre d'affichage de l'admin), puis par heure.
@@ -52,7 +59,7 @@ export default async function FixturesPage({ searchParams }: PageProps<"/matchs"
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <nav aria-label="Période" className="flex gap-1">
-          {PERIODS.map((option) => (
+          {periodOptions(windowDays).map((option) => (
             <Link
               key={option.value}
               href={buildHref(option.value, selected?.slug)}

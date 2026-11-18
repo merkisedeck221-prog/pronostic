@@ -66,3 +66,14 @@ jobs:
       - run: npm run test:settlement
       # Tests d'intégration de la phase 10 (administration).
       - run: npm run test:admin
+      # Parcours de bout en bout (Playwright) : utilisateur puis administrateur.
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+        env:
+          E2E_PORT: "3230"
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

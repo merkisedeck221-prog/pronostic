@@ -16,6 +16,7 @@ export const SETTING_DEFINITIONS: readonly SettingDefinition[] = [
   { key: "maintenance_mode", label: "Mode maintenance", description: "Bloque les déblocages et les recharges, avec un message.", kind: "boolean" },
   { key: "welcome_credits", label: "Crédits de bienvenue", description: "Crédits offerts à l'inscription (0 = désactivé).", kind: "integer", min: 0, max: 1000 },
   { key: "prediction_window_hours", label: "Fenêtre de génération (heures)", description: "Délai avant le coup d'envoi à partir duquel le pronostic est généré.", kind: "integer", min: 1, max: 168 },
+  { key: "fixtures_window_days", label: "Fenêtre des matchs (jours)", description: "Période affichée par défaut sur la page Matchs (RG-F2-4).", kind: "integer", min: 1, max: 14 },
   { key: "refund_on_cancel", label: "Remboursement automatique", description: "Rembourse les matchs annulés ou reportés de plus de 48 h.", kind: "boolean" },
   { key: "reveal_after_match", label: "Pronostics publics après le match", description: "Rend visibles par tous les pronostics d'un match terminé (RG-F4-4).", kind: "boolean" },
   {

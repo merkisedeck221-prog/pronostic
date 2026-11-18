@@ -59,6 +59,30 @@ export async function setCompetitionOrderAction(_prev: AdminActionState, formDat
   return success("Ordre enregistré.");
 }
 
+/** Saison courante (année de début, ex. 2026 pour 2026-2027) : normalement mise à jour par sync-competitions. */
+export async function setCompetitionSeasonAction(_prev: AdminActionState, formData: FormData): Promise<AdminActionState> {
+  await requireAdmin();
+  const input = z
+    .object({ id: idSchema, current_season: z.coerce.number().int().min(1990).max(2100) })
+    .safeParse(Object.fromEntries(formData));
+  if (!input.success) return failure("Saison invalide (année entre 1990 et 2100).");
+
+  const supabase = await createClient();
+  const { data: before } = await supabase.from("competitions").select("current_season").eq("id", input.data.id).maybeSingle();
+  if (!before) return failure("Compétition introuvable.");
+  const { error } = await supabase.from("competitions").update({ current_season: input.data.current_season }).eq("id", input.data.id);
+  if (error) return failure(error.message);
+  await logAdminAction(supabase, {
+    action: "set_competition_season",
+    entity: "competitions",
+    entityId: input.data.id,
+    before,
+    after: { current_season: input.data.current_season },
+  });
+  revalidatePath(PATH);
+  return success("Saison enregistrée.");
+}
+
 /** Ajout par identifiant API-Football : vérification par /leagues (1 appel, budget compté), puis enregistrement. */
 export async function addCompetitionAction(_prev: AdminActionState, formData: FormData): Promise<AdminActionState> {
   await requireAdmin();

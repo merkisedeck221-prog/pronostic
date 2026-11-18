@@ -49,3 +49,7 @@ supabase/.branches/
 sync-report.json
 api-samples/
 ai-sample-report.json
+
+# Playwright
+/playwright-report/
+/test-results/

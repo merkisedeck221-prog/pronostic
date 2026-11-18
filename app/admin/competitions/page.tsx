@@ -4,7 +4,7 @@ import { AdminPage, Field, inputClass } from "@/components/admin/table-tools";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { addCompetitionAction, setCompetitionOrderAction, syncCompetitionsNowAction, toggleCompetitionAction } from "@/lib/admin/actions/competitions";
+import { addCompetitionAction, setCompetitionOrderAction, setCompetitionSeasonAction, syncCompetitionsNowAction, toggleCompetitionAction } from "@/lib/admin/actions/competitions";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -42,7 +42,7 @@ export default async function AdminCompetitionsPage() {
               <TableHead>Compétition</TableHead>
               <TableHead>Catégorie</TableHead>
               <TableHead className="text-right">ID API</TableHead>
-              <TableHead className="text-right">Saison</TableHead>
+              <TableHead>Saison</TableHead>
               <TableHead className="text-right">À venir</TableHead>
               <TableHead>Ordre</TableHead>
               <TableHead>Statut</TableHead>
@@ -64,7 +64,11 @@ export default async function AdminCompetitionsPage() {
                 </TableCell>
                 <TableCell>{c.category === "international" ? "International" : "Championnat"}</TableCell>
                 <TableCell className="text-right tabular-nums">{c.api_league_id}</TableCell>
-                <TableCell className="text-right tabular-nums">{c.current_season ?? "—"}</TableCell>
+                <TableCell>
+                  <AdminActionForm action={setCompetitionSeasonAction} hidden={{ id: c.id }} submitLabel="OK" variant="outline" inline>
+                    <input name="current_season" type="number" min={1990} max={2100} defaultValue={c.current_season ?? ""} className={`${inputClass} w-24`} aria-label={`Saison de ${c.name}`} />
+                  </AdminActionForm>
+                </TableCell>
                 <TableCell className="text-right tabular-nums">{counts.get(c.id) ?? 0}</TableCell>
                 <TableCell>
                   <AdminActionForm action={setCompetitionOrderAction} hidden={{ id: c.id }} submitLabel="OK" variant="outline" inline>
