@@ -487,7 +487,7 @@ Branche `phase-9-settlement` (partie de `phase-8-topup`).
 
 ## Phase 10 — Administration
 
-Branche `phase-10-admin` (partie de `phase-9-settlement`), 4 commits.
+Branche `phase-10-admin` (partie de `phase-9-settlement`), 4 commits (SQL, pages et actions, tests, documentation).
 
 ### Ce qui a été fait
 
