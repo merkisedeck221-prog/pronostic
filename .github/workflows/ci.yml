@@ -64,3 +64,5 @@ jobs:
       - run: npm run test:payments
       # Tests d'intégration de la phase 9 (résolution, remboursements, performances).
       - run: npm run test:settlement
+      # Tests d'intégration de la phase 10 (administration).
+      - run: npm run test:admin

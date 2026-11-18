@@ -16,7 +16,7 @@ Tenu par Claude Code. Référence : [cahier-des-charges.md](cahier-des-charges.m
 | 7. Crédits et déblocage | Portefeuille, prix, déblocage par marché et par match | Les 5 tests obligatoires de la section 11 passent | En validation (SQL vérifié ; tests d'intégration en attente des secrets GitHub) |
 | 8. Recharge simulée | Packs, fournisseur `mock`, page de résultat | Une recharge simulée crédite le compte une seule fois | En validation (SQL vérifié ; tests d'intégration en attente des secrets GitHub) |
 | 9. Résolution et suivi | `settle-predictions`, remboursements, Mes pronostics, Performances | Un match terminé met à jour les statuts ; les taux affichés sont justes | En validation (SQL vérifié ; tests d'intégration en attente des secrets GitHub ; aucun match réel en base) |
-| 10. Administration | Les 13 pages admin et le journal d'audit | Toutes les actions de la section 4 fonctionnent et sont journalisées | À faire |
+| 10. Administration | Les 13 pages admin et le journal d'audit | Toutes les actions de la section 4 fonctionnent et sont journalisées | En validation (SQL vérifié ; à tester dans l'interface avec un compte admin) |
 | 11. Recette | Tests automatisés, audit de sécurité, corrections | Le parcours complet est testé de bout en bout ; aucune faille connue | À faire |
 | 12. Mise en production | Projet Supabase prod, variables Vercel, forfait API-Football Pro, domaine | L'application tourne en production avec de vraies données | À faire |
 
@@ -482,3 +482,55 @@ Branche `phase-9-settlement` (partie de `phase-8-topup`).
 ### Prochaine phase
 
 **Phase 10 — Administration** : les 13 pages admin et le journal d'audit.
+
+---
+
+## Phase 10 — Administration
+
+Branche `phase-10-admin` (partie de `phase-9-settlement`), 4 commits.
+
+### Ce qui a été fait
+
+- **Migration `admin`** (`20261118060511`) : 13 fonctions `admin_*` (voir docs/database.md), chacune avec contrôle `is_admin()` et écriture dans `admin_audit_log`. Les autres écritures passent par la RLS admin existante puis `admin_log_action` (pas de clé secrète côté pages).
+- **Mise en page** : barre latérale de 13 entrées (les 11 sections du cahier des charges + journal d'audit + retour à l'application) ; `requireAdmin()` dans la mise en page et dans chaque page ; tableaux shadcn avec recherche, filtres, tri et pagination côté serveur (paramètres d'URL).
+- **Pages** :
+  1. `/admin` : inscrits (total, 7 jours), crédits vendus / dépensés / remboursés / en circulation, chiffre d'affaires simulé, matchs < 48 h avec et sans pronostic, « À surveiller » (matchs du jour sans pronostic, tâches en erreur, générations IA en échec), quota API-Football.
+  2. `/admin/competitions` : activer / désactiver, ordre, ajout par identifiant API-Football (vérification `/leagues`, 1 appel compté), « Synchroniser maintenant » (sync-fixtures + sync-standings).
+  3. `/admin/matchs` (filtres compétition, période, statut, avec / sans pronostic, publication ; publier / masquer) et `/admin/matchs/[id]` : informations, dossier IA (JSON repliable), pronostics, déblocages et crédits encaissés, Régénérer (désactivé avec explication s'il y a un achat), Masquer / réafficher un marché, Modifier le texte (historisé), Générer maintenant (si aucun pronostic), Résoudre maintenant, Rembourser (confirmation + saisie de REMBOURSER + motif), historique des générations et des révisions.
+  4. `/admin/pronostics` : filtres marché, compétition, statut, résultat, confiance ; taux de réussite du filtre courant.
+  5. `/admin/utilisateurs` (recherche e-mail / nom / identifiant, tri, statut) et `/admin/utilisateurs/[id]` : profil, solde (avec contrôle de cohérence), transactions, déblocages, recharges ; Ajuster le solde, Suspendre / réactiver, Promouvoir admin (boîte de confirmation + saisie de PROMOUVOIR).
+  6. `/admin/tarifs` : `pricing_mode`, prix de chaque marché et du match complet, surcharges par compétition (ajout, modification, suppression) ; avertissement si le match complet coûte plus que la somme des marchés.
+  7. `/admin/packs` : créer (inactif), modifier, activer / désactiver, ordonner ; suppression refusée si le pack a été acheté.
+  8. `/admin/transactions` : mouvements et recharges, filtres type / statut, période, utilisateur ; export CSV de la vue filtrée (`;`, BOM UTF-8, protection contre l'injection de formules) ; « Contrôle de cohérence » (RG-F6-4).
+  9. `/admin/synchronisation` : historique `sync_runs` filtrable, quota restant, appels du jour, lancement manuel de chaque tâche avec résultat, état des tâches Supabase Cron.
+  10. `/admin/ia` : historique des générations, tokens et coût par jour et par mois, taux d'échec, réussite par version de prompt.
+  11. `/admin/parametres` : chaque clé de `app_settings` avec un champ adapté (interrupteur, nombre, liste, choix, JSON) et sa description ; activation des marchés.
+  12. `/admin/journal` : journal d'audit (qui, quoi, quand, avant / après, motif).
+- **Tests** : `lib/admin/actions/actions.test.ts` (les 26 Server Actions admin, découvertes automatiquement, refusent un non-admin avant tout accès aux données), `lib/admin/admin.test.ts` (colonnes et échappement CSV, paramètres d'URL, paramètres de l'application, avertissement de prix) — total 205 ; tests d'intégration `tests/admin/` (`npm run test:admin`, ajoutés au CI).
+
+### Vérifications effectuées
+
+- SQL (base DEV, transaction annulée) : les 14 fonctions admin (dont `admin_adjust_balance`) appelées par un utilisateur → `FORBIDDEN` ; un utilisateur ne lit pas le journal ; par un admin : vue d'ensemble, recherche par e-mail, fiche, ajustement +15 (et refus d'un solde négatif), suspension / réactivation, promotion / rétrogradation, refus sur soi-même (`SELF`), modification de texte historisée (1 révision), refus d'un texte trop court, masquage, résolution d'un match non terminé refusée, remboursement sans motif refusé puis effectué, contrôle de cohérence, 7 tâches Cron listées, statistiques IA ; **journal** : `adjust_balance, ban_user, unban_user, set_user_role ×2, edit_prediction_text, hide_prediction, settle_fixture, refund_fixture, update_pack`.
+- `next start` sans session : les 15 routes admin (dont l'export CSV) répondent 404.
+
+### Décisions prises
+
+- Fonctions SQL `admin_*` en `SECURITY DEFINER` pour ce que la RLS ne permet pas (e-mails de `auth.users`, Supabase Cron, révisions, remboursement manuel) ; le reste par la RLS admin, sans clé secrète.
+- Remboursement manuel possible quel que soit le statut du match (décision de l'admin, motif obligatoire), libellé « décision de l'administration ».
+- Un pack créé est inactif par défaut ; une compétition ajoutée est inactive sauf choix contraire.
+- « Synchroniser maintenant » lance sync-fixtures puis sync-standings (sync-competitions reste dans la page Synchronisation).
+
+### Écarts / points ouverts
+
+- **Pages non testées dans un navigateur avec un compte admin** : la session n'a ni accès réseau à Supabase ni compte admin. À vérifier sur la prévisualisation (variables Vercel Preview requises).
+- Tests d'intégration en attente des secrets GitHub `SUPABASE_DEV_*`.
+- Les actions longues (Générer maintenant, Régénérer, Synchroniser) peuvent dépasser la durée maximale d'une Server Action sur Vercel selon le forfait.
+
+### Dettes techniques
+
+- Filtre « avec / sans pronostic » de `/admin/matchs` calculé en mémoire (2 000 matchs au plus par filtre).
+- Export CSV limité à 10 000 lignes.
+
+### Prochaine phase
+
+**Phase 11 — Recette** : tests de bout en bout (Playwright), audit de sécurité, corrections.

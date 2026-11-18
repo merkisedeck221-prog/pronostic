@@ -88,6 +88,14 @@
 - Pages : `/mes-pronostics` (`get_my_predictions`), `/performances` publique (`get_performance_stats`), tableau de bord complet.
 - Tests d'intégration `tests/settlement/` : `npm run test:settlement` (projet DEV, lancés en CI).
 
+## Administration (phase 10)
+
+- Pages `app/admin/*` : `requireAdmin()` dans la mise en page **et** dans chaque page ; barre latérale `components/admin/nav.ts` (13 entrées).
+- Server Actions `lib/admin/actions/*.ts` : signature `(prev, formData) => AdminActionState`, `requireAdmin()` en première ligne, Zod, puis fonction SQL `admin_*` (journalisée) ou écriture par la RLS admin suivie de `logAdminAction()`. Formulaires : `components/admin/action-form.tsx`.
+- Le test `lib/admin/actions/actions.test.ts` découvre **automatiquement** toutes les actions exportées et vérifie qu'elles refusent un non-admin avant tout accès aux données : toute nouvelle action doit commencer par `requireAdmin()`.
+- Export CSV : `app/admin/transactions/export/route.ts` (mêmes filtres que la page, `lib/admin/transactions.ts`).
+- Tests d'intégration `tests/admin/` : `npm run test:admin`.
+
 ## Fonctionnalités d'abord, pas de design
 
 Interface sobre avec les composants shadcn/ui par défaut. **Aucun travail de design (couleurs, illustrations, animations, landing page) avant la phase dédiée**, qui se fera à partir des inspirations fournies par le porteur du projet.
@@ -105,6 +113,7 @@ npm run test:security  # tests de sécurité RLS contre Supabase DEV (clé secr�
 npm run test:credits   # tests d'intégration crédits/déblocage contre Supabase DEV (clé secrète requise)
 npm run test:payments  # tests d'intégration recharges contre Supabase DEV (clé secrète requise)
 npm run test:settlement  # tests d'intégration résolution/remboursements/performances contre Supabase DEV
+npm run test:admin     # tests d'intégration administration contre Supabase DEV
 npm run discover:leagues   # découverte des compétitions API-Football (~13 appels, écrit docs/leagues.md)
 npm run sync -- sync-fixtures   # lancer une ou plusieurs tâches de synchronisation à la main
 npm run ai:sample          # génération réelle sur 3 matchs (contrôle qualité du prompt)

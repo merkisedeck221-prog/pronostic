@@ -24,6 +24,7 @@ Fichiers SQL versionnés dans `supabase/migrations/`, appliqués dans l'ordre :
 | `20261117223746_credits_unlock.sql` | Prix, déblocage, lecture des pronostics, ajustement admin (phase 7) |
 | `20261118052343_topups.sql` | `create_topup`, `apply_topup` (phase 8) |
 | `20261118053930_settlement.sql` | Résolution, remboursements, performances, Mes pronostics, tâche `settle-predictions` (phase 9) |
+| `20261118060511_admin.sql` | Fonctions d'administration (phase 10) |
 
 Données de départ : `supabase/seed.sql` (4 marchés, 5 règles de prix, 3 packs, 6 paramètres). Idempotent (`ON CONFLICT DO NOTHING`) : relancé, il ne réécrase jamais une valeur modifiée depuis l'admin. Aucune compétition : elles arrivent en phase 4.
 
@@ -200,6 +201,24 @@ Les helpers `private.setting`, `private.base_price`, `private.has_access` et `pr
 | `get_my_predictions(limit)` | `authenticated` | pronostics débloqués par `auth.uid()` (match complet développé en ses marchés), statut, remboursement, score |
 
 `get_fixture_predictions` renvoie aussi, une fois le pronostic résolu, son **résultat seul** (badge Gagné / Perdu / Annulé), sans sélection ni explication.
+
+#### Administration (phase 10)
+
+Toutes exécutables par `authenticated` seulement, avec contrôle `is_admin()` en tête (sinon `{ ok:false, code:'FORBIDDEN' }`) ; auteur = `auth.uid()` ; journal d'audit systématique (`private.audit`).
+
+| Fonction | Rôle |
+|---|---|
+| `admin_log_action(action, entity, entity_id, before, after, reason)` | journal des actions faites par la RLS admin (compétitions, matchs, tarifs, packs, paramètres, marchés) |
+| `admin_overview()` | chiffres de `/admin` (inscrits, crédits, chiffre d'affaires simulé, matchs < 48 h, à surveiller, quota) |
+| `admin_list_users(search, status, sort, limit, offset)`, `admin_get_user(id)` | recherche par e-mail (`auth.users`) ou nom, solde, déblocages, recharges |
+| `admin_set_user_banned(id, banned, reason)`, `admin_set_user_role(id, role, reason)` | motif obligatoire, jamais sur soi-même (`SELF`) |
+| `admin_edit_prediction_text(id, reasoning, reason)` | explication seulement, ancienne version dans `prediction_revisions` |
+| `admin_set_prediction_status(id, status, reason)` | masquer / réafficher un marché |
+| `admin_settle_fixture(id)` | `settle_fixture` à la demande |
+| `admin_refund_fixture(id, reason)` | remboursement manuel de tous les déblocages non remboursés, quel que soit le statut |
+| `admin_consistency_check()` | portefeuilles dont le solde ≠ somme des transactions (RG-F6-4) |
+| `admin_cron_status()` | tâches Supabase Cron et dernière exécution |
+| `admin_ai_stats()` | générations, tokens, coût par jour / mois, échecs et réussite par version de prompt |
 
 ### Désigner un administrateur
 
