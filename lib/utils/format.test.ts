@@ -13,6 +13,6 @@ describe("formatCredits", () => {
 
 describe("formatXof", () => {
   it("sépare les milliers", () => {
-    expect(normalize(formatXof(2500))).toBe("2 500 F CFA");
+    expect(normalize(formatXof(2500))).toBe("2 500 FCFA");
   });
 });

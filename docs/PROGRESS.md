@@ -14,7 +14,7 @@ Tenu par Claude Code. Référence : [cahier-des-charges.md](cahier-des-charges.m
 | 5. Catalogue | Compétitions, matchs à venir, fiche match gratuite | Navigation complète jusqu'à la fiche d'un match réel | En validation (en attente de données réelles, phase 4) |
 | 6. Moteur IA | Dossiers, prompt v1, appel OpenAI, validation, stockage | Les matchs à moins de 48 h ont leurs 4 pronostics, cohérents et en français | En cours (code prêt ; génération réelle en attente des secrets et des données) |
 | 7. Crédits et déblocage | Portefeuille, prix, déblocage par marché et par match | Les 5 tests obligatoires de la section 11 passent | En validation (SQL vérifié ; tests d'intégration en attente des secrets GitHub) |
-| 8. Recharge simulée | Packs, fournisseur `mock`, page de résultat | Une recharge simulée crédite le compte une seule fois | À faire |
+| 8. Recharge simulée | Packs, fournisseur `mock`, page de résultat | Une recharge simulée crédite le compte une seule fois | En validation (SQL vérifié ; tests d'intégration en attente des secrets GitHub) |
 | 9. Résolution et suivi | `settle-predictions`, remboursements, Mes pronostics, Performances | Un match terminé met à jour les statuts ; les taux affichés sont justes | À faire |
 | 10. Administration | Les 13 pages admin et le journal d'audit | Toutes les actions de la section 4 fonctionnent et sont journalisées | À faire |
 | 11. Recette | Tests automatisés, audit de sécurité, corrections | Le parcours complet est testé de bout en bout ; aucune faille connue | À faire |
@@ -369,3 +369,57 @@ Branche `phase-7-credits`.
 ### Prochaine phase
 
 **Phase 8 — Recharge simulée** : packs, `PaymentProvider` `mock`, `apply_topup`, page de résultat.
+
+---
+
+## Phase 8 — Recharge
+
+Branche `phase-8-topup` (partie de `phase-7-credits`).
+
+### Ce qui a été fait
+
+- **Migration `topups`** (`20261118052343`) : `create_topup(pack_id, provider)` (utilisateur ; `auth.uid()`, maintenance, compte suspendu, pack actif, montants lus en base, 10 recharges en attente max par heure) et `apply_topup(topup_id, status)` (`service_role` uniquement ; verrous recharge puis portefeuille ; idempotente ; `succeeded`, `failed`, `cancelled`).
+- **`lib/payments/`** : interface `PaymentProvider` (`createCheckout`, `handleWebhook`, `getStatus` facultatif), registre selon `PAYMENT_PROVIDER` (`mock`, `fedapay`, `kkiapay` ; seuls les vrais fournisseurs ne sont pas implémentés), règle RG-F6-3, fournisseur `mock` (notifications HMAC-SHA256 horodatées, 5 min de tolérance), traitement commun des webhooks, `README.md` (ajout de FedaPay / KkiaPay).
+- **Pages** : `/recharger` (packs actifs, bonus mis en avant, prix « 2 500 FCFA », solde, `next` conservé, message de maintenance), `/recharger/paiement-simule/[topupId]` (pack, montant, « Simuler un paiement réussi », « Simuler un échec », « Annuler »), `/recharger/resultat?topup=…&next=…` (succès / échec / annulé / en attente avec rafraîchissement toutes les 3 s pendant 30 s, nouveau solde, retour vers `next`), route `POST /api/payments/webhook/[provider]`. Bandeau « Paiement de test » sur les trois pages quand le mock sert.
+- `formatXof` : « 2 500 FCFA » (au lieu de « F CFA »). Nouvelle variable facultative `PAYMENT_MOCK_SECRET`.
+- **Tests** : 10 tests unitaires (`lib/payments/payments.test.ts` : signature valide / invalide / absente / expirée, secret, règle RG-F6-3, entrée de la recharge) — total 144 ; 6 tests d'intégration `tests/payments/topup.test.ts` (`npm run test:payments`, ajoutés au job CI).
+
+### Vérifications effectuées
+
+SQL sur la base DEV (transaction annulée) :
+
+| Scénario | Résultat |
+|---|---|
+| `create_topup` (pack Standard) | `pending`, 25 crédits, 3 bonus, 2 500 XOF lus en base |
+| `apply_topup(succeeded)` | solde 0 → 28, transaction `topup` +28 / `balance_after` 28, « Recharge : pack Standard (25 crédits + 3 bonus) », `completed_at` |
+| Même appel une 2e fois | `already_processed: true`, aucun nouveau crédit ; `failed` ensuite ignoré |
+| `apply_topup(failed)` puis `succeeded` | statut `failed`, aucun crédit, le succès tardif est ignoré |
+| `apply_topup` par un utilisateur / `create_topup` par un anonyme | `permission denied` |
+| Insertion / modification directe de `topups` par l'utilisateur | `permission denied` |
+| Mode maintenance | `create_topup` → `MAINTENANCE` |
+| Fournisseur inconnu / pack inexistant | `INVALID_INPUT` / `NOT_AVAILABLE` |
+
+Route locale (`next start`) : notification non signée ou mal signée → 401 ; fournisseur inconnu ou non configuré (`paypal`, `fedapay`) → 404 ; `GET` → 405 ; pages de recharge sans session → 307 vers `/connexion?next=…`.
+
+### Décisions prises
+
+- `create_topup` en SQL (session utilisateur) plutôt qu'une insertion avec la clé secrète : montants lus en base, contrôles au même endroit que les autres règles.
+- `provider_ref` renseigné ensuite par le serveur avec la clé secrète (l'utilisateur ne doit pas pouvoir choisir la référence qui sera créditée).
+- Les boutons du mock passent par une Server Action qui calcule la signature côté serveur et appelle **le même traitement** que la route webhook (sans requête réseau : la protection des déploiements Vercel bloquerait un appel HTTP vers soi-même). La route reste appelable de l'extérieur avec une signature valide.
+- Un seul mouvement `topup` par recharge (crédits + bonus), libellé détaillé.
+- « Production » = `VERCEL_ENV=production` ; hors production, le mock reste disponible même si un vrai fournisseur est configuré (tests).
+
+### Écarts / points ouverts
+
+- Libellés des boutons du mock : ceux du prompt (« Simuler un paiement réussi », « Simuler un échec », « Annuler ») plutôt que « Payer / Échec / Annuler » du cahier des charges (même fonction).
+- **Tests d'intégration non exécutés dans cette session** (pas de clé `service_role`) : ils tournent en CI avec les secrets `SUPABASE_DEV_*`.
+- La prévisualisation Vercel n'a toujours pas les variables `SUPABASE_SERVICE_ROLE_KEY` et `CRON_SECRET` / `PAYMENT_MOCK_SECRET` en environnement Preview : sans elles, la recharge échoue (« Impossible de créer la recharge ») à l'étape `provider_ref`.
+
+### Dettes techniques
+
+- Pas de purge des recharges `pending` abandonnées (à faire avec l'admin, phase 10).
+- Contrôle de cohérence solde = somme des transactions (RG-F6-4) : page admin, phase 10.
+
+### Prochaine phase
+
+**Phase 9 — Résolution et suivi** : `settle-predictions`, `refund_fixture`, Mes pronostics, Performances.

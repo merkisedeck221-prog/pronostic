@@ -1014,6 +1014,17 @@ export type Database = {
         Args: { p_amount: number; p_reason: string; p_user_id: string }
         Returns: Json
       }
+      apply_topup: {
+        Args: {
+          p_status: Database["public"]["Enums"]["topup_status"]
+          p_topup_id: string
+        }
+        Returns: Json
+      }
+      create_topup: {
+        Args: { p_pack_id: number; p_provider: string }
+        Returns: Json
+      }
       fixtures_with_prediction_flag: {
         Args: { p_fixture_ids: number[] }
         Returns: {

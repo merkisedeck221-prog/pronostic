@@ -22,6 +22,7 @@ Fichiers SQL versionnés dans `supabase/migrations/`, appliqués dans l'ordre :
 | `20261117213653_catalog_functions.sql` | Fonctions du catalogue et index équipe + date (phase 5) |
 | `20261117215848_ai_generation.sql` | `save_ai_generation()` et tâches planifiées IA (phase 6) |
 | `20261117223746_credits_unlock.sql` | Prix, déblocage, lecture des pronostics, ajustement admin (phase 7) |
+| `20261118052343_topups.sql` | `create_topup`, `apply_topup` (phase 8) |
 
 Données de départ : `supabase/seed.sql` (4 marchés, 5 règles de prix, 3 packs, 6 paramètres). Idempotent (`ON CONFLICT DO NOTHING`) : relancé, il ne réécrase jamais une valeur modifiée depuis l'admin. Aucune compétition : elles arrivent en phase 4.
 
@@ -178,7 +179,16 @@ Les helpers `private.setting`, `private.base_price`, `private.has_access` et `pr
 
 `get_fixture_predictions` est volontairement exécutable par `anon` (le prompt de phase 7 demande qu'elle fonctionne pour un visiteur anonyme) : elle ne renvoie jamais de contenu verrouillé. Les alertes « SECURITY DEFINER exécutable » du conseiller Supabase sur ces fonctions sont donc attendues.
 
-Les fonctions `apply_topup` et `refund_fixture` arrivent en phases 8 et 9.
+#### Recharges (phase 8)
+
+| Fonction | Exécutable par | Rôle |
+|---|---|---|
+| `create_topup(pack_id, provider)` | `authenticated` | crée une recharge `pending` pour `auth.uid()` ; crédits, bonus et montant **lus dans `credit_packs`** ; refus : `MAINTENANCE`, `BANNED`, `NOT_AVAILABLE` (pack inactif), `INVALID_INPUT` (fournisseur inconnu), `TOO_MANY_PENDING` (10 en attente sur 1 h) |
+| `apply_topup(topup_id, status)` | `service_role` uniquement | `FOR UPDATE` sur la recharge ; si elle n'est plus `pending` : rien ne change, renvoie l'état (idempotence, RG-F6-1) ; `succeeded` : `FOR UPDATE` du portefeuille, crédit `credits + bonus_credits`, transaction `topup` avec `balance_after`, `completed_at` ; `failed` / `cancelled` : clôture sans crédit |
+
+`topups.provider_ref` est renseigné par le serveur (clé secrète) après `createCheckout()` ; l'utilisateur ne peut ni insérer ni modifier une recharge.
+
+La fonction `refund_fixture` arrive en phase 9.
 
 ### Désigner un administrateur
 

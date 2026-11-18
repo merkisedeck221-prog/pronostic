@@ -74,6 +74,13 @@
 - Fiche match : `components/predictions/` ; après un déblocage, `router.refresh()` recharge la carte et le solde de l'en-tête depuis le serveur.
 - Tests d'intégration `tests/credits/` : `npm run test:credits` (mêmes variables que `test:security`, projet DEV uniquement ; lancés en CI).
 
+## Recharge (phase 8)
+
+- `lib/payments/` : interface `PaymentProvider` (`types.ts`), registre (`index.ts`, `PAYMENT_PROVIDER`), fournisseur `mock` (HMAC, secret `PAYMENT_MOCK_SECRET` ou dérivé de `CRON_SECRET`), traitement commun des webhooks (`webhook.ts`). Ajouter un fournisseur : [lib/payments/README.md](lib/payments/README.md).
+- SQL : `create_topup` (utilisateur, montants lus en base) et `apply_topup` (`service_role` uniquement, idempotent). Seul un webhook **vérifié** crédite, jamais l'URL de retour.
+- Le mock est refusé en production si un autre fournisseur est configuré (RG-F6-3) ; bandeau « Paiement de test » partout où il sert.
+- Tests d'intégration `tests/payments/` : `npm run test:payments` (projet DEV, lancés en CI).
+
 ## Fonctionnalités d'abord, pas de design
 
 Interface sobre avec les composants shadcn/ui par défaut. **Aucun travail de design (couleurs, illustrations, animations, landing page) avant la phase dédiée**, qui se fera à partir des inspirations fournies par le porteur du projet.
@@ -89,6 +96,7 @@ npm test               # Vitest (une passe)
 npm run test:coverage  # Vitest avec couverture
 npm run test:security  # tests de sécurité RLS contre Supabase DEV (clé secrète requise, voir docs/database.md)
 npm run test:credits   # tests d'intégration crédits/déblocage contre Supabase DEV (clé secrète requise)
+npm run test:payments  # tests d'intégration recharges contre Supabase DEV (clé secrète requise)
 npm run discover:leagues   # découverte des compétitions API-Football (~13 appels, écrit docs/leagues.md)
 npm run sync -- sync-fixtures   # lancer une ou plusieurs tâches de synchronisation à la main
 npm run ai:sample          # génération réelle sur 3 matchs (contrôle qualité du prompt)

@@ -39,6 +39,8 @@ jobs:
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_DEV_SERVICE_ROLE_KEY }}
       NEXT_PUBLIC_APP_URL: http://localhost:3210
       TEST_APP_PORT: "3210"
+      # Secret de TEST du paiement simulé (non sensible : CI uniquement).
+      PAYMENT_MOCK_SECRET: ci-only-mock-payment-secret-0123456789abcdef
     steps:
       - name: Vérifier la présence des secrets
         run: |
@@ -58,3 +60,5 @@ jobs:
       - run: npm run test:security
       # Tests d'intégration obligatoires de la phase 7 (crédits et déblocages).
       - run: npm run test:credits
+      # Tests d'intégration obligatoires de la phase 8 (recharges).
+      - run: npm run test:payments

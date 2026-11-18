@@ -57,7 +57,13 @@ const serverSchema = z.object({
       )
       .pipe(z.array(z.email({ error: "liste d'e-mails séparés par des virgules" }))),
   ),
-  PAYMENT_PROVIDER: z.preprocess(blankToUndefined, z.enum(["mock"]).default("mock")),
+  // mock = paiement simulé (MVP) ; fedapay / kkiapay : prévus, non implémentés (lib/payments/README.md).
+  PAYMENT_PROVIDER: z.preprocess(blankToUndefined, z.enum(["mock", "fedapay", "kkiapay"]).default("mock")),
+  // Facultatif : secret HMAC du paiement simulé ; à défaut, dérivé de CRON_SECRET.
+  PAYMENT_MOCK_SECRET: z.preprocess(
+    blankToUndefined,
+    z.string().min(32, { error: "32 caractères minimum" }).optional(),
+  ),
 });
 
 export type ClientEnv = z.infer<typeof clientSchema>;
