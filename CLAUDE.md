@@ -81,6 +81,13 @@
 - Le mock est refusé en production si un autre fournisseur est configuré (RG-F6-3) ; bandeau « Paiement de test » partout où il sert.
 - Tests d'intégration `tests/payments/` : `npm run test:payments` (projet DEV, lancés en CI).
 
+## Résolution et suivi (phase 9)
+
+- Règles de résolution : `lib/settle/rules.ts` (pures, couverture 100 %) et `public.settle_outcome` (SQL) ; **toute modification se fait dans les deux** et dans `tests/fixtures/settlement-cases.json` (test croisé). Score = `ft_home` / `ft_away` (temps réglementaire), jamais `goals_*`.
+- `settle_fixture`, `refund_fixture` : `service_role` uniquement, idempotentes ; appelées par la tâche `settle-predictions` (`lib/sync/jobs-settle.ts`, sans appel API-Football).
+- Pages : `/mes-pronostics` (`get_my_predictions`), `/performances` publique (`get_performance_stats`), tableau de bord complet.
+- Tests d'intégration `tests/settlement/` : `npm run test:settlement` (projet DEV, lancés en CI).
+
 ## Fonctionnalités d'abord, pas de design
 
 Interface sobre avec les composants shadcn/ui par défaut. **Aucun travail de design (couleurs, illustrations, animations, landing page) avant la phase dédiée**, qui se fera à partir des inspirations fournies par le porteur du projet.
@@ -97,6 +104,7 @@ npm run test:coverage  # Vitest avec couverture
 npm run test:security  # tests de sécurité RLS contre Supabase DEV (clé secrète requise, voir docs/database.md)
 npm run test:credits   # tests d'intégration crédits/déblocage contre Supabase DEV (clé secrète requise)
 npm run test:payments  # tests d'intégration recharges contre Supabase DEV (clé secrète requise)
+npm run test:settlement  # tests d'intégration résolution/remboursements/performances contre Supabase DEV
 npm run discover:leagues   # découverte des compétitions API-Football (~13 appels, écrit docs/leagues.md)
 npm run sync -- sync-fixtures   # lancer une ou plusieurs tâches de synchronisation à la main
 npm run ai:sample          # génération réelle sur 3 matchs (contrôle qualité du prompt)

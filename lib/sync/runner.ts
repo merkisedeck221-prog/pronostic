@@ -82,6 +82,8 @@ export type RunJobOptions = {
   now?: Date;
   /** Durée maximale de la tâche (défaut 50 s, sous maxDuration = 60 s). */
   timeBudgetMs?: number;
+  /** Tâche sans appel API-Football (ex. settle-predictions) : la clé n'est pas exigée. */
+  apiOptional?: boolean;
 };
 
 export async function runJob(name: string, job: SyncJob, options: RunJobOptions = {}): Promise<SyncSummary> {
@@ -93,7 +95,10 @@ export async function runJob(name: string, job: SyncJob, options: RunJobOptions 
   const env =
     options.apiKey && options.dailyBudget
       ? { API_FOOTBALL_KEY: options.apiKey, API_FOOTBALL_DAILY_BUDGET: options.dailyBudget }
-      : getServerEnvKeys(["API_FOOTBALL_KEY", "API_FOOTBALL_DAILY_BUDGET"]);
+      : options.apiOptional && !process.env.API_FOOTBALL_KEY
+        ? // Aucun appel possible : budget 0, le garde-fou refuserait tout appel.
+          { API_FOOTBALL_KEY: "absente", API_FOOTBALL_DAILY_BUDGET: 0 }
+        : getServerEnvKeys(["API_FOOTBALL_KEY", "API_FOOTBALL_DAILY_BUDGET"]);
 
   const { data: run, error: runError } = await db
     .from("sync_runs")

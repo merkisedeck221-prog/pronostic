@@ -17,7 +17,7 @@ loadDotEnvLocal();
 async function main() {
   const jobs = process.argv.slice(2);
   if (jobs.length === 0 || !jobs.every(isSyncJobName)) {
-    throw new Error(`Usage : npm run sync -- <tâche...> ; tâches : sync-competitions, sync-fixtures, sync-standings, sync-results, build-contexts, generate-predictions`);
+    throw new Error(`Usage : npm run sync -- <tâche...> ; tâches : sync-competitions, sync-fixtures, sync-standings, sync-results, build-contexts, generate-predictions, settle-predictions`);
   }
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

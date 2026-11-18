@@ -23,6 +23,7 @@ Fichiers SQL versionnés dans `supabase/migrations/`, appliqués dans l'ordre :
 | `20261117215848_ai_generation.sql` | `save_ai_generation()` et tâches planifiées IA (phase 6) |
 | `20261117223746_credits_unlock.sql` | Prix, déblocage, lecture des pronostics, ajustement admin (phase 7) |
 | `20261118052343_topups.sql` | `create_topup`, `apply_topup` (phase 8) |
+| `20261118053930_settlement.sql` | Résolution, remboursements, performances, Mes pronostics, tâche `settle-predictions` (phase 9) |
 
 Données de départ : `supabase/seed.sql` (4 marchés, 5 règles de prix, 3 packs, 6 paramètres). Idempotent (`ON CONFLICT DO NOTHING`) : relancé, il ne réécrase jamais une valeur modifiée depuis l'admin. Aucune compétition : elles arrivent en phase 4.
 
@@ -188,7 +189,17 @@ Les helpers `private.setting`, `private.base_price`, `private.has_access` et `pr
 
 `topups.provider_ref` est renseigné par le serveur (clé secrète) après `createCheckout()` ; l'utilisateur ne peut ni insérer ni modifier une recharge.
 
-La fonction `refund_fixture` arrive en phase 9.
+#### Résolution et suivi (phase 9)
+
+| Fonction | Exécutable par | Rôle |
+|---|---|---|
+| `settle_outcome(market, selection, home, away)` | `service_role` | règles de résolution au temps réglementaire, miroir de `lib/settle/rules.ts` (table de cas partagée `tests/fixtures/settlement-cases.json`) ; `NULL` si sélection invalide |
+| `settle_fixture(fixture_id)` | `service_role` | statut `FT`, `AET` ou `PEN` et `ft_home` / `ft_away` renseignés (RG-F7-1) ; met à jour `result` et `settled_at` des pronostics `pending` uniquement (idempotente, RG-F7-2) |
+| `refund_fixture(fixture_id)` | `service_role` | `CANC`, `ABD`, ou `PST` reporté de plus de 48 h par rapport à `original_kickoff_at` (ou sans nouvelle date) : rembourse chaque déblocage non remboursé (transaction `refund`, `unlocks.refunded_at`) si `refund_on_cancel`, puis pronostics `pending` → `void`. Idempotente |
+| `get_performance_stats()` | `anon`, `authenticated` | gagnés / perdus / annulés : global, 30 derniers jours, par marché, par compétition, sur **tous** les pronostics publiés (RG-F8-1) ; 20 derniers résolus si `reveal_after_match` |
+| `get_my_predictions(limit)` | `authenticated` | pronostics débloqués par `auth.uid()` (match complet développé en ses marchés), statut, remboursement, score |
+
+`get_fixture_predictions` renvoie aussi, une fois le pronostic résolu, son **résultat seul** (badge Gagné / Perdu / Annulé), sans sélection ni explication.
 
 ### Désigner un administrateur
 

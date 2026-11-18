@@ -1033,6 +1033,8 @@ export type Database = {
         }[]
       }
       get_fixture_predictions: { Args: { p_fixture_id: number }; Returns: Json }
+      get_my_predictions: { Args: { p_limit?: number }; Returns: Json }
+      get_performance_stats: { Args: never; Returns: Json }
       get_fixture_public_context: {
         Args: { p_fixture_id: number }
         Returns: Json
@@ -1044,6 +1046,7 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_fixture_visible: { Args: { p_fixture_id: number }; Returns: boolean }
       is_valid_1x2_probabilities: { Args: { p: Json }; Returns: boolean }
+      refund_fixture: { Args: { p_fixture_id: number }; Returns: Json }
       save_ai_generation: {
         Args: {
           p_analysis: Json
@@ -1055,6 +1058,16 @@ export type Database = {
           p_run: Json
         }
         Returns: Json
+      }
+      settle_fixture: { Args: { p_fixture_id: number }; Returns: Json }
+      settle_outcome: {
+        Args: {
+          p_away: number
+          p_home: number
+          p_market: string
+          p_selection: string
+        }
+        Returns: Database["public"]["Enums"]["prediction_result"]
       }
       unlock_prediction: {
         Args: { p_fixture_id: number; p_market_code?: string }

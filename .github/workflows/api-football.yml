@@ -25,6 +25,7 @@ on:
           - sync-results
           - build-contexts
           - generate-predictions
+          - settle-predictions
           - ai-sample
 
 concurrency:
@@ -54,7 +55,7 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then task="${{ inputs.task }}"; else task="$(head -n1 .github/api-football-request | tr -d '[:space:]')"; fi
           case "$task" in
             none) echo "Aucune tâche demandée." ;;
-            discover-leagues|sync-initial|sync-competitions|sync-fixtures|sync-standings|sync-results|build-contexts|generate-predictions|ai-sample) ;;
+            discover-leagues|sync-initial|sync-competitions|sync-fixtures|sync-standings|sync-results|build-contexts|generate-predictions|settle-predictions|ai-sample) ;;
             *) echo "::error::Tâche inconnue : '$task'"; exit 1 ;;
           esac
           echo "name=$task" >> "$GITHUB_OUTPUT"
@@ -89,7 +90,7 @@ jobs:
         run: npm run sync -- sync-competitions sync-fixtures sync-standings
 
       - name: Synchronisation ou tâche IA (tâche unique)
-        if: (startsWith(steps.task.outputs.name, 'sync-') && steps.task.outputs.name != 'sync-initial') || steps.task.outputs.name == 'build-contexts' || steps.task.outputs.name == 'generate-predictions'
+        if: (startsWith(steps.task.outputs.name, 'sync-') && steps.task.outputs.name != 'sync-initial') || steps.task.outputs.name == 'build-contexts' || steps.task.outputs.name == 'generate-predictions' || steps.task.outputs.name == 'settle-predictions'
         run: npm run sync -- ${{ steps.task.outputs.name }}
 
       - name: Génération réelle sur 3 matchs (contrôle qualité du prompt)

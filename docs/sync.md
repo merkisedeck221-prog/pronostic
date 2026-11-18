@@ -20,6 +20,9 @@ Supabase Cron (pg_cron) ──► private.invoke_sync_job('sync-…') ──pg_n
 | `sync-fixtures` | 05:07 et 17:07 | 1 / compétition active | matchs J-3 à J+14 (équipes créées à la volée, `is_published` jamais écrasé, coup d'envoi initial conservé) |
 | `sync-standings` | 05:37 | 1 / compétition avec classement | classements |
 | `sync-results` | toutes les 15 min | 1 / 20 matchs en cours | scores, mi-temps, temps réglementaire, statut ; **0 appel** s'il n'y a aucun match commencé depuis moins de 4 h |
+| `build-contexts` | :11 chaque heure | 2 / match | dossiers IA (phase 6) |
+| `generate-predictions` | :31 chaque heure | 0 (OpenAI) | pronostics IA (phase 6) |
+| `settle-predictions` | :05, :20, :35, :50 | **0** | résout les matchs FT / AET / PEN avec score (`settle_fixture`) ; rembourse les matchs annulés ou reportés de plus de 48 h (`refund_fixture`) |
 
 ### Quota et garde-fou
 

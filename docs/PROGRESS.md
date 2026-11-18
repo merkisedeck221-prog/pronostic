@@ -15,7 +15,7 @@ Tenu par Claude Code. Référence : [cahier-des-charges.md](cahier-des-charges.m
 | 6. Moteur IA | Dossiers, prompt v1, appel OpenAI, validation, stockage | Les matchs à moins de 48 h ont leurs 4 pronostics, cohérents et en français | En cours (code prêt ; génération réelle en attente des secrets et des données) |
 | 7. Crédits et déblocage | Portefeuille, prix, déblocage par marché et par match | Les 5 tests obligatoires de la section 11 passent | En validation (SQL vérifié ; tests d'intégration en attente des secrets GitHub) |
 | 8. Recharge simulée | Packs, fournisseur `mock`, page de résultat | Une recharge simulée crédite le compte une seule fois | En validation (SQL vérifié ; tests d'intégration en attente des secrets GitHub) |
-| 9. Résolution et suivi | `settle-predictions`, remboursements, Mes pronostics, Performances | Un match terminé met à jour les statuts ; les taux affichés sont justes | À faire |
+| 9. Résolution et suivi | `settle-predictions`, remboursements, Mes pronostics, Performances | Un match terminé met à jour les statuts ; les taux affichés sont justes | En validation (SQL vérifié ; tests d'intégration en attente des secrets GitHub ; aucun match réel en base) |
 | 10. Administration | Les 13 pages admin et le journal d'audit | Toutes les actions de la section 4 fonctionnent et sont journalisées | À faire |
 | 11. Recette | Tests automatisés, audit de sécurité, corrections | Le parcours complet est testé de bout en bout ; aucune faille connue | À faire |
 | 12. Mise en production | Projet Supabase prod, variables Vercel, forfait API-Football Pro, domaine | L'application tourne en production avec de vraies données | À faire |
@@ -423,3 +423,62 @@ Route locale (`next start`) : notification non signée ou mal signée → 401 ; 
 ### Prochaine phase
 
 **Phase 9 — Résolution et suivi** : `settle-predictions`, `refund_fixture`, Mes pronostics, Performances.
+
+---
+
+## Phase 9 — Résolution et suivi
+
+Branche `phase-9-settlement` (partie de `phase-8-topup`).
+
+### Ce qui a été fait
+
+- **Règles pures** `lib/settle/rules.ts` : une fonction par marché (`MATCH_RESULT`, `EXACT_SCORE`, `OVER_UNDER_2_5`, `BTTS`) → `won` / `lost`, sur le score au temps réglementaire (`ft_home`, `ft_away`) ; `regulationScore()` (RG-F7-1), `successRate()` (RG-F8-1). **Couverture 100 %** (lignes, branches, fonctions). Table de cas partagée `tests/fixtures/settlement-cases.json` (37 cas : 0-0, 1-1, 2-1, 3-0, 1-2 et match AET).
+- **Migration `settlement`** (`20261118053930`) : `settle_outcome` (miroir SQL), `settle_fixture`, `refund_fixture` (`service_role` uniquement, idempotentes), `get_performance_stats` (public), `get_my_predictions` (utilisateur), `get_fixture_predictions` complété (résultat seul après résolution), index des pronostics en attente, Supabase Cron `settle-predictions` à :05, :20, :35, :50.
+- `fixtures.original_kickoff_at` **existait déjà** (phase 2) et est rempli à la première synchronisation (`lib/api-football/convert.ts`) : aucune colonne ajoutée.
+- **Tâche `settle-predictions`** (`lib/sync/jobs-settle.ts`) : résolution puis remboursements, journalisée dans `sync_runs`, sans clé API-Football requise ; ajoutée à la route cron, au script `npm run sync` et au workflow GitHub.
+- **Pages** : `/mes-pronostics` (match complet développé, filtres « À venir » / « Terminés », statut En attente / Gagné / Perdu / Annulé et remboursé, score final avec prolongation signalée, taux personnel), `/performances` publique (global, 30 jours, par type, par compétition, 20 derniers résolus si `reveal_after_match`, avertissement sous 50 pronostics résolus, message si indisponible), tableau de bord complet (solde, Recharger, 8 matchs à venir sous 48 h avec pronostic, 5 derniers pronostics, lien Performances), badges Gagné / Perdu / Annulé sur la fiche match, lien « Performances » dans le pied de page.
+- **Tests** : 50 tests unitaires (`lib/settle/`) — total 194 ; tests d'intégration `tests/settlement/` (`npm run test:settlement`, ajoutés au job CI).
+
+### Vérifications effectuées (base DEV)
+
+- **Test croisé** : `settle_outcome` = résultat attendu sur les **37/37** cas de la table partagée ; sélection invalide ou marché inconnu → `NULL`.
+- Scénario complet (transaction annulée) :
+
+| Scénario | Résultat |
+|---|---|
+| Match FT 2-1, 4 pronostics | 4 `won` ; rejoué : `settled: 0` |
+| Match AET 1-1 (2-1 a.p.) | 1N2 « 1 » perdu, « 2-1 » perdu, OVER perdu, BTTS gagné (temps réglementaire) |
+| Match non terminé | `settle_fixture` → `NOT_FINISHED` |
+| Match annulé (déblocages 2 + 5 crédits) | 7 crédits rendus (2 transactions `refund`), 4 pronostics `void` ; rejoué : 0 |
+| Reporté de 5 jours | remboursé (« match reporté ») |
+| Reporté de 24 h | `NOT_ELIGIBLE`, pronostics toujours `pending` |
+| Match terminé | `refund_fixture` → `NOT_ELIGIBLE` |
+| Solde | 30 → 14 après déblocages → 23 après remboursements (9 rendus) |
+| `get_my_predictions` | 9 lignes (match complet développé, doublon marché + match complet fusionné), `refunded: true` sur le match annulé |
+| `get_performance_stats` (anonyme) | 5 gagnés, 3 perdus, 8 annulés (pronostics non achetés compris), par marché et par compétition corrects |
+| Permissions | `settle_fixture` / `refund_fixture` refusées à un utilisateur ; `get_my_predictions` refusée à un anonyme |
+
+- `/performances` accessible sans compte (200) ; `/mes-pronostics` et `/tableau-de-bord` → 307 vers `/connexion` sans session.
+
+### Décisions prises
+
+- Résultat seul (`result`) exposé par `get_fixture_predictions` une fois résolu, même sans déblocage : ni sélection ni explication, conforme à la règle 1 de sécurité.
+- « Reporté sans date » : statut `PST` dont le coup d'envoi n'a pas été déplacé (ou date initiale inconnue) → remboursé.
+- `refund_on_cancel = false` : pas de remboursement, mais les pronostics passent quand même à `void` (match non joué).
+- Une sélection invalide n'est jamais résolue au hasard : le pronostic reste `pending` et l'erreur est journalisée.
+- Taux de réussite arrondi au dixième ; les annulés sont affichés mais exclus du calcul.
+
+### Écarts / points ouverts
+
+- **Tests d'intégration non exécutés dans cette session** (pas de clé `service_role`, pas d'accès réseau à Supabase depuis la session) ; ils tournent en CI avec les secrets `SUPABASE_DEV_*`.
+- Aucune donnée réelle en base (synchronisation en attente des secrets) : pages vides pour l'instant.
+- La page publique `/performances` utilise l'en-tête public (liens « Se connecter / S'inscrire ») même pour un utilisateur connecté.
+
+### Dettes techniques
+
+- Un déblocage remboursé conserve l'accès au contenu (match annulé : sans conséquence).
+- `get_performance_stats` calcule à la volée : prévoir une vue matérialisée si le volume grandit.
+
+### Prochaine phase
+
+**Phase 10 — Administration** : les 13 pages admin et le journal d'audit.

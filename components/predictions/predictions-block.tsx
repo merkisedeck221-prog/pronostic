@@ -18,6 +18,12 @@ type Props = {
 
 const RESULT_LABELS = { won: "Gagné", lost: "Perdu", void: "Annulé" } as const;
 
+/** Badge de résultat une fois le pronostic résolu (Gagné, Perdu, Annulé). */
+function ResultBadge({ result }: { result: MarketView["result"] }) {
+  if (!result || result === "pending") return null;
+  return <Badge variant={result === "won" ? "default" : result === "lost" ? "destructive" : "outline"}>{RESULT_LABELS[result]}</Badge>;
+}
+
 function ProbabilityBar({ label, value }: { label: string; value: number }) {
   return (
     <div className="space-y-1">
@@ -38,9 +44,7 @@ function RevealedContent({ market, homeName, awayName }: { market: MarketView; h
       <div className="flex flex-wrap items-center gap-2">
         <p className="text-base font-semibold">{market.selection_label}</p>
         {market.confidence ? <Badge variant="secondary">Confiance : {confidenceLabel(market.confidence)}</Badge> : null}
-        {market.result && market.result !== "pending" ? (
-          <Badge variant={market.result === "won" ? "default" : "outline"}>{RESULT_LABELS[market.result]}</Badge>
-        ) : null}
+        <ResultBadge result={market.result} />
       </div>
       {market.code === "MATCH_RESULT" && market.probabilities ? (
         <div className="space-y-2">
@@ -111,7 +115,9 @@ export function PredictionsBlock({ fixtureId, homeName, awayName, data, balance,
                   {!market.revealed ? <LockIcon className="size-4" aria-label="Verrouillé" /> : null}
                   {market.label}
                 </h3>
-                {market.unlocked ? (
+                {!market.revealed && market.result && market.result !== "pending" ? (
+                  <ResultBadge result={market.result} />
+                ) : market.unlocked ? (
                   <Badge variant="outline">Débloqué</Badge>
                 ) : !market.revealed && market.price !== null ? (
                   <span className="text-sm tabular-nums text-muted-foreground">{formatCredits(market.price)}</span>

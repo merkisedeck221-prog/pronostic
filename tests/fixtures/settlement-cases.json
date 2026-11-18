@@ -1,0 +1,46 @@
+{
+  "description": "Table de cas partagée : résolution TypeScript (lib/settle/rules.ts) ET SQL (public.settle_outcome). Score = temps réglementaire (ft_home, ft_away).",
+  "cases": [
+    { "market": "MATCH_RESULT", "selection": "1", "home": 0, "away": 0, "expected": "lost" },
+    { "market": "MATCH_RESULT", "selection": "N", "home": 0, "away": 0, "expected": "won" },
+    { "market": "MATCH_RESULT", "selection": "2", "home": 0, "away": 0, "expected": "lost" },
+    { "market": "MATCH_RESULT", "selection": "N", "home": 1, "away": 1, "expected": "won" },
+    { "market": "MATCH_RESULT", "selection": "1", "home": 1, "away": 1, "expected": "lost" },
+    { "market": "MATCH_RESULT", "selection": "1", "home": 2, "away": 1, "expected": "won" },
+    { "market": "MATCH_RESULT", "selection": "2", "home": 2, "away": 1, "expected": "lost" },
+    { "market": "MATCH_RESULT", "selection": "1", "home": 3, "away": 0, "expected": "won" },
+    { "market": "MATCH_RESULT", "selection": "N", "home": 3, "away": 0, "expected": "lost" },
+    { "market": "MATCH_RESULT", "selection": "2", "home": 1, "away": 2, "expected": "won" },
+    { "market": "MATCH_RESULT", "selection": "1", "home": 1, "away": 2, "expected": "lost" },
+
+    { "market": "EXACT_SCORE", "selection": "0-0", "home": 0, "away": 0, "expected": "won" },
+    { "market": "EXACT_SCORE", "selection": "1-0", "home": 0, "away": 0, "expected": "lost" },
+    { "market": "EXACT_SCORE", "selection": "1-1", "home": 1, "away": 1, "expected": "won" },
+    { "market": "EXACT_SCORE", "selection": "2-1", "home": 2, "away": 1, "expected": "won" },
+    { "market": "EXACT_SCORE", "selection": "1-2", "home": 2, "away": 1, "expected": "lost" },
+    { "market": "EXACT_SCORE", "selection": "3-0", "home": 3, "away": 0, "expected": "won" },
+    { "market": "EXACT_SCORE", "selection": "1-2", "home": 1, "away": 2, "expected": "won" },
+    { "market": "EXACT_SCORE", "selection": "2-1", "home": 1, "away": 2, "expected": "lost" },
+
+    { "market": "OVER_UNDER_2_5", "selection": "UNDER", "home": 0, "away": 0, "expected": "won" },
+    { "market": "OVER_UNDER_2_5", "selection": "OVER", "home": 0, "away": 0, "expected": "lost" },
+    { "market": "OVER_UNDER_2_5", "selection": "UNDER", "home": 1, "away": 1, "expected": "won" },
+    { "market": "OVER_UNDER_2_5", "selection": "OVER", "home": 2, "away": 1, "expected": "won" },
+    { "market": "OVER_UNDER_2_5", "selection": "UNDER", "home": 2, "away": 1, "expected": "lost" },
+    { "market": "OVER_UNDER_2_5", "selection": "OVER", "home": 3, "away": 0, "expected": "won" },
+    { "market": "OVER_UNDER_2_5", "selection": "OVER", "home": 1, "away": 2, "expected": "won" },
+
+    { "market": "BTTS", "selection": "NO", "home": 0, "away": 0, "expected": "won" },
+    { "market": "BTTS", "selection": "YES", "home": 0, "away": 0, "expected": "lost" },
+    { "market": "BTTS", "selection": "YES", "home": 1, "away": 1, "expected": "won" },
+    { "market": "BTTS", "selection": "YES", "home": 2, "away": 1, "expected": "won" },
+    { "market": "BTTS", "selection": "NO", "home": 2, "away": 1, "expected": "lost" },
+    { "market": "BTTS", "selection": "YES", "home": 3, "away": 0, "expected": "lost" },
+    { "market": "BTTS", "selection": "NO", "home": 3, "away": 0, "expected": "won" },
+    { "market": "BTTS", "selection": "YES", "home": 1, "away": 2, "expected": "won" },
+
+    { "market": "MATCH_RESULT", "selection": "N", "home": 1, "away": 1, "expected": "won", "note": "match AET : 1-1 au temps réglementaire, 2-1 après prolongation" },
+    { "market": "EXACT_SCORE", "selection": "1-1", "home": 1, "away": 1, "expected": "won", "note": "match AET : le score après prolongation (2-1) est ignoré" },
+    { "market": "OVER_UNDER_2_5", "selection": "UNDER", "home": 1, "away": 1, "expected": "won", "note": "match AET : 3 buts après prolongation, 2 au temps réglementaire" }
+  ]
+}

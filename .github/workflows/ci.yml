@@ -62,3 +62,5 @@ jobs:
       - run: npm run test:credits
       # Tests d'intégration obligatoires de la phase 8 (recharges).
       - run: npm run test:payments
+      # Tests d'intégration de la phase 9 (résolution, remboursements, performances).
+      - run: npm run test:settlement
