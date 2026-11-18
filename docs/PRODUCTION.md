@@ -15,7 +15,9 @@ Phase 12. Cette liste se remplit au fur et à mesure : ✅ fait · ⏳ en cours 
 
 ## 0. Fusion dans `main`
 
-- [ ] 👤 Fusionner `phase-12-production` dans `main` : elle contient les phases 2 à 12, une seule pull request suffit (https://github.com/merkisedeck221-prog/pronostic/compare/main...phase-12-production).
+- [x] `phase-12-production` fusionnée dans `main` (avance rapide, phases 2 à 12, commit `469c18e`) à la demande du porteur, le 18/11/2026.
+- [x] Déploiement de production Vercel **READY** (`dpl_7itpv4gfk2MCvn5KjZKbVbM9fUDJ`) sur `pronostic-brown.vercel.app`. Contrôle : `/connexion` et `/performances` s'affichent et lisent la base de production ; en-têtes de sécurité présents.
+- ⚠️ **Protection Vercel active** (*Vercel Authentication*, mode « tous les déploiements sauf domaines personnalisés ») : `pronostic-brown.vercel.app` n'est accessible qu'aux membres du compte Vercel. Utile tant que le paiement est simulé ; pour ouvrir au public, ajouter un domaine personnalisé (étape 8) ou désactiver la protection. Supabase Cron a **besoin** du secret `vercel_bypass_secret` (étape 5).
 - [ ] ⚠️ Chaque fusion dans `main` déclenche un déploiement de production Vercel. Tant que les variables de production (étape 4) ne sont pas renseignées, l'application de production affichera des erreurs : c'est attendu.
 
 ## 1. Check-list (vue d'ensemble)
@@ -28,7 +30,7 @@ Phase 12. Cette liste se remplit au fur et à mesure : ✅ fait · ⏳ en cours 
 | 3 | Auth : URL du site et de redirection | 👤 (instructions ci-dessous) | ⬜ |
 | 3 | Auth : modèles d'e-mails en français | 👤 (copier-coller) | ⬜ |
 | 3 | Auth : SMTP personnalisé (**obligatoire**) | 👤 | ⬜ |
-| 4 | Vercel : variables de production | 👤 | ⬜ |
+| 4 | Vercel : variables de production | 👤 | ⏳ Supabase ✅ (intégration) ; 11 variables applicatives à ajouter |
 | 5 | Supabase Cron : secrets Vault | 👤 | ⬜ |
 | 5 | Supabase Cron : planification vérifiée | Claude | ⬜ |
 | 6 | Compétitions créées et activées | Claude + 👤 | ⬜ |
@@ -143,7 +145,7 @@ Après modification : *Deployments* → dernier déploiement de production → *
 
 ### 5.1 Protection des déploiements Vercel
 
-Vercel → *Settings* → *Deployment Protection* : si la protection s'applique à la production, créer un secret *Protection Bypass for Automation* (il sera déposé dans Vault ci-dessous). Avec un domaine personnalisé non protégé, inutile.
+La protection **est active** sur `pronostic-brown.vercel.app` (constaté le 18/11/2026). 👤 Vercel → *Settings* → *Deployment Protection* → *Protection Bypass for Automation* → *Add secret*, puis le déposer dans Vault (`vercel_bypass_secret`, ci-dessous). Avec un domaine personnalisé (non protégé), ce secret devient inutile.
 
 ### 5.2 Secrets dans Vault (👤 Supabase → projet `pronostics` → *SQL Editor*)
 
