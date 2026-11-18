@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/types/database";
+import { assertNotProduction } from "../guard";
 
 /**
  * Outils des tests de sécurité.
@@ -23,6 +24,7 @@ function requireEnv(name: string): string {
 }
 
 export const SUPABASE_URL = requireEnv("NEXT_PUBLIC_SUPABASE_URL");
+assertNotProduction(SUPABASE_URL);
 const ANON_KEY = requireEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY");
 const SERVICE_ROLE_KEY = requireEnv("SUPABASE_SERVICE_ROLE_KEY");
 

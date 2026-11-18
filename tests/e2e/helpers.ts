@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { expect, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "../../types/database";
+import { assertNotProduction } from "../guard";
 
 /** Outils des tests de bout en bout. La clé secrète ne sert qu'à préparer, contrôler et nettoyer. */
 
@@ -10,6 +11,8 @@ function env(name: string): string {
   if (!value) throw new Error(`Variable ${name} manquante pour les tests de bout en bout (projet Supabase DEV).`);
   return value;
 }
+
+assertNotProduction(process.env.NEXT_PUBLIC_SUPABASE_URL);
 
 export const service = createClient<Database>(env("NEXT_PUBLIC_SUPABASE_URL"), env("SUPABASE_SERVICE_ROLE_KEY"), {
   auth: { persistSession: false, autoRefreshToken: false },

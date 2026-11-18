@@ -105,7 +105,7 @@
 
 ## Production (phase 12)
 
-- Check-list et procédures : [docs/PRODUCTION.md](docs/PRODUCTION.md). Dev = `pronostics` (`pgeytactmugqskdzsxnw`) ; prod = projet distinct. **Confirmer le nom du projet visé avant toute action Supabase.**
+- Check-list et procédures : [docs/PRODUCTION.md](docs/PRODUCTION.md). **Le projet `pronostics` (`pgeytactmugqskdzsxnw`) est la base de PRODUCTION** (décision du porteur, phase 12) : aucune expérimentation, aucune donnée de test, toute migration testée d'abord dans une transaction annulée. Il n'existe pas de base de développement séparée : les tests d'intégration et e2e refusent de viser la production (`tests/guard.ts`) et sont désactivés en CI (`RUN_INTEGRATION_TESTS`). **Confirmer le nom du projet visé avant toute action Supabase.**
 - Surveillance : `run_health_check()` (Cron `health-check`, 06:07 UTC), rapports dans `health_reports`, affichés en tête de `/admin`.
 - Modèles d'e-mails Auth en français : `supabase/templates/` (liens `token_hash` vers `/auth/callback`).
 
@@ -139,7 +139,7 @@ npx supabase link --project-ref <PROJECT_REF>
 npx supabase db push --include-seed
 ```
 
-Projet Supabase de développement : `pronostics` (réf. `pgeytactmugqskdzsxnw`). Détails du schéma et des politiques : [docs/database.md](docs/database.md).
+Projet Supabase : `pronostics` (réf. `pgeytactmugqskdzsxnw`) = **PRODUCTION** depuis la phase 12 (plus de projet de développement séparé). Détails du schéma et des politiques : [docs/database.md](docs/database.md).
 
 Dans une session Claude Code avec l'intégration Supabase, on peut aussi utiliser `apply_migration` et `generate_typescript_types` — en gardant **toujours** le fichier SQL correspondant dans `supabase/migrations/`.
 

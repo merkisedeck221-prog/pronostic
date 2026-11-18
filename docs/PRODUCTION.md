@@ -6,8 +6,8 @@ Phase 12. Cette liste se remplit au fur et à mesure : ✅ fait · ⏳ en cours 
 
 | Élément | Valeur |
 |---|---|
-| Projet Supabase de développement | `pronostics` (réf. `pgeytactmugqskdzsxnw`) — reste la base des tests |
-| Projet Supabase de production | 👤 à créer : nom proposé `pronostics-prod`, région `eu-west-1` (même région que le dev) |
+| Projet Supabase de **production** | `pronostics` (réf. `pgeytactmugqskdzsxnw`, `eu-west-1`) — confirmé par le porteur le 18/11/2026 |
+| Projet Supabase de développement | **aucun** : l'ancienne base de dev est devenue la production. Les tests d'intégration et Playwright refusent de la viser (`tests/guard.ts`) et sont désactivés en CI (variable `RUN_INTEGRATION_TESTS`). Pour les réactiver : créer un projet de dev séparé. |
 | Projet Vercel | `pronostic` (alias actuel `pronostic-brown.vercel.app`) |
 | Branche de production | `main` |
 
@@ -15,7 +15,7 @@ Phase 12. Cette liste se remplit au fur et à mesure : ✅ fait · ⏳ en cours 
 
 ## 0. Fusion dans `main`
 
-- [ ] 👤 Fusionner `phase-11-qa` dans `main` (phases 2 à 11), puis `phase-12-production` (préparation de la production). `phase-12-production` contient déjà `phase-11-qa` : une seule pull request suffit (https://github.com/merkisedeck221-prog/pronostic/compare/main...phase-12-production).
+- [ ] 👤 Fusionner `phase-12-production` dans `main` : elle contient les phases 2 à 12, une seule pull request suffit (https://github.com/merkisedeck221-prog/pronostic/compare/main...phase-12-production).
 - [ ] ⚠️ Chaque fusion dans `main` déclenche un déploiement de production Vercel. Tant que les variables de production (étape 4) ne sont pas renseignées, l'application de production affichera des erreurs : c'est attendu.
 
 ## 1. Check-list (vue d'ensemble)
@@ -23,8 +23,8 @@ Phase 12. Cette liste se remplit au fur et à mesure : ✅ fait · ⏳ en cours 
 | # | Étape | Qui | État |
 |---|---|---|---|
 | 1 | Cette check-list | Claude | ✅ |
-| 2 | Projet Supabase de production : création | 👤 | ⏳ |
-| 2 | Migrations + seed + contrôle RLS | Claude | ⬜ |
+| 2 | Projet Supabase de production : choix | 👤 | ✅ `pronostics` |
+| 2 | Migrations + seed + contrôle RLS | Claude | ✅ |
 | 3 | Auth : URL du site et de redirection | 👤 (instructions ci-dessous) | ⬜ |
 | 3 | Auth : modèles d'e-mails en français | 👤 (copier-coller) | ⬜ |
 | 3 | Auth : SMTP personnalisé (**obligatoire**) | 👤 | ⬜ |
@@ -44,9 +44,7 @@ Phase 12. Cette liste se remplit au fur et à mesure : ✅ fait · ⏳ en cours 
 
 ## 2. Base de production
 
-👤 **Créer le projet** : https://supabase.com/dashboard → *New project* → nom `pronostics-prod`, région *West EU (Ireland)* `eu-west-1`, mot de passe de base généré et **conservé dans votre gestionnaire de mots de passe**. Communiquez-moi seulement le **nom** du projet : je le confirmerai avant toute action.
-
-Claude applique ensuite, dans l'ordre, les 19 migrations de `supabase/migrations/` puis `supabase/seed.sql`, et contrôle :
+Décision du porteur : le projet existant `pronostics` devient la production (aucun projet séparé). Les 19 migrations de `supabase/migrations/` et `supabase/seed.sql` y sont appliquées. Contrôles :
 
 ```sql
 -- Toutes les tables publiques ont la RLS active (résultat attendu : 0 ligne)
@@ -56,11 +54,21 @@ select tablename from pg_tables where schemaname = 'public' and not rowsecurity;
 select tablename, count(*) from pg_policies where schemaname = 'public' group by tablename order by tablename;
 ```
 
-Résultat : ⬜ (à remplir)
+**Résultat (18/11/2026)** ✅
+
+| Contrôle | Résultat |
+|---|---|
+| Migrations appliquées | 19 / 19 (`enums_and_helpers` → `health_monitoring`) |
+| Tables publiques | 21, **toutes avec RLS** (0 table sans RLS) |
+| Tables sans politique | aucune (1 à 4 politiques par table) |
+| Données de départ | 4 marchés, 5 règles de prix, 3 packs, 8 paramètres (`pricing_mode=both`, `welcome_credits=0`, `prediction_window_hours=48`, `refund_on_cancel=true`, `maintenance_mode=false`, `reveal_after_match=true`, `fixtures_window_days=7`, `alert_quota_min=200`) |
+| Tâches Supabase Cron | 8 |
+| Données de test résiduelles | aucune (0 utilisateur, 0 match, 0 transaction) |
+| Secrets Vault | 0 (étape 5) |
 
 ## 3. Authentification
 
-### 3.1 URL (👤 Supabase → projet prod → *Authentication* → *URL Configuration*)
+### 3.1 URL (👤 Supabase → projet `pronostics` → *Authentication* → *URL Configuration*)
 
 | Champ | Valeur |
 |---|---|
@@ -88,7 +96,7 @@ Sans SMTP personnalisé, Supabase **n'envoie les e-mails qu'aux membres de l'éq
 1. Choisissez un service d'envoi (Brevo, Resend, Postmark, Amazon SES, ZeptoMail, SendGrid…) et créez un compte.
 2. Validez votre **domaine d'envoi** chez ce service (enregistrements DNS **SPF**, **DKIM** et, si proposé, **DMARC**, chez votre registraire). Sans domaine, utilisez l'adresse fournie par le service (moins bonne délivrabilité).
 3. Relevez chez le service : hôte SMTP, port (587 recommandé, STARTTLS), identifiant, mot de passe SMTP (ou clé API).
-4. Supabase → projet prod → *Authentication* → *Emails* → *SMTP Settings* → **Enable custom SMTP** :
+4. Supabase → projet `pronostics` → *Authentication* → *Emails* → *SMTP Settings* → **Enable custom SMTP** :
    - *Sender email* : `no-reply@<votre-domaine>` ;
    - *Sender name* : `Pronostics IA` ;
    - *Host*, *Port*, *Username*, *Password* : ceux du service.
@@ -104,17 +112,15 @@ Sans SMTP personnalisé, Supabase **n'envoie les e-mails qu'aux membres de l'éq
 
 👤 Vercel → projet `pronostic` → *Settings* → *Environment Variables*, environnement **Production**.
 
-⚠️ Les variables Supabase actuelles de Production viennent de l'**intégration Supabase ↔ Vercel**, connectée au projet de **développement**. Avant de continuer :
+✅ Les variables Supabase de Production (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`…) sont déjà posées par l'**intégration Supabase ↔ Vercel**, connectée au projet `pronostics`, qui est désormais la production : rien à changer pour elles.
 
-1. Supabase → projet **dev** `pronostics` → *Integrations* → *Vercel* → retirer la connexion au projet `pronostic` (ou la limiter à *Preview*).
-2. Supabase → projet **prod** → *Integrations* → *Vercel* → connecter le projet `pronostic`, environnement **Production** uniquement. Les variables `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` et `SUPABASE_SERVICE_ROLE_KEY` pointent alors vers la production.
-   - Sans l'intégration : les saisir à la main depuis Supabase → prod → *Project Settings* → *API*.
+⚠️ **Preview** : ne pas y ajouter les clés de ce projet. Une prévisualisation avec `PAYMENT_PROVIDER=mock` sur la base de production permettrait de se créditer gratuitement des crédits réels. Les prévisualisations restent donc sans base (pages en erreur) tant qu'il n'y a pas de projet de développement séparé.
 
 | Variable | Valeur attendue | Secret ? |
 |---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | `https://<réf-prod>.supabase.co` (intégration) | non |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | clé publique du projet prod (intégration) | non (publique) |
-| `SUPABASE_SERVICE_ROLE_KEY` | clé secrète du projet prod (intégration) | **oui** |
+| `NEXT_PUBLIC_SUPABASE_URL` | ✅ déjà posée par l'intégration (`https://pgeytactmugqskdzsxnw.supabase.co`) | non |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ déjà posée par l'intégration | non (publique) |
+| `SUPABASE_SERVICE_ROLE_KEY` | ✅ déjà posée par l'intégration | **oui** |
 | `NEXT_PUBLIC_APP_URL` | `https://pronostic-brown.vercel.app` (ou votre domaine) | non |
 | `DEFAULT_TIMEZONE` | `Africa/Porto-Novo` | non |
 | `API_FOOTBALL_KEY` | votre clé API-Football (forfait Pro) | **oui** |
@@ -129,8 +135,6 @@ Sans SMTP personnalisé, Supabase **n'envoie les e-mails qu'aux membres de l'éq
 
 Variables ajoutées par l'intégration et inutilisées par l'application (`POSTGRES_*`, `SUPABASE_JWT_SECRET`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`) : sans effet, à laisser.
 
-Les **Preview** doivent garder le projet de **développement** (avec `PAYMENT_PROVIDER=mock`).
-
 Après modification : *Deployments* → dernier déploiement de production → *Redeploy*.
 
 ⚠️ Paiement de test en production : avec `PAYMENT_PROVIDER=mock`, n'importe quel utilisateur peut se créditer avec le bouton « Simuler un paiement réussi ». Tant que le vrai paiement n'est pas branché, ne pas ouvrir l'application au public, ou désactiver les packs dans `/admin/packs`.
@@ -141,7 +145,7 @@ Après modification : *Deployments* → dernier déploiement de production → *
 
 Vercel → *Settings* → *Deployment Protection* : si la protection s'applique à la production, créer un secret *Protection Bypass for Automation* (il sera déposé dans Vault ci-dessous). Avec un domaine personnalisé non protégé, inutile.
 
-### 5.2 Secrets dans Vault (👤 Supabase → projet **prod** → *SQL Editor*)
+### 5.2 Secrets dans Vault (👤 Supabase → projet `pronostics` → *SQL Editor*)
 
 ```sql
 select vault.create_secret('https://pronostic-brown.vercel.app', 'app_url', 'URL de production appelée par Supabase Cron');
@@ -262,7 +266,7 @@ npx supabase login
 ```
 
 ```bash
-npx supabase link --project-ref <réf-prod>
+npx supabase link --project-ref pgeytactmugqskdzsxnw
 ```
 
 ```bash
