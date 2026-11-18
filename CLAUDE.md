@@ -67,6 +67,13 @@
 - Jamais de régénération automatique d'un match qui a des pronostics ; régénération admin refusée dès qu'il existe un déblocage (RG-F5-6).
 - Les tests n'appellent jamais OpenAI : client simulé.
 
+## Crédits et déblocage (phase 7)
+
+- Fonctions SQL : `get_unlock_price`, `unlock_prediction`, `get_fixture_predictions`, `admin_adjust_balance` (détails : [docs/database.md](docs/database.md)). Erreurs métier renvoyées en JSON `{ ok:false, code, message }`, jamais en exception.
+- `lib/credits/` : schémas Zod des réponses, `parse.ts` (traduction pure), `errors.ts` (messages français), `queries.ts` (lectures, session utilisateur), `actions.ts` (Server Actions `unlockPredictionAction`, `adminAdjustBalanceAction`). La Server Action ne reçoit **que** `fixtureId` et `marketCode` (null = match complet) : jamais de prix.
+- Fiche match : `components/predictions/` ; après un déblocage, `router.refresh()` recharge la carte et le solde de l'en-tête depuis le serveur.
+- Tests d'intégration `tests/credits/` : `npm run test:credits` (mêmes variables que `test:security`, projet DEV uniquement ; lancés en CI).
+
 ## Fonctionnalités d'abord, pas de design
 
 Interface sobre avec les composants shadcn/ui par défaut. **Aucun travail de design (couleurs, illustrations, animations, landing page) avant la phase dédiée**, qui se fera à partir des inspirations fournies par le porteur du projet.
@@ -81,6 +88,7 @@ npm run typecheck      # next typegen + tsc --noEmit
 npm test               # Vitest (une passe)
 npm run test:coverage  # Vitest avec couverture
 npm run test:security  # tests de sécurité RLS contre Supabase DEV (clé secrète requise, voir docs/database.md)
+npm run test:credits   # tests d'intégration crédits/déblocage contre Supabase DEV (clé secrète requise)
 npm run discover:leagues   # découverte des compétitions API-Football (~13 appels, écrit docs/leagues.md)
 npm run sync -- sync-fixtures   # lancer une ou plusieurs tâches de synchronisation à la main
 npm run ai:sample          # génération réelle sur 3 matchs (contrôle qualité du prompt)

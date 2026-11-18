@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { EmptyState } from "@/components/layout/empty-state";
 import { FormBadges } from "@/components/matches/form-badges";
+import { PredictionsBlock } from "@/components/predictions/predictions-block";
 import { StatusBadge } from "@/components/matches/status-badge";
 import { TeamLogo } from "@/components/matches/team-logo";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { requireUser } from "@/lib/auth/session";
 import { formResults, type FixtureContext } from "@/lib/catalog/context";
-import { getFixture, getFixtureContext, getPredictionFlags } from "@/lib/catalog/queries";
+import { getFixture, getFixtureContext } from "@/lib/catalog/queries";
+import { getFixturePredictions, getWalletBalance } from "@/lib/credits/queries";
 import { createClient } from "@/lib/supabase/server";
 import { formatLongDate, formatNumericDate, formatTime, resolveTimezone } from "@/lib/utils/dates";
 import { matchStatus } from "@/lib/utils/match-status";
@@ -47,9 +49,11 @@ export default async function FixturePage({ params }: PageProps<"/matchs/[id]">)
 
   // Existence et visibilité déjà vérifiées par la mise en page (404) ; lecture en cache.
   const fixture = (await getFixture(Number(id)))!;
-  const [context, flags, windowHours] = await Promise.all([
+  // Pronostics : rendu dynamique, propre à l'utilisateur, jamais mis en cache (section 11).
+  const [context, predictions, balance, windowHours] = await Promise.all([
     getFixtureContext(fixture.id),
-    getPredictionFlags([fixture.id]),
+    getFixturePredictions(fixture.id),
+    getWalletBalance(user.id),
     predictionWindowHours(),
   ]);
 
@@ -119,21 +123,30 @@ export default async function FixturePage({ params }: PageProps<"/matchs/[id]">)
         </CardContent>
       </Card>
 
-      {/* Pronostics IA : emplacement rempli en phases 6 et 7 */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Pronostics IA</CardTitle>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          {flags.has(fixture.id) ? (
-            <p>Des pronostics sont disponibles pour ce match. Leur déblocage arrive prochainement.</p>
-          ) : status.phase === "upcoming" ? (
-            <p>Les pronostics seront disponibles environ {windowHours} h avant le coup d&apos;envoi.</p>
-          ) : (
-            <p>Aucun pronostic n&apos;a été publié pour ce match.</p>
-          )}
-        </CardContent>
-      </Card>
+      {/* Pronostics IA (phase 7) : contenu fourni par get_fixture_predictions UNIQUEMENT si débloqué */}
+      {predictions && predictions.markets.length > 0 ? (
+        <PredictionsBlock
+          fixtureId={fixture.id}
+          homeName={fixture.home.name}
+          awayName={fixture.away.name}
+          data={predictions}
+          balance={balance ?? 0}
+          upcoming={status.phase === "upcoming"}
+        />
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Pronostics IA</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground">
+            {status.phase === "upcoming" ? (
+              <p>Les pronostics seront disponibles environ {windowHours} h avant le coup d&apos;envoi.</p>
+            ) : (
+              <p>Aucun pronostic n&apos;a été publié pour ce match.</p>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Forme */}
       <Card>

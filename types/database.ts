@@ -1010,6 +1010,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_adjust_balance: {
+        Args: { p_amount: number; p_reason: string; p_user_id: string }
+        Returns: Json
+      }
       fixtures_with_prediction_flag: {
         Args: { p_fixture_ids: number[] }
         Returns: {
@@ -1017,8 +1021,13 @@ export type Database = {
           has_prediction: boolean
         }[]
       }
+      get_fixture_predictions: { Args: { p_fixture_id: number }; Returns: Json }
       get_fixture_public_context: {
         Args: { p_fixture_id: number }
+        Returns: Json
+      }
+      get_unlock_price: {
+        Args: { p_fixture_id: number; p_market_code?: string }
         Returns: Json
       }
       is_admin: { Args: never; Returns: boolean }
@@ -1034,6 +1043,10 @@ export type Database = {
           p_reason?: string
           p_run: Json
         }
+        Returns: Json
+      }
+      unlock_prediction: {
+        Args: { p_fixture_id: number; p_market_code?: string }
         Returns: Json
       }
     }

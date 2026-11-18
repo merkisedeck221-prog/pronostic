@@ -56,3 +56,5 @@ jobs:
       # Build avec les variables du projet DEV : les tests HTTP démarrent `next start`.
       - run: npm run build
       - run: npm run test:security
+      # Tests d'intégration obligatoires de la phase 7 (crédits et déblocages).
+      - run: npm run test:credits

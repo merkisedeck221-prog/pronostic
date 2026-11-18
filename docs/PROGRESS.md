@@ -13,7 +13,7 @@ Tenu par Claude Code. Référence : [cahier-des-charges.md](cahier-des-charges.m
 | 4. Synchronisation | Client API-Football, tâches `sync-*`, Supabase Cron, journal | Les matchs des 14 prochains jours apparaissent en base ; le quota est respecté | En cours (code prêt ; découverte et synchro réelle en attente des secrets) |
 | 5. Catalogue | Compétitions, matchs à venir, fiche match gratuite | Navigation complète jusqu'à la fiche d'un match réel | En validation (en attente de données réelles, phase 4) |
 | 6. Moteur IA | Dossiers, prompt v1, appel OpenAI, validation, stockage | Les matchs à moins de 48 h ont leurs 4 pronostics, cohérents et en français | En cours (code prêt ; génération réelle en attente des secrets et des données) |
-| 7. Crédits et déblocage | Portefeuille, prix, déblocage par marché et par match | Les 5 tests obligatoires de la section 11 passent | À faire |
+| 7. Crédits et déblocage | Portefeuille, prix, déblocage par marché et par match | Les 5 tests obligatoires de la section 11 passent | En validation (SQL vérifié ; tests d'intégration en attente des secrets GitHub) |
 | 8. Recharge simulée | Packs, fournisseur `mock`, page de résultat | Une recharge simulée crédite le compte une seule fois | À faire |
 | 9. Résolution et suivi | `settle-predictions`, remboursements, Mes pronostics, Performances | Un match terminé met à jour les statuts ; les taux affichés sont justes | À faire |
 | 10. Administration | Les 13 pages admin et le journal d'audit | Toutes les actions de la section 4 fonctionnent et sont journalisées | À faire |
@@ -320,3 +320,52 @@ Statuts possibles : À faire · En cours · En validation · Validée.
 ### Prochaine phase
 
 **Phase 7 — Crédits et déblocage** : portefeuille, prix (`get_unlock_price`), `unlock_prediction`, `get_fixture_predictions`, affichage des pronostics sur la fiche match, les 5 tests obligatoires de la section 11.
+
+---
+
+## Phase 7 — Crédits et déblocage
+
+Branche `phase-7-credits`.
+
+### Ce qui a été fait
+
+- **Migration `credits_unlock`** (`20261117223746`) : `get_unlock_price`, `unlock_prediction`, `get_fixture_predictions`, `admin_adjust_balance` ; helpers dans le schéma `private` ; toutes en `SECURITY DEFINER`, `search_path = ''`, `auth.uid()` ; `EXECUTE` retiré à `public`/`anon`, accordé à `authenticated` (+ `service_role` pour le prix et l'ajustement) ; exception : `get_fixture_predictions` exécutable par `anon` (demandé). Index `unlocks (user_id, fixture_id)`.
+- **`lib/credits/`** : schémas Zod, traduction des codes en français, lectures (`getFixturePredictions`, `getUnlockPrice`, `getWalletBalance`, `listTransactions`), Server Actions `unlockPredictionAction` et `adminAdjustBalanceAction` (cette dernière sera branchée à l'admin en phase 10).
+- **Fiche match** : bloc « Pronostics IA » (`components/predictions/`) — carte verrouillée (cadenas, nom, prix, « Débloquer ») ou débloquée (sélection, barre de probabilité, trois barres pour le 1N2, badge de confiance Faible/Moyen/Élevé, explication, résultat si réglé) ; « Débloquer le match complet » avec prix effectif (prix barré expliqué si déduction) ; fenêtre de confirmation (prix, solde actuel, solde après) ; « Recharger » vers `/recharger?next=/matchs/[id]` si solde insuffisant ; bouton désactivé pendant le traitement ; message de succès ; `router.refresh()` met à jour cartes, analyse et solde de l'en-tête ; analyse globale (résumé + facteurs clés) quand accessible ; après le coup d'envoi, plus de bouton et « Les déblocages sont fermés pour ce match ». Rendu dynamique, rien en cache.
+- **`/portefeuille`** : solde, « Recharger », historique paginé (20 par page), date locale, type en français, libellé, montant coloré +/−, solde après.
+- **Tests** : 14 tests unitaires (`lib/credits/credits.test.ts`, total 134) ; 10 tests d'intégration `tests/credits/unlock.test.ts` (`npm run test:credits`, ajoutés au job CI « Tests de sécurité »).
+
+### Vérifications effectuées (base DEV, transaction annulée via SQL)
+
+| # | Scénario | Résultat |
+|---|---|---|
+| 1 | Déblocage normal (1N2, 10 crédits) | `ok`, solde 8, transaction `unlock` −2 / `balance_after` 8 / référence `fixture`, libellé « Déblocage : Arsenal T – Chelsea T, Résultat du match (1N2) », unlock créé, `is_locked = true` ; 2e appel → `ALREADY_UNLOCKED` |
+| 2 | 5 appels simultanés | **non reproductible via SQL** (une seule connexion) : garanti par `FOR UPDATE` + vérification après verrou + contrainte d'unicité ; test d'intégration prêt (CI) |
+| 3 | Solde insuffisant (0 crédit, score exact à 3) | `INSUFFICIENT_BALANCE`, solde 0 inchangé, aucune transaction |
+| 4 | Match commencé | `MATCH_STARTED` |
+| 5 | Match complet après le 1N2 | prix 5 (7 − 2), déduction 2 ; débit 5, solde 3 ; BTTS ensuite → `ALREADY_UNLOCKED` ; tout le contenu et l'analyse visibles |
+| 6 | `get_fixture_predictions` sans déblocage | utilisateur et anonyme : 4 marchés, prix, aucun champ de contenu, analyse `null`, aucun texte secret |
+| 7 | Lecture directe `predictions` / `prediction_analyses` | 0 ligne (anonyme et utilisateur) |
+| 8 | `admin_adjust_balance` par un non-admin | `FORBIDDEN` ; anonyme : `permission denied` sur `unlock_prediction` |
+
+### Décisions prises
+
+- Erreurs métier en JSON (pas d'exception) pour que la Server Action affiche un message précis ; seule la course sur la contrainte d'unicité lève une exception (annulation du débit).
+- Un match complet entièrement déduit (prix 0) crée un accès sans transaction (montant 0 interdit par la contrainte).
+- Matchs reportés/annulés : `NOT_AVAILABLE` ; en cours : `MATCH_STARTED`.
+- Un marché acheté reste visible par l'acheteur même si le marché est ensuite désactivé.
+- `admin_adjust_balance` accepte aussi `service_role` (préparation des tests, tâches serveur).
+
+### Écarts / points ouverts
+
+- **Tests d'intégration non exécutés dans cette session** : pas de clé `service_role` disponible ici. Ils tournent dans le job CI dès que les secrets `SUPABASE_DEV_URL`, `SUPABASE_DEV_ANON_KEY`, `SUPABASE_DEV_SERVICE_ROLE_KEY` sont ajoutés au dépôt.
+- La fiche match reste réservée aux utilisateurs connectés (phase 5) ; la fonction fonctionne déjà pour les visiteurs.
+- `/recharger` est encore un écran « bientôt » (phase 8).
+
+### Dettes techniques
+
+- `rls_auto_enable()` (fournie par Supabase) apparaît exécutable par `anon` dans le conseiller : à examiner en recette.
+
+### Prochaine phase
+
+**Phase 8 — Recharge simulée** : packs, `PaymentProvider` `mock`, `apply_topup`, page de résultat.

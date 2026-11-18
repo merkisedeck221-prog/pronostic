@@ -12,7 +12,7 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["**/*.test.ts", "**/*.test.tsx"],
-    exclude: ["node_modules", ".next", "e2e", "tests/security/**"],
+    exclude: ["node_modules", ".next", "e2e", "tests/security/**", "tests/credits/**"],
     coverage: {
       provider: "v8",
       include: ["lib/**/*.ts"],

@@ -20,6 +20,8 @@ Fichiers SQL versionnés dans `supabase/migrations/`, appliqués dans l'ordre :
 | `20261117210641_competitions_coverage.sql` | Colonne `competitions.coverage` (phase 4) |
 | `20261117210710_cron_sync_jobs.sql` | pg_cron + pg_net, `private.invoke_sync_job()`, 4 tâches planifiées (phase 4) |
 | `20261117213653_catalog_functions.sql` | Fonctions du catalogue et index équipe + date (phase 5) |
+| `20261117215848_ai_generation.sql` | `save_ai_generation()` et tâches planifiées IA (phase 6) |
+| `20261117223746_credits_unlock.sql` | Prix, déblocage, lecture des pronostics, ajustement admin (phase 7) |
 
 Données de départ : `supabase/seed.sql` (4 marchés, 5 règles de prix, 3 packs, 6 paramètres). Idempotent (`ON CONFLICT DO NOTHING`) : relancé, il ne réécrase jamais une valeur modifiée depuis l'admin. Aucune compétition : elles arrivent en phase 4.
 
@@ -134,7 +136,7 @@ En plus des politiques, les **privilèges** d'écriture sont retirés (défense 
 | `standings` | tous | admin |
 | `match_contexts` | **admin uniquement** | admin |
 | `markets` | tous : actifs ; admin : tous | admin |
-| `predictions` | **admin uniquement** (utilisateurs : future fonction `get_fixture_predictions`) | admin |
+| `predictions` | **admin uniquement** (utilisateurs : uniquement via `get_fixture_predictions`) | admin |
 | `prediction_analyses` | **admin uniquement** | admin |
 | `prediction_revisions` | admin | aucune (serveur) |
 | `ai_generation_runs` | admin | aucune (serveur) |
@@ -163,7 +165,20 @@ En plus des politiques, les **privilèges** d'écriture sont retirés (défense 
 
 Les trois fonctions du catalogue sont exécutables par `anon` (alerte du conseiller Supabase acceptée) : elles ne renvoient que des données déjà publiques par la RLS (matchs publiés, classements, équipes) et un booléen ; elles serviront aussi à la page publique Performances.
 
-Les fonctions de crédits (`unlock_prediction`, `apply_topup`, `refund_fixture`…) arrivent en phases 7 à 9.
+#### Crédits et déblocage (phase 7)
+
+| Fonction | Exécutable par | Rôle |
+|---|---|---|
+| `get_unlock_price(fixture_id, market_code)` | `authenticated` | prix pour l'utilisateur connecté ; marché vide = match complet. Règle de la compétition, sinon règle générale ; match complet : déduction de ce qui a déjà été payé sur ce match (RG-F5-3), jamais sous 0 ; respecte `pricing_mode`. Renvoie `{ok, price, base_price, deduction}` ou `{ok:false, code, message}` |
+| `unlock_prediction(fixture_id, market_code)` | `authenticated` | déblocage en **une transaction** : connecté, non suspendu, pas de maintenance, match publié, coup d'envoi futur, marché actif avec pronostic publié, `SELECT … FOR UPDATE` du portefeuille, pas déjà débloqué (le match complet couvre les marchés), prix recalculé, solde, débit, `credit_transactions` (`unlock`, montant négatif, `balance_after`, référence `fixture`), `unlocks`, `predictions.is_locked = true`. Codes : `INSUFFICIENT_BALANCE`, `ALREADY_UNLOCKED`, `MATCH_STARTED`, `NOT_AVAILABLE`, `MAINTENANCE`, `BANNED`, `NOT_AUTHENTICATED` |
+| `get_fixture_predictions(fixture_id)` | `anon`, `authenticated` | marchés actifs publiés : code, libellé, prix, débloqué ou non ; contenu (sélection, probabilités, confiance, explication, résultat) **seulement** si débloqué ou match terminé avec `reveal_after_match = true` ; analyse globale aux mêmes conditions (match complet) ; prix du match complet |
+| `admin_adjust_balance(user_id, amount, reason)` | `authenticated` (refus `FORBIDDEN` si non admin), `service_role` | motif obligatoire, solde jamais négatif, transaction `admin_adjustment`, ligne `admin_audit_log` |
+
+Les helpers `private.setting`, `private.base_price`, `private.has_access` et `private.compute_price` sont dans le schéma `private`, non exposé par l'API.
+
+`get_fixture_predictions` est volontairement exécutable par `anon` (le prompt de phase 7 demande qu'elle fonctionne pour un visiteur anonyme) : elle ne renvoie jamais de contenu verrouillé. Les alertes « SECURITY DEFINER exécutable » du conseiller Supabase sur ces fonctions sont donc attendues.
+
+Les fonctions `apply_topup` et `refund_fixture` arrivent en phases 8 et 9.
 
 ### Désigner un administrateur
 
