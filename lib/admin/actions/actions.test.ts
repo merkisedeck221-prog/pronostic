@@ -37,6 +37,7 @@ const MODULES = {
   packs: () => import("./packs"),
   settings: () => import("./settings"),
   sync: () => import("./sync"),
+  health: () => import("./health"),
   credits: () => import("@/lib/credits/actions"),
   syncLegacy: () => import("@/lib/sync/actions"),
   aiLegacy: () => import("@/lib/ai/actions"),

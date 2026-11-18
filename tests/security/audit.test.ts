@@ -31,6 +31,7 @@ const SENSITIVE_TABLES = [
   "admin_audit_log",
   "sync_runs",
   "prediction_revisions",
+  "health_reports",
 ] as const;
 
 beforeAll(async () => {

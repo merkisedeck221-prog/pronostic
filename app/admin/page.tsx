@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { HealthPanel } from "@/components/admin/health-panel";
 import { AdminPage, Stat } from "@/components/admin/table-tools";
+import { parseAnomalies } from "@/lib/admin/health";
+import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { adminRpc, type AdminOverview } from "@/lib/admin/queries";
 import { requireAdmin } from "@/lib/auth/session";
@@ -14,10 +17,15 @@ const n = (value: number) => new Intl.NumberFormat("fr-FR").format(value);
 export default async function AdminOverviewPage() {
   const admin = await requireAdmin();
   const tz = resolveTimezone(admin.profile.timezone);
-  const o = await adminRpc<AdminOverview>("admin_overview");
+  const supabase = await createClient();
+  const [o, { data: report }] = await Promise.all([
+    adminRpc<AdminOverview>("admin_overview"),
+    supabase.from("health_reports").select("created_at, status, anomalies").order("created_at", { ascending: false }).limit(1).maybeSingle(),
+  ]);
 
   return (
     <AdminPage title="Vue d'ensemble">
+      <HealthPanel report={report} anomalies={parseAnomalies(report?.anomalies)} timezone={tz} />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="Inscrits" value={n(o.users_total)} hint={`+${n(o.users_7d)} sur 7 jours`} />
         <Stat label="Chiffre d'affaires simulé" value={formatXof(o.revenue_xof)} hint="Recharges réussies" />

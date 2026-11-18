@@ -103,6 +103,12 @@
 - En-têtes HTTP de sécurité dans `next.config.ts`. Pages `app/not-found.tsx`, `app/error.tsx`, `app/global-error.tsx` en français.
 - `loading.tsx` uniquement sur des segments dont la page n'appelle pas `notFound()` (sinon le 404 devient un 200).
 
+## Production (phase 12)
+
+- Check-list et procédures : [docs/PRODUCTION.md](docs/PRODUCTION.md). Dev = `pronostics` (`pgeytactmugqskdzsxnw`) ; prod = projet distinct. **Confirmer le nom du projet visé avant toute action Supabase.**
+- Surveillance : `run_health_check()` (Cron `health-check`, 06:07 UTC), rapports dans `health_reports`, affichés en tête de `/admin`.
+- Modèles d'e-mails Auth en français : `supabase/templates/` (liens `token_hash` vers `/auth/callback`).
+
 ## Fonctionnalités d'abord, pas de design
 
 Interface sobre avec les composants shadcn/ui par défaut. **Aucun travail de design (couleurs, illustrations, animations, landing page) avant la phase dédiée**, qui se fera à partir des inspirations fournies par le porteur du projet.

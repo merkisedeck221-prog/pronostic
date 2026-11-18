@@ -48,5 +48,6 @@ insert into public.app_settings (key, value, description, is_public) values
   ('refund_on_cancel',        'true'::jsonb,   'Remboursement automatique des matchs annulés ou reportés de plus de 48 h.',      true),
   ('maintenance_mode',        'false'::jsonb,  'Bloque les déblocages et les recharges, avec un message.',                       true),
   ('reveal_after_match',      'true'::jsonb,   'Rend publics les pronostics d''un match terminé (RG-F4-4).',                     true),
-  ('fixtures_window_days',    '7'::jsonb,      'Fenêtre (jours) affichée par défaut sur la page Matchs (RG-F2-4).',              true)
+  ('fixtures_window_days',    '7'::jsonb,      'Fenêtre (jours) affichée par défaut sur la page Matchs (RG-F2-4).',              true),
+  ('alert_quota_min',         '200'::jsonb,    'Alerte si le quota API-Football restant passe sous ce seuil (surveillance).',    false)
 on conflict (key) do nothing;

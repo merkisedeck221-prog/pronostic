@@ -64,6 +64,41 @@ export type Database = {
           },
         ]
       }
+      health_reports: {
+        Row: {
+          anomalies: Json
+          created_at: string
+          created_by: string | null
+          id: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          anomalies?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: never
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          anomalies?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: never
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "health_reports_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_generation_runs: {
         Row: {
           cost_estimate_usd: number | null
@@ -1038,6 +1073,8 @@ export type Database = {
         Returns: Json
       }
       admin_settle_fixture: { Args: { p_fixture_id: number }; Returns: Json }
+      admin_run_health_check: { Args: never; Returns: Json }
+      run_health_check: { Args: never; Returns: Json }
       admin_adjust_balance: {
         Args: { p_amount: number; p_reason: string; p_user_id: string }
         Returns: Json

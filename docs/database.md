@@ -27,6 +27,7 @@ Fichiers SQL versionnés dans `supabase/migrations/`, appliqués dans l'ordre :
 | `20261118060511_admin.sql` | Fonctions d'administration (phase 10) |
 | `20261118063349_qa_hardening.sql` | Recette : `created_at` protégé, contrainte sur `timezone`, droit retiré sur `rls_auto_enable` (phase 11) |
 | `20261118064038_fixtures_window_setting.sql` | Paramètre `fixtures_window_days` (RG-F2-4, phase 11) |
+| `20261118065142_health_monitoring.sql` | Surveillance : table `health_reports`, `run_health_check()`, `admin_run_health_check()`, tâche Cron `health-check` (phase 12) |
 
 Données de départ : `supabase/seed.sql` (4 marchés, 5 règles de prix, 3 packs, 6 paramètres). Idempotent (`ON CONFLICT DO NOTHING`) : relancé, il ne réécrase jamais une valeur modifiée depuis l'admin. Aucune compétition : elles arrivent en phase 4.
 
