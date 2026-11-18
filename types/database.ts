@@ -1010,6 +1010,34 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_ai_stats: { Args: never; Returns: Json }
+      admin_consistency_check: { Args: never; Returns: Json }
+      admin_cron_status: { Args: never; Returns: Json }
+      admin_edit_prediction_text: {
+        Args: { p_prediction_id: number; p_reason: string; p_reasoning: string }
+        Returns: Json
+      }
+      admin_get_user: { Args: { p_user_id: string }; Returns: Json }
+      admin_list_users: {
+        Args: { p_limit?: number; p_offset?: number; p_search?: string; p_sort?: string; p_status?: string }
+        Returns: Json
+      }
+      admin_log_action: {
+        Args: { p_action: string; p_after: Json; p_before: Json; p_entity: string; p_entity_id: string; p_reason?: string }
+        Returns: Json
+      }
+      admin_overview: { Args: never; Returns: Json }
+      admin_refund_fixture: { Args: { p_fixture_id: number; p_reason: string }; Returns: Json }
+      admin_set_prediction_status: {
+        Args: { p_prediction_id: number; p_reason: string; p_status: Database["public"]["Enums"]["prediction_status"] }
+        Returns: Json
+      }
+      admin_set_user_banned: { Args: { p_banned: boolean; p_reason: string; p_user_id: string }; Returns: Json }
+      admin_set_user_role: {
+        Args: { p_reason: string; p_role: Database["public"]["Enums"]["user_role"]; p_user_id: string }
+        Returns: Json
+      }
+      admin_settle_fixture: { Args: { p_fixture_id: number }; Returns: Json }
       admin_adjust_balance: {
         Args: { p_amount: number; p_reason: string; p_user_id: string }
         Returns: Json
