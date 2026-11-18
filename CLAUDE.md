@@ -96,6 +96,13 @@
 - Export CSV : `app/admin/transactions/export/route.ts` (mêmes filtres que la page, `lib/admin/transactions.ts`).
 - Tests d'intégration `tests/admin/` : `npm run test:admin`.
 
+## Recette et sécurité (phase 11)
+
+- Rapports : [docs/RECETTE.md](docs/RECETTE.md) (conformité) et [docs/SECURITE.md](docs/SECURITE.md) (audit) : les tenir à jour à chaque nouvelle règle ou correction.
+- Attaques rejouées en CI : `tests/security/audit.test.ts` (clé publique seule). Parcours Playwright : `tests/e2e/` (`npm run test:e2e`, application compilée + Supabase DEV).
+- En-têtes HTTP de sécurité dans `next.config.ts`. Pages `app/not-found.tsx`, `app/error.tsx`, `app/global-error.tsx` en français.
+- `loading.tsx` uniquement sur des segments dont la page n'appelle pas `notFound()` (sinon le 404 devient un 200).
+
 ## Fonctionnalités d'abord, pas de design
 
 Interface sobre avec les composants shadcn/ui par défaut. **Aucun travail de design (couleurs, illustrations, animations, landing page) avant la phase dédiée**, qui se fera à partir des inspirations fournies par le porteur du projet.
@@ -114,6 +121,7 @@ npm run test:credits   # tests d'intégration crédits/déblocage contre Supabas
 npm run test:payments  # tests d'intégration recharges contre Supabase DEV (clé secrète requise)
 npm run test:settlement  # tests d'intégration résolution/remboursements/performances contre Supabase DEV
 npm run test:admin     # tests d'intégration administration contre Supabase DEV
+npm run test:e2e       # Playwright : parcours utilisateur et admin (après npm run build, Supabase DEV)
 npm run discover:leagues   # découverte des compétitions API-Football (~13 appels, écrit docs/leagues.md)
 npm run sync -- sync-fixtures   # lancer une ou plusieurs tâches de synchronisation à la main
 npm run ai:sample          # génération réelle sur 3 matchs (contrôle qualité du prompt)

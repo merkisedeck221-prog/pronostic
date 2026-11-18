@@ -17,7 +17,7 @@ Tenu par Claude Code. Référence : [cahier-des-charges.md](cahier-des-charges.m
 | 8. Recharge simulée | Packs, fournisseur `mock`, page de résultat | Une recharge simulée crédite le compte une seule fois | En validation (SQL vérifié ; tests d'intégration en attente des secrets GitHub) |
 | 9. Résolution et suivi | `settle-predictions`, remboursements, Mes pronostics, Performances | Un match terminé met à jour les statuts ; les taux affichés sont justes | En validation (SQL vérifié ; tests d'intégration en attente des secrets GitHub ; aucun match réel en base) |
 | 10. Administration | Les 13 pages admin et le journal d'audit | Toutes les actions de la section 4 fonctionnent et sont journalisées | En validation (SQL vérifié ; à tester dans l'interface avec un compte admin) |
-| 11. Recette | Tests automatisés, audit de sécurité, corrections | Le parcours complet est testé de bout en bout ; aucune faille connue | À faire |
+| 11. Recette | Tests automatisés, audit de sécurité, corrections | Le parcours complet est testé de bout en bout ; aucune faille connue | En validation (audit fait ; Playwright et tests d'intégration en attente des secrets GitHub) |
 | 12. Mise en production | Projet Supabase prod, variables Vercel, forfait API-Football Pro, domaine | L'application tourne en production avec de vraies données | À faire |
 
 Statuts possibles : À faire · En cours · En validation · Validée.
@@ -534,3 +534,65 @@ Branche `phase-10-admin` (partie de `phase-9-settlement`), 4 commits (SQL, pages
 ### Prochaine phase
 
 **Phase 11 — Recette** : tests de bout en bout (Playwright), audit de sécurité, corrections.
+
+---
+
+## Phase 11 — Recette
+
+Branche `phase-11-qa` (partie de `phase-10-admin`).
+
+### Ce qui a été fait
+
+- **Audit de sécurité** ([docs/SECURITE.md](SECURITE.md)) :
+  - requêtes réelles sur la base DEV avec les rôles `anon` et `authenticated` (lecture de 12 tables, 18 tentatives d'écriture, paramètres hostiles sur les fonctions, inventaire des droits d'exécution) ;
+  - routes cron et webhook en HTTP ;
+  - analyse du bundle client avec des secrets marqueurs ;
+  - en-têtes de cache ;
+  - `npm audit`.
+  
+  Nouveau test `tests/security/audit.test.ts` qui rejoue les attaques en CI.
+- **Failles trouvées et corrigées** :
+  1. un utilisateur pouvait modifier son `profiles.created_at` (antidater l'inscription) ;
+  2. `profiles.timezone` acceptait n'importe quel texte sans limite ;
+  3. `rls_auto_enable()` exécutable par `anon` / `authenticated` ;
+  4. aucun en-tête de sécurité HTTP (clickjacking possible, `X-Powered-By` exposé) ;
+  5. 10 vulnérabilités dans les dépendances de production (`shadcn` passé en dépendance de développement) et `minimatch` modéré (override) : **0 en production**.
+- **Recette fonctionnelle** ([docs/RECETTE.md](RECETTE.md)) : 30 règles, exigences de la section 11, 32 pages. Écarts corrigés :
+  - RG-F2-4 : fenêtre des matchs paramétrable (`fixtures_window_days`) ;
+  - saison courante modifiable dans `/admin/competitions` ;
+  - colonne « Dernière synchro » dans `/admin/matchs` ;
+  - mention de la suppression de compte dans `/profil`.
+- **Playwright** (`tests/e2e/`, `npm run test:e2e`, ajouté au CI) :
+  - parcours utilisateur : inscription, confirmation contournée par le client admin, connexion, fiche match, refus faute de solde, recharge simulée, déblocage d'un marché, match complet à prix réduit, portefeuille, résolution simulée, Mes pronostics ;
+  - parcours admin : prix, ajustement de solde, masquage d'un marché, journal d'audit ;
+  - les deux vérifient l'absence d'erreur dans la console du navigateur.
+- **Robustesse** : `lib/sync/runner.test.ts` couvre API-Football injoignable, API en erreur (lot qui continue), quota atteint (arrêt avant tout appel), exception inattendue et deux exécutions successives. S'y ajoutent les tests existants : nouvelles tentatives d'API-Football, échec d'OpenAI, idempotence de la résolution, du remboursement et des recharges.
+- **Qualité** :
+  - pages 404 et 500 en français (`not-found`, `error`, `global-error`) ;
+  - états de chargement (tableau de bord, Mes pronostics, Portefeuille, Performances, pages admin de liste) ;
+  - build sans avertissement ;
+  - index vérifiés.
+- **Nettoyage** : aucun `TODO`, aucun `console.log` hors scripts en ligne de commande ; README complet (installation, variables, commandes, tests, déploiement).
+- **Tests** : 211 tests unitaires.
+
+### Décisions prises
+
+- Les vérifications de sécurité se font par requêtes réelles avec changement de rôle. La session n'a ni clé `service_role` ni accès réseau à Supabase hors des outils d'intégration. Les mêmes scénarios sont automatisés pour la CI.
+- `loading.tsx` n'est pas placé sur les segments dont la page appelle `notFound()`, pour conserver de vrais codes 404 (constat de la phase 5).
+- `picomatch` (ReDoS, outils de développement uniquement, aucune version corrigée publiée) est accepté et documenté.
+
+### Écarts / points ouverts
+
+- **Playwright et tests d'intégration non exécutés ici** : ils tournent en CI dès l'ajout des secrets `SUPABASE_DEV_*`.
+- Critère « mises à jour seules pendant 7 jours » non vérifiable tant que la synchronisation réelle n'a pas tourné (secrets API-Football / OpenAI, variables Vercel Preview, secrets Vault).
+- Temps de chargement non mesurés avec de vraies données (base vide) ; index vérifiés, requêtes bornées.
+
+### Dettes techniques
+
+- Index en double `admin_audit_log_created_idx` / `admin_audit_log_created_at_idx` (sans effet fonctionnel) : à supprimer lors d'une migration de maintenance.
+- `picomatch` à mettre à jour dès qu'un correctif paraît.
+- Avant la production : CAPTCHA à l'inscription si les crédits de bienvenue sont activés ; réglages Supabase Auth (confirmation d'e-mail, mots de passe divulgués).
+
+### Prochaine phase
+
+**Phase 12 — Mise en production** : projet Supabase de production, variables Vercel, forfait API-Football Pro, domaine.

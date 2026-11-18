@@ -25,6 +25,8 @@ Fichiers SQL versionnés dans `supabase/migrations/`, appliqués dans l'ordre :
 | `20261118052343_topups.sql` | `create_topup`, `apply_topup` (phase 8) |
 | `20261118053930_settlement.sql` | Résolution, remboursements, performances, Mes pronostics, tâche `settle-predictions` (phase 9) |
 | `20261118060511_admin.sql` | Fonctions d'administration (phase 10) |
+| `20261118063349_qa_hardening.sql` | Recette : `created_at` protégé, contrainte sur `timezone`, droit retiré sur `rls_auto_enable` (phase 11) |
+| `20261118064038_fixtures_window_setting.sql` | Paramètre `fixtures_window_days` (RG-F2-4, phase 11) |
 
 Données de départ : `supabase/seed.sql` (4 marchés, 5 règles de prix, 3 packs, 6 paramètres). Idempotent (`ON CONFLICT DO NOTHING`) : relancé, il ne réécrase jamais une valeur modifiée depuis l'admin. Aucune compétition : elles arrivent en phase 4.
 
@@ -157,7 +159,7 @@ En plus des politiques, les **privilèges** d'écriture sont retirés (défense 
 | Fonction | Type | Rôle |
 |---|---|---|
 | `is_admin()` | `SECURITY DEFINER`, `STABLE` | utilisée par les politiques ; exécutable par `anon`/`authenticated` (nécessaire à la RLS ; ne renvoie que le statut de l'appelant) |
-| `protect_profile_columns()` | déclencheur | bloque la modification de `role`, `is_banned`, `terms_accepted_at`, `id` |
+| `protect_profile_columns()` | déclencheur | bloque la modification de `role`, `is_banned`, `terms_accepted_at`, `id` et (phase 11) `created_at` par l'API |
 | `handle_new_user()` | `SECURITY DEFINER`, déclencheur sur `auth.users` | crée `profiles` + `wallets` ; crédite `welcome_credits` (transaction `bonus`, une seule fois) ; non exécutable via l'API |
 | `set_updated_at()` | déclencheur | `updated_at = now()` |
 | `is_valid_1x2_probabilities(jsonb)` | `IMMUTABLE` | contrainte `CHECK` sur `predictions.probabilities` |
