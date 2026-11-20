@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Fichier généré par Supabase (npm run db:types).
     "types/database.ts",
+    // Skills tiers installés dans .claude/ (code non maintenu ici).
+    ".claude/**",
   ]),
 ]);
 
