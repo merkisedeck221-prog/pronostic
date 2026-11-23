@@ -642,7 +642,7 @@ Activation du forfait API-Football Pro, première synchronisation complète et g
 
 **Dates** : 23 et 24 novembre 2026 · **Branche** : `claude/laughing-franklin-0mmobb` · Plan et décisions : [PLAN-credits-v2.md](PLAN-credits-v2.md)
 
-**Statut : terminé et vérifié sur la base de TEST `pronostics-dev` ; PAS encore en production** (7 migrations à appliquer à `pronostics`, puis fusion dans `main`).
+**Statut : EN PRODUCTION depuis le 24/11/2026** (accord du porteur) : 6 migrations appliquées à `pronostics` (25 au total, RLS sur les 25 tables), contrôle fonctionnel en transaction annulée (journal immuable, notification, résolution), `main` fusionnée, déploiement Vercel `dpl_JCUcSCdrLtuxNpVFfaGTqBF7fqpv` READY, aucune erreur d'exécution. Test de fumée HTTP : pages publiques 200, pages privées 307 vers /connexion, admin 404 sans session, cron 401 sans secret.
 
 ### Ce qui a été fait
 

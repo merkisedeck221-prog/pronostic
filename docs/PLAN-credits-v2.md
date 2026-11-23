@@ -67,13 +67,13 @@ Chaque lot suit la procédure de fin de phase de `CLAUDE.md` : lint, types, test
 ### Lot 0 — Socle de test (prérequis) — ✅ projet `pronostics-dev` (`mumyxqitlazkpjmcxfjm`) : 18 migrations sur 19 (`health_monitoring` en attente d'une confirmation du porteur), données de départ
 - Projet Supabase de développement, migrations rejouées, tests d'intégration et Playwright réactivés en CI.
 
-### Lot 1 — Sécurité du registre et portefeuille (modules 1 et 7) — ✅ fait sur la base de test (23/11), en attente de mise en production
+### Lot 1 — Sécurité du registre et portefeuille (modules 1 et 7) — ✅ fait sur la base de test (23/11), mis en production le 24/11
 - **Journal comptable immuable** : déclencheur interdisant `UPDATE` et `DELETE` sur `credit_transactions`, pour tous, y compris la clé serveur. Les corrections passent par une écriture inverse.
 - `/portefeuille` : onglets Tout / Reçus / Consommés / Remboursements, et totaux par catégorie.
 - **Reçus** : page `/portefeuille/recus/[id]` pour chaque recharge réussie (numéro, date, pack, crédits, bonus, montant XOF, prestataire, référence), imprimable ou enregistrable en PDF.
 - **Notifications dans l'application** : table `notifications` (RLS : lecture de ses seules notifications), cloche dans l'en-tête. Déclencheurs : recharge réussie ou échouée, remboursement, ajustement admin, pronostic résolu. E-mails plus tard, une fois le SMTP en place.
 
-### Lot 2 — Packs, promotions, administration (modules 2 et 6) — ✅ fait sur la base de test (24/11), en attente de mise en production
+### Lot 2 — Packs, promotions, administration (modules 2 et 6) — ✅ fait sur la base de test (24/11), mis en production le 24/11
 - Les 5 packs Starter, Basic, Premium, Pro et VIP (prix à fixer par vous), avec dates de disponibilité (décision D3).
 - **Promotions** : codes promo (crédits offerts ou % de bonus, dates, nombre d'utilisations total et par personne), appliqués **côté serveur** dans `create_topup`, puis journalisés.
 - **Admin** : débit ou remboursement d'une transaction précise (écriture inverse, motif, audit) ; page **Revenus** (par jour, mois, pack, prestataire ; crédits vendus, consommés, remboursés) ; page **Moyens de paiement** (activer ou désactiver un prestataire, libellés, ordre ; les clés restent dans les variables Vercel).
