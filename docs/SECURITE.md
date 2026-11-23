@@ -193,6 +193,7 @@ Corrections :
 | Double débit / rejeu | ✅ clé d'idempotence unique par utilisateur ; une seule demande active par utilisateur, match et type (index unique) ; accès déjà acquis refusé ; 5 demandes par 10 minutes au plus ; verrou du portefeuille (testé en SQL et dans le navigateur) |
 | Réservation | ✅ débit immédiat dans le journal immuable (`generation_hold`), rendu par `generation_release` si l'IA échoue, si la limite quotidienne est atteinte ou après 10 minutes (Cron) ; jamais de débit sans résultat (testé) |
 | Mutualisation | ✅ une seule génération par match (verrou + statut « running ») ; les demandes suivantes attendent le résultat partagé, sans nouvel appel à l'IA (testé) |
+| Relecture du 24/11 | 🔧 2 défauts corrigés (migration `generation_hardening`) : double remboursement possible si l'admin annulait une réservation d'analyse en cours ou déjà rendue ; accès donné sur un match annulé pendant l'analyse. Les deux cas sont rejoués en SQL |
 | Fonctions serveur | ✅ `start_generation`, `complete_generation`, `fail_generation`, `expire_generation_requests` : `service_role` uniquement (refus testé pour un utilisateur) ; demande lue avec filtre `user_id` + RLS |
 
 ## 10. Points ouverts et risques acceptés
