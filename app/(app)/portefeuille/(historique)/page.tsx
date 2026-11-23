@@ -6,20 +6,42 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { requireUser } from "@/lib/auth/session";
+import { parseTransactionFilter, TRANSACTION_FILTERS, type TransactionFilter } from "@/lib/credits/filters";
 import { formatSignedAmount, transactionTypeLabel } from "@/lib/credits/labels";
 import { parsePage } from "@/lib/credits/pagination";
-import { getWalletBalance, listTransactions } from "@/lib/credits/queries";
+import { getWalletBalance, getWalletSummary, listTransactions } from "@/lib/credits/queries";
+import { cn } from "@/lib/utils";
 import { formatDateTime, resolveTimezone } from "@/lib/utils/dates";
 import { formatCredits } from "@/lib/utils/format";
 
 export const metadata: Metadata = { title: "Portefeuille · Pronostics IA" };
 
+function pageHref(filter: TransactionFilter, page = 1): string {
+  const params = new URLSearchParams();
+  if (filter !== "tous") params.set("filtre", filter);
+  if (page > 1) params.set("page", String(page));
+  const query = params.toString();
+  return query ? `/portefeuille?${query}` : "/portefeuille";
+}
+
 export default async function PortefeuillePage({ searchParams }: PageProps<"/portefeuille">) {
   const user = await requireUser();
   const timezone = resolveTimezone(user.profile.timezone);
-  const page = parsePage((await searchParams).page);
+  const params = await searchParams;
+  const page = parsePage(params.page);
+  const filter = parseTransactionFilter(params.filtre);
 
-  const [balance, history] = await Promise.all([getWalletBalance(user.id), listTransactions(user.id, page)]);
+  const [balance, summary, history] = await Promise.all([
+    getWalletBalance(user.id),
+    getWalletSummary(),
+    listTransactions(user.id, page, filter),
+  ]);
+
+  const totals = [
+    { label: "Crédits reçus", value: summary?.received, hint: "Recharges, bonus, ajustements" },
+    { label: "Crédits consommés", value: summary?.consumed, hint: "Déblocages, débits de l'administration" },
+    { label: "Crédits remboursés", value: summary?.refunded, hint: "Matchs annulés ou reportés" },
+  ];
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
@@ -30,12 +52,27 @@ export default async function PortefeuillePage({ searchParams }: PageProps<"/por
           <CardDescription>Solde actuel</CardDescription>
           <CardTitle className="text-3xl tabular-nums">{formatCredits(balance ?? 0)}</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="flex flex-wrap gap-2">
           <Link href="/recharger?next=/portefeuille" className={buttonVariants()}>
             Recharger
           </Link>
+          <Link href="/portefeuille/recus" className={buttonVariants({ variant: "outline" })}>
+            Mes reçus de paiement
+          </Link>
         </CardContent>
       </Card>
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        {totals.map((t) => (
+          <Card key={t.label} size="sm">
+            <CardHeader>
+              <CardDescription>{t.label}</CardDescription>
+              <CardTitle className="text-xl tabular-nums">{t.value === undefined ? "—" : formatCredits(t.value)}</CardTitle>
+              <p className="text-xs text-muted-foreground">{t.hint}</p>
+            </CardHeader>
+          </Card>
+        ))}
+      </div>
 
       <Card>
         <CardHeader>
@@ -43,6 +80,18 @@ export default async function PortefeuillePage({ searchParams }: PageProps<"/por
           <CardDescription>
             {history.total} mouvement{history.total > 1 ? "s" : ""}
           </CardDescription>
+          <nav className="flex flex-wrap gap-2 pt-2" aria-label="Filtrer l'historique">
+            {TRANSACTION_FILTERS.map((f) => (
+              <Link
+                key={f.value}
+                href={pageHref(f.value)}
+                aria-current={f.value === filter ? "page" : undefined}
+                className={cn(buttonVariants({ variant: f.value === filter ? "default" : "outline", size: "sm" }))}
+              >
+                {f.label}
+              </Link>
+            ))}
+          </nav>
         </CardHeader>
         <CardContent className="overflow-x-auto">
           {history.rows.length === 0 ? (
@@ -65,7 +114,17 @@ export default async function PortefeuillePage({ searchParams }: PageProps<"/por
                       {formatDateTime(tx.created_at, timezone)}
                     </TableCell>
                     <TableCell>{transactionTypeLabel(tx.type)}</TableCell>
-                    <TableCell className="min-w-48 whitespace-normal">{tx.description}</TableCell>
+                    <TableCell className="min-w-48 whitespace-normal">
+                      {tx.description}
+                      {tx.type === "topup" && tx.reference_type === "topup" && tx.reference_id ? (
+                        <>
+                          {" "}
+                          <Link href={`/portefeuille/recus/${tx.reference_id}`} className="underline underline-offset-4">
+                            Reçu
+                          </Link>
+                        </>
+                      ) : null}
+                    </TableCell>
                     <TableCell
                       className={`text-right font-medium tabular-nums ${tx.amount > 0 ? "text-green-700 dark:text-green-400" : "text-destructive"}`}
                     >
@@ -81,7 +140,7 @@ export default async function PortefeuillePage({ searchParams }: PageProps<"/por
           {history.pageCount > 1 ? (
             <nav className="mt-4 flex items-center justify-between text-sm" aria-label="Pagination">
               {page > 1 ? (
-                <Link href={`/portefeuille?page=${page - 1}`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                <Link href={pageHref(filter, page - 1)} className={buttonVariants({ variant: "outline", size: "sm" })}>
                   Précédent
                 </Link>
               ) : (
@@ -91,7 +150,7 @@ export default async function PortefeuillePage({ searchParams }: PageProps<"/por
                 Page {Math.min(page, history.pageCount)} sur {history.pageCount}
               </span>
               {page < history.pageCount ? (
-                <Link href={`/portefeuille?page=${page + 1}`} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                <Link href={pageHref(filter, page + 1)} className={buttonVariants({ variant: "outline", size: "sm" })}>
                   Suivant
                 </Link>
               ) : (

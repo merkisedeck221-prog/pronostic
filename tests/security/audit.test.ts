@@ -96,6 +96,22 @@ describe("écriture avec la clé publique", () => {
     expect((await serviceClient.from("credit_transactions").select("id").eq("user_id", victim.id)).data?.length).toBeGreaterThan(0);
   });
 
+  it("notifications : ni création, ni modification, ni lecture de celles d'un autre", async () => {
+    const c = attacker.client;
+    expect((await c.from("notifications").insert({ user_id: attacker.id, kind: "hack", title: "x", body: "y" })).error).not.toBeNull();
+    expect((await c.from("notifications").insert({ user_id: victim.id, kind: "hack", title: "x", body: "y" })).error).not.toBeNull();
+    await c.from("notifications").update({ title: "pirate" }).eq("user_id", victim.id);
+    const { data: hacked } = await serviceClient.from("notifications").select("id").eq("title", "pirate");
+    expect(hacked ?? []).toEqual([]);
+    expect((await c.from("notifications").select("id").eq("user_id", victim.id)).data ?? []).toEqual([]);
+    // La victime a des transactions (crédits de test) : elle a donc des notifications, que l'attaquant ne voit pas.
+    const { count: victimCount } = await serviceClient
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", victim.id);
+    expect(victimCount ?? 0).toBeGreaterThan(0);
+  });
+
   it("pricing_rules et app_settings : aucune modification", async () => {
     const before = (await serviceClient.from("pricing_rules").select("id, credits").order("id")).data;
     await attacker.client.from("pricing_rules").update({ credits: 0 }).gte("id", 0);
@@ -116,6 +132,19 @@ describe("écriture avec la clé publique", () => {
     expect((await c.from("profiles").update({ timezone: "x".repeat(100) }).eq("id", attacker.id)).error).not.toBeNull();
     const { data } = await serviceClient.from("profiles").select("role, is_banned").eq("id", attacker.id).single();
     expect(data).toEqual({ role: "user", is_banned: false });
+  });
+});
+
+describe("journal comptable immuable (même avec la clé secrète)", () => {
+  it("aucune transaction ne peut être modifiée ni supprimée", async () => {
+    const { data: rows } = await serviceClient.from("credit_transactions").select("id, amount").eq("user_id", victim.id).limit(1);
+    const tx = rows?.[0];
+    expect(tx).toBeDefined();
+    if (!tx) return;
+    expect((await serviceClient.from("credit_transactions").update({ amount: 999_999 }).eq("id", tx.id)).error).not.toBeNull();
+    expect((await serviceClient.from("credit_transactions").delete().eq("id", tx.id)).error).not.toBeNull();
+    const { data: after } = await serviceClient.from("credit_transactions").select("amount").eq("id", tx.id).single();
+    expect(after?.amount).toBe(tx.amount);
   });
 });
 

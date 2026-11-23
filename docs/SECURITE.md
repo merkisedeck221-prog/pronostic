@@ -165,6 +165,16 @@ Corrections :
 | Secrets commités | ✅ `.env*` ignoré, diff relu à chaque phase |
 | Conseiller de sécurité Supabase | ✅ restent uniquement les fonctions `SECURITY DEFINER` exposées **volontairement** (contrôle `auth.uid()` / `is_admin()` interne) |
 
+## 9 bis. Crédits v2, lot 1 (23/11/2026)
+
+| Point | Résultat |
+|---|---|
+| Journal comptable immuable | 🔧 `credit_transactions` : UPDATE et DELETE refusés à **tous les rôles**, y compris la clé serveur (déclencheur `protect_ledger` + droits retirés, TRUNCATE compris). Seule exception : la cascade de suppression d'un compte. Vérifié en SQL sur la base de test ; test `audit.test.ts` « journal comptable immuable » |
+| Notifications | ✅ écrites uniquement par des déclencheurs `SECURITY DEFINER` ; lecture RLS de ses seules notifications ; aucune écriture avec la clé publique (testé) ; lien interne uniquement (contrainte SQL + `safeNotificationLink`, testé) ; une notification ne peut jamais faire échouer une opération financière (exception capturée) |
+| Reçus de paiement | ✅ `/portefeuille/recus/[id]` : filtre `user_id` **et** RLS ; reçu d'un autre compte, inexistant ou identifiant invalide → **404** (testé dans un navigateur avec deux comptes) ; jamais mis en cache |
+| Marquer comme lues | ✅ `mark_notifications_read()` sans identifiant d'utilisateur (auth.uid()), 200 identifiants au plus |
+| Résumé du portefeuille | ✅ `get_my_wallet_summary()` en `SECURITY INVOKER` (la RLS s'applique) |
+
 ## 10. Points ouverts et risques acceptés
 
 1. ⚠️ **`picomatch`** (outils de développement uniquement) : voir § 8.

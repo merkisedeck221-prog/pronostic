@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { signOutAction } from "@/lib/auth/actions";
 import { requireUser } from "@/lib/auth/session";
+import { countUnreadNotifications } from "@/lib/notifications/queries";
 import { createClient } from "@/lib/supabase/server";
 
 /**
@@ -40,14 +41,20 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
   }
 
   const supabase = await createClient();
-  const [{ data: wallet }, { data: isAdmin }] = await Promise.all([
+  const [{ data: wallet }, { data: isAdmin }, unreadCount] = await Promise.all([
     supabase.from("wallets").select("balance").eq("user_id", user.id).maybeSingle(),
     supabase.rpc("is_admin"),
+    countUnreadNotifications(user.id),
   ]);
 
   return (
     <>
-      <AppHeader displayName={user.profile.display_name} balance={wallet?.balance ?? null} isAdmin={isAdmin === true} />
+      <AppHeader
+        displayName={user.profile.display_name}
+        balance={wallet?.balance ?? null}
+        isAdmin={isAdmin === true}
+        unreadCount={unreadCount}
+      />
       <div className="flex flex-1 flex-col">{children}</div>
       <SiteFooter />
     </>

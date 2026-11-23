@@ -488,6 +488,53 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string
+          created_at: string
+          dedupe_key: string | null
+          id: number
+          kind: string
+          link: string | null
+          read_at: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          dedupe_key?: string | null
+          id?: never
+          kind: string
+          link?: string | null
+          read_at?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          dedupe_key?: string | null
+          id?: never
+          kind?: string
+          link?: string | null
+          read_at?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prediction_analyses: {
         Row: {
           created_at: string
@@ -1099,6 +1146,7 @@ export type Database = {
       }
       get_fixture_predictions: { Args: { p_fixture_id: number }; Returns: Json }
       get_my_predictions: { Args: { p_limit?: number }; Returns: Json }
+      get_my_wallet_summary: { Args: never; Returns: Json }
       get_performance_stats: { Args: never; Returns: Json }
       get_fixture_public_context: {
         Args: { p_fixture_id: number }
@@ -1111,6 +1159,7 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_fixture_visible: { Args: { p_fixture_id: number }; Returns: boolean }
       is_valid_1x2_probabilities: { Args: { p: Json }; Returns: boolean }
+      mark_notifications_read: { Args: { p_ids?: number[] }; Returns: number }
       refund_fixture: { Args: { p_fixture_id: number }; Returns: Json }
       save_ai_generation: {
         Args: {

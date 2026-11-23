@@ -64,10 +64,10 @@ La règle du projet (`CLAUDE.md`) impose de s'arrêter et de demander quand une 
 
 Chaque lot suit la procédure de fin de phase de `CLAUDE.md` : lint, types, tests, build, prévisualisation, mise à jour de `PROGRESS.md`, puis votre accord avant la fusion.
 
-### Lot 0 — Socle de test (prérequis)
+### Lot 0 — Socle de test (prérequis) — ✅ projet `pronostics-dev` (`mumyxqitlazkpjmcxfjm`) : 18 migrations sur 19 (`health_monitoring` en attente d'une confirmation du porteur), données de départ
 - Projet Supabase de développement, migrations rejouées, tests d'intégration et Playwright réactivés en CI.
 
-### Lot 1 — Sécurité du registre et portefeuille (modules 1 et 7)
+### Lot 1 — Sécurité du registre et portefeuille (modules 1 et 7) — ✅ fait sur la base de test (23/11), en attente de mise en production
 - **Journal comptable immuable** : déclencheur interdisant `UPDATE` et `DELETE` sur `credit_transactions`, pour tous, y compris la clé serveur. Les corrections passent par une écriture inverse.
 - `/portefeuille` : onglets Tout / Reçus / Consommés / Remboursements, et totaux par catégorie.
 - **Reçus** : page `/portefeuille/recus/[id]` pour chaque recharge réussie (numéro, date, pack, crédits, bonus, montant XOF, prestataire, référence), imprimable ou enregistrable en PDF.
