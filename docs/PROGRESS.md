@@ -18,7 +18,7 @@ Tenu par Claude Code. Référence : [cahier-des-charges.md](cahier-des-charges.m
 | 9. Résolution et suivi | `settle-predictions`, remboursements, Mes pronostics, Performances | Un match terminé met à jour les statuts ; les taux affichés sont justes | En validation (SQL vérifié ; tests d'intégration en attente des secrets GitHub ; aucun match réel en base) |
 | 10. Administration | Les 13 pages admin et le journal d'audit | Toutes les actions de la section 4 fonctionnent et sont journalisées | En validation (SQL vérifié ; à tester dans l'interface avec un compte admin) |
 | 11. Recette | Tests automatisés, audit de sécurité, corrections | Le parcours complet est testé de bout en bout ; aucune faille connue | En validation (audit fait ; Playwright et tests d'intégration en attente des secrets GitHub) |
-| 12. Mise en production | Projet Supabase prod, variables Vercel, forfait API-Football Pro, domaine | L'application tourne en production avec de vraies données | À faire |
+| 12. Mise en production | Projet Supabase prod, variables Vercel, forfait API-Football Pro, domaine | L'application tourne en production avec de vraies données | En cours (infrastructure prête ; en attente du forfait API-Football Pro) |
 
 Statuts possibles : À faire · En cours · En validation · Validée.
 
@@ -596,3 +596,42 @@ Branche `phase-11-qa` (partie de `phase-10-admin`).
 ### Prochaine phase
 
 **Phase 12 — Mise en production** : projet Supabase de production, variables Vercel, forfait API-Football Pro, domaine.
+
+---
+
+## Phase 12 — Mise en production
+
+**Dates** : 18 et 23 novembre 2026 · **Branche** : `main` (fusion accordée), puis `claude/laughing-franklin-0mmobb` (documentation) · Check-list détaillée : [PRODUCTION.md](PRODUCTION.md)
+
+### Ce qui a été fait
+
+- **Base de production** : `pronostics` (`pgeytactmugqskdzsxnw`), décision du porteur. 19 migrations et données de départ appliquées, RLS sur les 21 tables. Le second projet `pronostics-prod`, vide et inutilisé, a été supprimé par le porteur le 22/11.
+- **Vercel** : les 11 variables applicatives sont posées en Production (clés API-Football et OpenAI, `OPENAI_MODEL`, `CRON_SECRET`, `PAYMENT_MOCK_SECRET`, `ADMIN_EMAILS`…), et le redéploiement est READY.
+- **Supabase Cron** : les secrets Vault `app_url`, `cron_secret` et `vercel_bypass_secret` sont posés. Le secret de contournement Vercel est créé (« Supabase Cron »). Les 8 tâches tournent : `generate-predictions` et `settle-predictions` se sont exécutées seules, avec succès.
+- **Administrateur** : le compte du porteur est promu, avec une écriture identique à `promoteIfAdminEmail` (journal d'audit n° 15).
+- **Compétitions** : Premier League (39), LaLiga (140), Serie A (135), Bundesliga (78) et Ligue 1 (61) sont ajoutées et activées, et journalisées. `sync-competitions` a renseigné saison 2026 et logos.
+- **Test de fumée HTTP** :
+  - pages publiques en 200 ;
+  - pages privées en 307 vers `/connexion?next=…` ;
+  - `/admin` en 404 sans session ;
+  - `/api/cron/*` en 401 sans secret ou avec un mauvais secret ;
+  - en-têtes de sécurité présents (HSTS, `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy`).
+
+### Décisions prises
+
+- **Exception à la règle « aucun secret transmis à Claude Code »**, accordée par le porteur le 23/11 : Claude a généré `CRON_SECRET` et le secret de contournement, puis les a posés dans Vercel et dans Vault. Ces deux secrets peuvent être régénérés à tout moment.
+- Promotion admin et ajout des compétitions faits en SQL, avec journalisation identique à celle des Server Actions. Le porteur n'arrivait pas à faire ces étapes dans les tableaux de bord.
+
+### Points ouverts
+
+- **Bloquant : la clé API-Football est sur le forfait gratuit.** API-Football répond « Free plans do not have access to this season, try from 2022 to 2024 » : ni équipes, ni matchs, ni pronostics. Le porteur activera le forfait Pro (environ 19 $/mois, 7 500 requêtes/jour). Il faudra ensuite relancer `sync-competitions`, `sync-fixtures`, `sync-standings`, `build-contexts` et `generate-predictions`, et vérifier le nom du modèle OpenAI (`gpt-6.2-sol`) au premier pronostic.
+- **`pronostic-brown.vercel.app` est accessible publiquement.** La protection Vercel standard ne couvre pas le domaine de production. Avec `PAYMENT_PROVIDER=mock`, n'importe qui pourrait se créditer dès que l'envoi d'e-mails fonctionne. À traiter avant d'annoncer le site : désactiver les packs, protéger aussi la production, ou brancher le vrai paiement.
+- À faire par le porteur : URL d'authentification Supabase (Site URL et Redirect URLs), modèles d'e-mails en français, SMTP personnalisé, sauvegardes.
+
+### Dettes techniques
+
+- Index en double `admin_audit_log_created_idx` / `admin_audit_log_created_at_idx` (déjà noté en phase 11).
+
+### Prochaine étape
+
+Activation du forfait API-Football Pro, première synchronisation complète et génération des pronostics. Ensuite : test de fumée utilisateur (inscription, recharge, déblocage) et clôture du MVP.

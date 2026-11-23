@@ -145,7 +145,7 @@ Après modification : *Deployments* → dernier déploiement de production → *
 
 ### 5.1 Protection des déploiements Vercel
 
-La protection **est active** sur `pronostic-brown.vercel.app` (constaté le 18/11/2026). 👤 Vercel → *Settings* → *Deployment Protection* → *Protection Bypass for Automation* → *Add secret*, puis le déposer dans Vault (`vercel_bypass_secret`, ci-dessous). Avec un domaine personnalisé (non protégé), ce secret devient inutile.
+La protection standard (« all except custom domains ») est active sur les URL de déploiement, mais le 23/11/2026 `pronostic-brown.vercel.app` répondait **sans** authentification (domaine de production non couvert). 👤 Vercel → *Settings* → *Deployment Protection* → *Protection Bypass for Automation* → *Add secret*, puis le déposer dans Vault (`vercel_bypass_secret`, ci-dessous). Avec un domaine personnalisé (non protégé), ce secret devient inutile.
 
 ### 5.2 Secrets dans Vault (👤 Supabase → projet `pronostics` → *SQL Editor*)
 
