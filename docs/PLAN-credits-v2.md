@@ -78,7 +78,7 @@ Chaque lot suit la procédure de fin de phase de `CLAUDE.md` : lint, types, test
 - **Promotions** : codes promo (crédits offerts ou % de bonus, dates, nombre d'utilisations total et par personne), appliqués **côté serveur** dans `create_topup`, puis journalisés.
 - **Admin** : débit ou remboursement d'une transaction précise (écriture inverse, motif, audit) ; page **Revenus** (par jour, mois, pack, prestataire ; crédits vendus, consommés, remboursés) ; page **Moyens de paiement** (activer ou désactiver un prestataire, libellés, ordre ; les clés restent dans les variables Vercel).
 
-### Lot 3 — Génération à la demande avec réservation (module 3)
+### Lot 3 — Génération à la demande avec réservation (module 3) — ✅ fait sur la base de test (24/11) ; appel réel à l'IA à vérifier avec le forfait API-Football Pro
 Selon D1, en version mutualisée :
 1. L'utilisateur choisit un match et un type d'analyse ; le serveur affiche le coût et son solde.
 2. Confirmation, avec une **clé d'idempotence** générée côté serveur pour bloquer le double clic et les requêtes rejouées.

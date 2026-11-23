@@ -64,6 +64,57 @@ export type Database = {
           },
         ]
       }
+      generation_requests: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error: string | null
+          expires_at: string
+          fixture_id: number
+          hold_transaction_id: number | null
+          id: string
+          idempotency_key: string
+          market_code: string | null
+          price: number
+          started_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error?: string | null
+          expires_at?: string
+          fixture_id: number
+          hold_transaction_id?: number | null
+          id?: string
+          idempotency_key: string
+          market_code?: string | null
+          price: number
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error?: string | null
+          expires_at?: string
+          fixture_id?: number
+          hold_transaction_id?: number | null
+          id?: string
+          idempotency_key?: string
+          market_code?: string | null
+          price?: number
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       health_reports: {
         Row: {
           anomalies: Json
@@ -1210,6 +1261,10 @@ export type Database = {
       }
       admin_settle_fixture: { Args: { p_fixture_id: number }; Returns: Json }
       admin_run_health_check: { Args: never; Returns: Json }
+      request_generation: {
+        Args: { p_fixture_id: number; p_idempotency_key: string; p_market_code: string }
+        Returns: Json
+      }
       run_health_check: { Args: never; Returns: Json }
       admin_adjust_balance: {
         Args: { p_amount: number; p_reason: string; p_user_id: string }
@@ -1222,10 +1277,13 @@ export type Database = {
         }
         Returns: Json
       }
+      complete_generation: { Args: { p_request_id: string }; Returns: Json }
       create_topup: {
         Args: { p_pack_id: number; p_provider: string }
         Returns: Json
       }
+      expire_generation_requests: { Args: never; Returns: number }
+      fail_generation: { Args: { p_error: string; p_request_id: string }; Returns: Json }
       fixtures_with_prediction_flag: {
         Args: { p_fixture_ids: number[] }
         Returns: {
@@ -1263,6 +1321,7 @@ export type Database = {
         Returns: Json
       }
       settle_fixture: { Args: { p_fixture_id: number }; Returns: Json }
+      start_generation: { Args: { p_request_id: string }; Returns: Json }
       start_topup: {
         Args: { p_pack_id: number; p_promo_code?: string; p_provider: string }
         Returns: Json

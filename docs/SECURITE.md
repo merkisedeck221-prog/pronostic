@@ -185,6 +185,16 @@ Corrections :
 | Revenus | ✅ `admin_revenue` admin uniquement, période bornée à 2 ans |
 | Nouvelles Server Actions admin | ✅ `requireAdmin()` en première ligne ; test automatique `lib/admin/actions/actions.test.ts` étendu (promotions, moyens de paiement, annulation) |
 
+## 9 quater. Crédits v2, lot 3 : génération à la demande (24/11/2026)
+
+| Point | Résultat |
+|---|---|
+| Prix | ✅ calculé en base (`request_generation` → `compute_price`) ; la Server Action ne reçoit que le match, le type d'analyse et une clé d'idempotence |
+| Double débit / rejeu | ✅ clé d'idempotence unique par utilisateur ; une seule demande active par utilisateur, match et type (index unique) ; accès déjà acquis refusé ; 5 demandes par 10 minutes au plus ; verrou du portefeuille (testé en SQL et dans le navigateur) |
+| Réservation | ✅ débit immédiat dans le journal immuable (`generation_hold`), rendu par `generation_release` si l'IA échoue, si la limite quotidienne est atteinte ou après 10 minutes (Cron) ; jamais de débit sans résultat (testé) |
+| Mutualisation | ✅ une seule génération par match (verrou + statut « running ») ; les demandes suivantes attendent le résultat partagé, sans nouvel appel à l'IA (testé) |
+| Fonctions serveur | ✅ `start_generation`, `complete_generation`, `fail_generation`, `expire_generation_requests` : `service_role` uniquement (refus testé pour un utilisateur) ; demande lue avec filtre `user_id` + RLS |
+
 ## 10. Points ouverts et risques acceptés
 
 1. ⚠️ **`picomatch`** (outils de développement uniquement) : voir § 8.

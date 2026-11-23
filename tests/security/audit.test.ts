@@ -135,6 +135,36 @@ describe("écriture avec la clé publique", () => {
   });
 });
 
+describe("génération à la demande (lot 3)", () => {
+  it("fonctions serveur interdites avec la clé publique", async () => {
+    const fake = "00000000-0000-4000-8000-000000000000";
+    for (const fn of ["start_generation", "complete_generation", "expire_generation_requests"] as const) {
+      const args = fn === "expire_generation_requests" ? {} : { p_request_id: fake };
+      const { error } = await attacker.client.rpc(fn as never, args as never);
+      expect(error, `${fn} appelable par un utilisateur`).not.toBeNull();
+    }
+    const { error } = await attacker.client.rpc("fail_generation", { p_request_id: fake, p_error: "x" });
+    expect(error).not.toBeNull();
+  });
+
+  it("aucune écriture directe ni lecture des demandes d'un autre", async () => {
+    const c = attacker.client;
+    expect(
+      (await c.from("generation_requests").insert({ user_id: attacker.id, fixture_id: fx.fixtureId, idempotency_key: crypto.randomUUID(), price: 0 })).error,
+    ).not.toBeNull();
+    expect((await c.from("generation_requests").select("id").eq("user_id", victim.id)).data ?? []).toEqual([]);
+  });
+
+  it("request_generation : clé d'idempotence obligatoire, aucun prix accepté", async () => {
+    const { data } = await attacker.client.rpc("request_generation", {
+      p_fixture_id: fx.fixtureId,
+      p_market_code: "",
+      p_idempotency_key: null as unknown as string,
+    });
+    expect((data as { ok?: boolean } | null)?.ok).not.toBe(true);
+  });
+});
+
 describe("journal comptable immuable (même avec la clé secrète)", () => {
   it("aucune transaction ne peut être modifiée ni supprimée", async () => {
     const { data: rows } = await serviceClient.from("credit_transactions").select("id, amount").eq("user_id", victim.id).limit(1);

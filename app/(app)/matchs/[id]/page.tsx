@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GeneratePanel } from "@/components/predictions/generate-panel";
 import Link from "next/link";
 import { EmptyState } from "@/components/layout/empty-state";
 import { FormBadges } from "@/components/matches/form-badges";
@@ -11,6 +12,7 @@ import { requireUser } from "@/lib/auth/session";
 import { formResults, type FixtureContext } from "@/lib/catalog/context";
 import { getFixture, getFixtureContext } from "@/lib/catalog/queries";
 import { getFixturePredictions, getWalletBalance } from "@/lib/credits/queries";
+import { getGenerationOffer } from "@/lib/generation/queries";
 import { createClient } from "@/lib/supabase/server";
 import { formatLongDate, formatNumericDate, formatTime, resolveTimezone } from "@/lib/utils/dates";
 import { matchStatus } from "@/lib/utils/match-status";
@@ -42,6 +44,9 @@ function SideForm({ name, side }: { name: string; side: FixtureContext["home"] }
   );
 }
 
+/** Génération IA à la demande : jusqu'à 2 minutes (attente d'une génération mutualisée comprise). */
+export const maxDuration = 120;
+
 export default async function FixturePage({ params }: PageProps<"/matchs/[id]">) {
   const { id } = await params;
   const user = await requireUser();
@@ -59,6 +64,9 @@ export default async function FixturePage({ params }: PageProps<"/matchs/[id]">)
 
   const status = matchStatus(fixture.status_short);
   const started = status.phase === "live" || status.phase === "finished";
+  // Génération à la demande (lot 3) : seulement pour un match à venir sans pronostic publié.
+  const offer =
+    status.phase === "upcoming" && !(predictions && predictions.markets.length > 0) ? await getGenerationOffer(user.id, fixture.id, fixture.kickoff_at) : null;
   const homeStanding = context?.home.standing ?? null;
   const awayStanding = context?.away.standing ?? null;
 
@@ -133,6 +141,8 @@ export default async function FixturePage({ params }: PageProps<"/matchs/[id]">)
           balance={balance ?? 0}
           upcoming={status.phase === "upcoming"}
         />
+      ) : offer && offer.available ? (
+        <GeneratePanel fixtureId={fixture.id} options={offer.options} balance={balance ?? 0} activeRequestId={offer.activeRequestId} />
       ) : (
         <Card>
           <CardHeader>
