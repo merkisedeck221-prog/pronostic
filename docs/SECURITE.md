@@ -196,6 +196,13 @@ Corrections :
 | Relecture du 24/11 | 🔧 2 défauts corrigés (migration `generation_hardening`) : double remboursement possible si l'admin annulait une réservation d'analyse en cours ou déjà rendue ; accès donné sur un match annulé pendant l'analyse. Les deux cas sont rejoués en SQL |
 | Fonctions serveur | ✅ `start_generation`, `complete_generation`, `fail_generation`, `expire_generation_requests` : `service_role` uniquement (refus testé pour un utilisateur) ; demande lue avec filtre `user_id` + RLS |
 
+## 9 quinquies. Crédits v2, lot 5 : historique (24/11/2026)
+
+| Point | Résultat |
+|---|---|
+| Pronostic acheté non modifiable | 🔧 avant : rien n'empêchait techniquement de changer la sélection ou la probabilité d'un pronostic acheté (accès admin direct). Désormais refusé à tous les rôles (déclencheur) ; seuls le résultat, la visibilité et la correction historisée de l'explication restent permis. Testé en SQL (changement de sélection, de probabilité, déverrouillage, suppression : refusés) |
+| Suivi admin des générations | ✅ `admin_generation_requests` : FORBIDDEN pour un utilisateur (testé) |
+
 ## 10. Points ouverts et risques acceptés
 
 1. ⚠️ **`picomatch`** (outils de développement uniquement) : voir § 8.

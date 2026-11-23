@@ -22,6 +22,15 @@ export const myPredictionSchema = z.object({
   home_name: z.string(),
   away_name: z.string(),
   competition_name: z.string(),
+  // Historique détaillé (lot 5) : facultatifs pour rester compatibles avec l'ancienne fonction SQL.
+  probability: z.number().int().nullable().optional(),
+  confidence: z.enum(["low", "medium", "high"]).nullable().optional(),
+  prompt_version: z.string().nullable().optional(),
+  credits_spent: z.number().int().nullable().optional(),
+  unlocked_at: z.string().nullable().optional(),
+  via_bundle: z.boolean().nullable().optional(),
+  ht_home: nullableInt.optional(),
+  ht_away: nullableInt.optional(),
 });
 export type MyPrediction = z.infer<typeof myPredictionSchema>;
 export const myPredictionsSchema = z.array(myPredictionSchema);

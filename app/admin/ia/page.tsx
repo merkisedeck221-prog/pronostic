@@ -57,6 +57,26 @@ function PeriodTable({ rows, label }: { rows: Period[]; label: string }) {
   );
 }
 
+type OnDemandRow = {
+  id: string;
+  created_at: string;
+  status: string;
+  price: number;
+  market_code: string | null;
+  error: string | null;
+  user_id: string;
+  display_name: string;
+  fixture_id: number;
+  match: string;
+};
+
+const ON_DEMAND_STATUS: Record<string, string> = {
+  reserved: "Crédits réservés",
+  running: "En cours",
+  succeeded: "Réussie (débitée)",
+  failed: "Échouée (crédits rendus)",
+};
+
 export default async function AdminAiPage({ searchParams }: PageProps<"/admin/ia">) {
   const admin = await requireAdmin();
   const tz = resolveTimezone(admin.profile.timezone);
@@ -65,8 +85,9 @@ export default async function AdminAiPage({ searchParams }: PageProps<"/admin/ia
   const range = pageRange(page);
 
   const supabase = await createClient();
-  const [stats, runs] = await Promise.all([
+  const [stats, onDemand, runs] = await Promise.all([
     adminRpc<{ by_day: Period[]; by_month: Period[]; by_prompt: PromptStat[] }>("admin_ai_stats"),
+    adminRpc<{ rows: OnDemandRow[]; counts: Record<string, number> | null }>("admin_generation_requests", { p_limit: 50 }),
     supabase.from("ai_generation_runs").select("*", { count: "exact" }).order("created_at", { ascending: false }).range(range.from, range.to),
   ]);
   if (runs.error) throw new Error(runs.error.message);
@@ -184,6 +205,64 @@ export default async function AdminAiPage({ searchParams }: PageProps<"/admin/ia
             </TableBody>
           </Table>
           <Pagination path={PATH} params={params} page={page} pageCount={pageCount(runs.count ?? 0)} total={runs.count ?? 0} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Analyses à la demande (50 dernières)</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            30 derniers jours :{" "}
+            {Object.entries(onDemand.counts ?? {})
+              .map(([status, count]) => `${ON_DEMAND_STATUS[status] ?? status} : ${count}`)
+              .join(" · ") || "aucune"}
+          </p>
+        </CardHeader>
+        <CardContent className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Utilisateur</TableHead>
+                <TableHead>Match</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead className="text-right">Crédits</TableHead>
+                <TableHead>Statut</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {onDemand.rows.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-muted-foreground">
+                    Aucune analyse à la demande.
+                  </TableCell>
+                </TableRow>
+              ) : null}
+              {onDemand.rows.map((r) => (
+                <TableRow key={r.id}>
+                  <TableCell className="whitespace-nowrap text-muted-foreground">{formatDateTime(r.created_at, tz)}</TableCell>
+                  <TableCell>
+                    <Link href={`/admin/utilisateurs/${r.user_id}`} className="underline-offset-4 hover:underline">
+                      {r.display_name}
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    <Link href={`/admin/matchs/${r.fixture_id}`} className="underline-offset-4 hover:underline">
+                      {r.match}
+                    </Link>
+                  </TableCell>
+                  <TableCell>{r.market_code ?? "Analyse complète"}</TableCell>
+                  <TableCell className="text-right tabular-nums">{r.price}</TableCell>
+                  <TableCell className="whitespace-normal">
+                    <Badge variant={r.status === "succeeded" ? "default" : r.status === "failed" ? "destructive" : "outline"}>
+                      {ON_DEMAND_STATUS[r.status] ?? r.status}
+                    </Badge>
+                    {r.error ? <p className="text-xs text-muted-foreground">{r.error}</p> : null}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </AdminPage>

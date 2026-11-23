@@ -1237,6 +1237,7 @@ export type Database = {
         Args: { p_prediction_id: number; p_reason: string; p_reasoning: string }
         Returns: Json
       }
+      admin_generation_requests: { Args: { p_limit?: number }; Returns: Json }
       admin_get_user: { Args: { p_user_id: string }; Returns: Json }
       admin_list_users: {
         Args: { p_limit?: number; p_offset?: number; p_search?: string; p_sort?: string; p_status?: string }

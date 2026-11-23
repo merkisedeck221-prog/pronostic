@@ -6,10 +6,12 @@ import { PredictionResultBadge } from "@/components/settle/result-badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireUser } from "@/lib/auth/session";
+import { confidenceLabel } from "@/lib/credits/labels";
 import { finalScoreLabel, formatRate, isUpcomingPrediction } from "@/lib/settle/labels";
 import { getMyPredictions } from "@/lib/settle/queries";
 import { formatDateTime, resolveTimezone } from "@/lib/utils/dates";
 import { cn } from "@/lib/utils";
+import { formatCredits } from "@/lib/utils/format";
 
 export const metadata: Metadata = { title: "Mes pronostics · Pronostics IA" };
 
@@ -86,6 +88,21 @@ export default async function MesPronosticsPage({ searchParams }: PageProps<"/me
                   <p className="text-sm">
                     <span className="text-muted-foreground">{p.market_label} : </span>
                     {p.selection_label}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {[
+                      p.probability != null ? `Probabilité estimée : ${p.probability} %` : null,
+                      p.confidence ? `confiance : ${confidenceLabel(p.confidence).toLowerCase()}` : null,
+                      p.ht_home != null && p.ht_away != null ? `mi-temps ${p.ht_home} – ${p.ht_away}` : null,
+                      p.credits_spent != null
+                        ? p.via_bundle
+                          ? `inclus dans le match complet (${formatCredits(p.credits_spent)})`
+                          : formatCredits(p.credits_spent)
+                        : null,
+                      p.unlocked_at ? `débloqué le ${formatDateTime(p.unlocked_at, timezone)}` : null,
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
                   </p>
                 </Link>
               </li>

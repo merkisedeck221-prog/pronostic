@@ -96,7 +96,7 @@ La génération automatique 48 h avant le match peut rester en place pour les ma
 - Règles de résolution **en double**, TypeScript et SQL, avec cas de test croisés (règle du projet).
 - Lot B (corners, cartons) : synchronisation `/fixtures/statistics` et dossier enrichi.
 
-### Lot 5 — Historique et contrôles finaux (modules 5 et 8)
+### Lot 5 — Historique et contrôles finaux (modules 5 et 8) — ✅ fait sur la base de test (24/11)
 - Historique : copie figée de ce que l'utilisateur a reçu (sélection, probabilités, version du prompt), statut de génération, résultat réel.
 - Admin : liste des générations par utilisateur et par match.
 - Tests complets : calculs de prix, réservation et libération, double clic, rejeux, remboursements, paiements, permissions (attaques rejouées avec la clé publique), parcours Playwright.

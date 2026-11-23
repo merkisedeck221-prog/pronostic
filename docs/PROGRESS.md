@@ -635,3 +635,32 @@ Branche `phase-11-qa` (partie de `phase-10-admin`).
 ### Prochaine étape
 
 Activation du forfait API-Football Pro, première synchronisation complète et génération des pronostics. Ensuite : test de fumée utilisateur (inscription, recharge, déblocage) et clôture du MVP.
+
+---
+
+## Crédits v2 (lots 0 à 5)
+
+**Dates** : 23 et 24 novembre 2026 · **Branche** : `claude/laughing-franklin-0mmobb` · Plan et décisions : [PLAN-credits-v2.md](PLAN-credits-v2.md)
+
+**Statut : terminé et vérifié sur la base de TEST `pronostics-dev` ; PAS encore en production** (7 migrations à appliquer à `pronostics`, puis fusion dans `main`).
+
+### Ce qui a été fait
+
+- **Lot 0** : projet Supabase de test `pronostics-dev` (`mumyxqitlazkpjmcxfjm`), 18 migrations sur 19 (`health_monitoring` en attente d'une confirmation du porteur), données de départ.
+- **Lot 1** : journal des crédits immuable ; notifications (cloche, page) ; portefeuille filtré avec totaux ; reçus de paiement.
+- **Lot 2** : packs Starter → VIP datés ; codes promo ; moyens de paiement ; annulation d'une transaction par l'admin ; page Revenus.
+- **Lot 3** : génération IA à la demande, mutualisée, avec réservation des crédits (jamais de débit sans résultat).
+- **Lot 4** : 6 nouveaux types d'analyses (prompt v2), résolution TS + SQL (75 cas croisés).
+- **Lot 5** : pronostic acheté figé (déclencheur), historique détaillé, suivi admin des générations.
+- **Relecture** : 2 défauts corrigés (double remboursement possible, accès sur match annulé pendant l'analyse).
+
+### Vérifications
+
+Lint, types, 290 tests unitaires, build ; chaque migration rejouée en SQL sur la base de test (scénarios dans des transactions annulées) ; parcours dans un navigateur (portefeuille, reçus, notifications, promotions, revenus, annulation, génération, historique).
+
+### Points ouverts
+
+- Appel réel à l'IA non testé : il faut des matchs réels (forfait API-Football Pro).
+- Prix du match complet resté à 7 crédits pour 10 marchés (22 crédits au détail) : à fixer par le porteur dans `/admin/tarifs`.
+- Prix des packs Pro et VIP à fixer, puis à activer.
+- Lot B (corners, cartons, combinés) non commencé.
