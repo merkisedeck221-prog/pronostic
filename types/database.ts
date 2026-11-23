@@ -241,6 +241,9 @@ export type Database = {
           price_xof: number
           sort_order: number
           updated_at: string
+          available_from: string | null
+          available_until: string | null
+          description: string | null
         }
         Insert: {
           bonus_credits?: number
@@ -252,6 +255,9 @@ export type Database = {
           price_xof: number
           sort_order?: number
           updated_at?: string
+          available_from?: string | null
+          available_until?: string | null
+          description?: string | null
         }
         Update: {
           bonus_credits?: number
@@ -263,6 +269,9 @@ export type Database = {
           price_xof?: number
           sort_order?: number
           updated_at?: string
+          available_from?: string | null
+          available_until?: string | null
+          description?: string | null
         }
         Relationships: []
       }
@@ -783,6 +792,78 @@ export type Database = {
         }
         Relationships: []
       }
+      promo_attempts: {
+        Row: {
+          created_at: string
+          id: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      promo_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          ends_at: string | null
+          id: number
+          is_active: boolean
+          kind: string
+          max_uses: number | null
+          max_uses_per_user: number
+          min_price_xof: number
+          starts_at: string | null
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          ends_at?: string | null
+          id?: never
+          is_active?: boolean
+          kind: string
+          max_uses?: number | null
+          max_uses_per_user?: number
+          min_price_xof?: number
+          starts_at?: string | null
+          updated_at?: string
+          value: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          ends_at?: string | null
+          id?: never
+          is_active?: boolean
+          kind?: string
+          max_uses?: number | null
+          max_uses_per_user?: number
+          min_price_xof?: number
+          starts_at?: string | null
+          updated_at?: string
+          value?: number
+        }
+        Relationships: []
+      }
       standings: {
         Row: {
           competition_id: number
@@ -947,6 +1028,8 @@ export type Database = {
           status: Database["public"]["Enums"]["topup_status"]
           updated_at: string
           user_id: string
+          promo_bonus_credits: number
+          promo_code_id: number | null
         }
         Insert: {
           amount_xof: number
@@ -961,6 +1044,8 @@ export type Database = {
           status?: Database["public"]["Enums"]["topup_status"]
           updated_at?: string
           user_id: string
+          promo_bonus_credits?: number
+          promo_code_id?: number | null
         }
         Update: {
           amount_xof?: number
@@ -975,6 +1060,8 @@ export type Database = {
           status?: Database["public"]["Enums"]["topup_status"]
           updated_at?: string
           user_id?: string
+          promo_bonus_credits?: number
+          promo_code_id?: number | null
         }
         Relationships: [
           {
@@ -1110,6 +1197,8 @@ export type Database = {
       }
       admin_overview: { Args: never; Returns: Json }
       admin_refund_fixture: { Args: { p_fixture_id: number; p_reason: string }; Returns: Json }
+      admin_reverse_transaction: { Args: { p_reason: string; p_transaction_id: number }; Returns: Json }
+      admin_revenue: { Args: { p_from: string; p_to: string }; Returns: Json }
       admin_set_prediction_status: {
         Args: { p_prediction_id: number; p_reason: string; p_status: Database["public"]["Enums"]["prediction_status"] }
         Returns: Json
@@ -1174,6 +1263,10 @@ export type Database = {
         Returns: Json
       }
       settle_fixture: { Args: { p_fixture_id: number }; Returns: Json }
+      start_topup: {
+        Args: { p_pack_id: number; p_promo_code?: string; p_provider: string }
+        Returns: Json
+      }
       settle_outcome: {
         Args: {
           p_away: number

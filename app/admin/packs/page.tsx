@@ -4,13 +4,27 @@ import { AdminPage, Field, inputClass } from "@/components/admin/table-tools";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { deletePackAction, savePackAction, setPackActiveAction } from "@/lib/admin/actions/packs";
+import { utcToLocalInput } from "@/lib/admin/datetime";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { ADMIN_TIMEZONE } from "@/lib/admin/datetime";
+import { formatDateTime } from "@/lib/utils/dates";
 import { formatXof } from "@/lib/utils/format";
 
 export const metadata: Metadata = { title: "Packs de recharge · Administration" };
 
-function PackFields({ pack }: { pack?: { name: string; credits: number; bonus_credits: number; price_xof: number; sort_order: number } }) {
+type PackValues = {
+  name: string;
+  credits: number;
+  bonus_credits: number;
+  price_xof: number;
+  sort_order: number;
+  description: string | null;
+  available_from: string | null;
+  available_until: string | null;
+};
+
+function PackFields({ pack }: { pack?: PackValues }) {
   return (
     <>
       <Field label="Nom">
@@ -28,6 +42,15 @@ function PackFields({ pack }: { pack?: { name: string; credits: number; bonus_cr
       <Field label="Ordre">
         <input name="sort_order" type="number" min={0} max={9999} defaultValue={pack?.sort_order ?? 0} className={`${inputClass} w-20`} />
       </Field>
+      <Field label="Description (facultatif)">
+        <input name="description" maxLength={200} defaultValue={pack?.description ?? ""} className={`${inputClass} w-64`} />
+      </Field>
+      <Field label="Offre à partir du (heure de Porto-Novo)">
+        <input name="available_from" type="datetime-local" defaultValue={utcToLocalInput(pack?.available_from)} className={`${inputClass} w-52`} />
+      </Field>
+      <Field label="Offre jusqu'au">
+        <input name="available_until" type="datetime-local" defaultValue={utcToLocalInput(pack?.available_until)} className={`${inputClass} w-52`} />
+      </Field>
     </>
   );
 }
@@ -44,7 +67,10 @@ export default async function AdminPacksPage() {
   for (const t of sold ?? []) if (t.pack_id) purchases.set(t.pack_id, (purchases.get(t.pack_id) ?? 0) + 1);
 
   return (
-    <AdminPage title="Packs de recharge" description="Un pack déjà acheté ne se supprime pas : il se désactive.">
+    <AdminPage
+      title="Packs de recharge"
+      description="Un pack déjà acheté ne se supprime pas : il se désactive. Les dates limitent la période de vente ; les crédits achetés n'expirent jamais."
+    >
       <div className="space-y-3">
         {(packs ?? []).map((pack) => {
           const count = purchases.get(pack.id) ?? 0;
@@ -57,6 +83,9 @@ export default async function AdminPacksPage() {
                 </CardTitle>
                 <CardDescription>
                   {pack.credits} crédits + {pack.bonus_credits} bonus · {formatXof(pack.price_xof)} · {count} achat(s)
+                  {pack.available_from || pack.available_until
+                    ? ` · en vente ${pack.available_from ? `du ${formatDateTime(pack.available_from, ADMIN_TIMEZONE)} ` : ""}${pack.available_until ? `jusqu'au ${formatDateTime(pack.available_until, ADMIN_TIMEZONE)}` : ""}`
+                    : ""}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">

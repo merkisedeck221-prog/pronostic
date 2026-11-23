@@ -33,9 +33,11 @@ on conflict (scope, market_code, competition_id) do nothing;
 -- Packs de recharge (section 6) — valeurs de départ, prix en XOF.
 -- -----------------------------------------------------------------------------
 insert into public.credit_packs (name, credits, bonus_credits, price_xof, is_active, sort_order) values
-  ('Découverte', 10,  0, 1000, true, 1),
-  ('Standard',   25,  3, 2500, true, 2),
-  ('Premium',    60, 10, 5000, true, 3)
+  ('Starter',  10,  0,  1000, true,  1),
+  ('Basic',    25,  3,  2500, true,  2),
+  ('Premium',  60, 10,  5000, true,  3),
+  ('Pro',     130, 20, 10000, false, 4),
+  ('VIP',     300, 60, 20000, false, 5)
 on conflict (name) do nothing;
 
 -- -----------------------------------------------------------------------------
@@ -49,5 +51,7 @@ insert into public.app_settings (key, value, description, is_public) values
   ('maintenance_mode',        'false'::jsonb,  'Bloque les déblocages et les recharges, avec un message.',                       true),
   ('reveal_after_match',      'true'::jsonb,   'Rend publics les pronostics d''un match terminé (RG-F4-4).',                     true),
   ('fixtures_window_days',    '7'::jsonb,      'Fenêtre (jours) affichée par défaut sur la page Matchs (RG-F2-4).',              true),
+  ('payment_methods',         '{"mock": {"enabled": true, "label": "Paiement de test"}, "fedapay": {"enabled": true, "label": "Mobile Money (FedaPay)"}, "kkiapay": {"enabled": true, "label": "Mobile Money (KkiaPay)"}}'::jsonb,
+                                             'Moyens de paiement : activation et libellé affiché par fournisseur.',              true),
   ('alert_quota_min',         '200'::jsonb,    'Alerte si le quota API-Football restant passe sous ce seuil (surveillance).',    false)
 on conflict (key) do nothing;

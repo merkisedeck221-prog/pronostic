@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { AdminPage, FilterBar, FilterInput, FilterSelect, Pagination } from "@/components/admin/table-tools";
+import { AdminActionForm } from "@/components/admin/action-form";
+import { AdminPage, FilterBar, FilterInput, FilterSelect, inputClass, Pagination } from "@/components/admin/table-tools";
+import { reverseTransactionAction } from "@/lib/admin/actions/payments";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -146,12 +148,13 @@ export default async function AdminTransactionsPage({ searchParams }: PageProps<
                 <TableHead>Libellé</TableHead>
                 <TableHead className="text-right">Montant</TableHead>
                 <TableHead className="text-right">Solde après</TableHead>
+                <TableHead>Annulation</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {movements.rows.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center text-muted-foreground">
                     Aucun mouvement.
                   </TableCell>
                 </TableRow>
@@ -165,11 +168,30 @@ export default async function AdminTransactionsPage({ searchParams }: PageProps<
                     </Link>
                   </TableCell>
                   <TableCell>{transactionTypeLabel(t.type as Parameters<typeof transactionTypeLabel>[0])}</TableCell>
-                  <TableCell className="whitespace-normal">{t.description}</TableCell>
+                  <TableCell className="whitespace-normal">
+                    <span className="text-xs text-muted-foreground">n° {t.id} · </span>
+                    {t.description}
+                  </TableCell>
                   <TableCell className={`text-right tabular-nums ${t.amount > 0 ? "text-green-700 dark:text-green-400" : "text-destructive"}`}>
                     {formatSignedAmount(t.amount)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">{t.balance_after}</TableCell>
+                  <TableCell className="min-w-64">
+                    {t.reference_type === "reversal" ? (
+                      <span className="text-xs text-muted-foreground">Écriture d&apos;annulation</span>
+                    ) : (
+                      <AdminActionForm
+                        action={reverseTransactionAction}
+                        hidden={{ id: t.id }}
+                        submitLabel={t.amount < 0 ? "Rembourser" : "Annuler"}
+                        variant="outline"
+                        confirmMessage={`${t.amount < 0 ? "Rembourser" : "Annuler"} la transaction n° ${t.id} (${formatSignedAmount(-t.amount)} crédits) ?`}
+                        inline
+                      >
+                        <input name="reason" required minLength={3} maxLength={500} placeholder="Motif" aria-label={`Motif pour la transaction n° ${t.id}`} className={`${inputClass} w-32`} />
+                      </AdminActionForm>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

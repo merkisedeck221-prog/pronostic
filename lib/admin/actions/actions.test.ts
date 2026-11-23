@@ -38,6 +38,8 @@ const MODULES = {
   settings: () => import("./settings"),
   sync: () => import("./sync"),
   health: () => import("./health"),
+  promotions: () => import("./promotions"),
+  payments: () => import("./payments"),
   credits: () => import("@/lib/credits/actions"),
   syncLegacy: () => import("@/lib/sync/actions"),
   aiLegacy: () => import("@/lib/ai/actions"),
@@ -73,6 +75,12 @@ function validForm(): FormData {
     value: "false",
     code: "BTTS",
     job: "settle-predictions",
+    kind: "bonus_credits",
+    max_uses_per_user: "1",
+    min_price_xof: "0",
+    label_mock: "Paiement de test",
+    label_fedapay: "Mobile Money",
+    label_kkiapay: "Mobile Money",
   };
   for (const [k, v] of Object.entries(values)) form.set(k, v);
   return form;

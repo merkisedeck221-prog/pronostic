@@ -90,7 +90,7 @@
 
 ## Administration (phase 10)
 
-- Pages `app/admin/*` : `requireAdmin()` dans la mise en page **et** dans chaque page ; barre latérale `components/admin/nav.ts` (13 entrées).
+- Pages `app/admin/*` : `requireAdmin()` dans la mise en page **et** dans chaque page ; barre latérale `components/admin/nav.ts` (13 entrées du MVP + Promotions, Moyens de paiement, Revenus).
 - Server Actions `lib/admin/actions/*.ts` : signature `(prev, formData) => AdminActionState`, `requireAdmin()` en première ligne, Zod, puis fonction SQL `admin_*` (journalisée) ou écriture par la RLS admin suivie de `logAdminAction()`. Formulaires : `components/admin/action-form.tsx`.
 - Le test `lib/admin/actions/actions.test.ts` découvre **automatiquement** toutes les actions exportées et vérifie qu'elles refusent un non-admin avant tout accès aux données : toute nouvelle action doit commencer par `requireAdmin()`.
 - Export CSV : `app/admin/transactions/export/route.ts` (mêmes filtres que la page, `lib/admin/transactions.ts`).
@@ -108,6 +108,13 @@
 - Check-list et procédures : [docs/PRODUCTION.md](docs/PRODUCTION.md). **Le projet `pronostics` (`pgeytactmugqskdzsxnw`) est la base de PRODUCTION** (décision du porteur, phase 12) : aucune expérimentation, aucune donnée de test, toute migration testée d'abord dans une transaction annulée. Il n'existe pas de base de développement séparée : les tests d'intégration et e2e refusent de viser la production (`tests/guard.ts`) et sont désactivés en CI (`RUN_INTEGRATION_TESTS`). **Confirmer le nom du projet visé avant toute action Supabase.**
 - Surveillance : `run_health_check()` (Cron `health-check`, 06:07 UTC), rapports dans `health_reports`, affichés en tête de `/admin`.
 - Modèles d'e-mails Auth en français : `supabase/templates/` (liens `token_hash` vers `/auth/callback`).
+
+## Crédits v2 (plan : docs/PLAN-credits-v2.md)
+
+- Base de **test** séparée : `pronostics-dev` (réf. `mumyxqitlazkpjmcxfjm`). Toute nouvelle migration y est appliquée et vérifiée **avant** la production.
+- `credit_transactions` est **immuable** (déclencheur `protect_ledger`) : jamais d'UPDATE/DELETE, une correction = une écriture inverse (`admin_reverse_transaction`, `admin_adjust_balance`).
+- Notifications : écrites uniquement par déclencheurs SQL (`private.notify`), lien interne seulement.
+- Recharge : `start_topup(pack, fournisseur, code promo)` ; le bonus promo est calculé en base. Codes promo jamais lisibles par les utilisateurs.
 
 ## Fonctionnalités d'abord, pas de design
 

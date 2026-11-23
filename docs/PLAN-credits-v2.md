@@ -73,7 +73,7 @@ Chaque lot suit la procédure de fin de phase de `CLAUDE.md` : lint, types, test
 - **Reçus** : page `/portefeuille/recus/[id]` pour chaque recharge réussie (numéro, date, pack, crédits, bonus, montant XOF, prestataire, référence), imprimable ou enregistrable en PDF.
 - **Notifications dans l'application** : table `notifications` (RLS : lecture de ses seules notifications), cloche dans l'en-tête. Déclencheurs : recharge réussie ou échouée, remboursement, ajustement admin, pronostic résolu. E-mails plus tard, une fois le SMTP en place.
 
-### Lot 2 — Packs, promotions, administration (modules 2 et 6)
+### Lot 2 — Packs, promotions, administration (modules 2 et 6) — ✅ fait sur la base de test (24/11), en attente de mise en production
 - Les 5 packs Starter, Basic, Premium, Pro et VIP (prix à fixer par vous), avec dates de disponibilité (décision D3).
 - **Promotions** : codes promo (crédits offerts ou % de bonus, dates, nombre d'utilisations total et par personne), appliqués **côté serveur** dans `create_topup`, puis journalisés.
 - **Admin** : débit ou remboursement d'une transaction précise (écriture inverse, motif, audit) ; page **Revenus** (par jour, mois, pack, prestataire ; crédits vendus, consommés, remboursés) ; page **Moyens de paiement** (activer ou désactiver un prestataire, libellés, ordre ; les clés restent dans les variables Vercel).

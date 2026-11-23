@@ -5,6 +5,7 @@ import { z } from "zod";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { logAdminAction } from "../audit";
+import { isValidPeriod, optionalLocalDateTime } from "../datetime";
 import { failure, success, type AdminActionState } from "../result";
 
 const PATH = "/admin/packs";
@@ -16,6 +17,15 @@ const packSchema = z.object({
   bonus_credits: z.coerce.number().int().min(0).max(100_000),
   price_xof: z.coerce.number().int().min(1, "Prix en XOF positif.").max(10_000_000),
   sort_order: z.coerce.number().int().min(0).max(9999).default(0),
+  description: z
+    .string()
+    .trim()
+    .max(200, "Description trop longue (200 caractères).")
+    .optional()
+    .transform((v) => (v ? v : null)),
+  // Offre datée (décision D3) : les crédits achetés n'expirent jamais.
+  available_from: optionalLocalDateTime,
+  available_until: optionalLocalDateTime,
 });
 
 export async function savePackAction(_prev: AdminActionState, formData: FormData): Promise<AdminActionState> {
@@ -23,6 +33,7 @@ export async function savePackAction(_prev: AdminActionState, formData: FormData
   const input = packSchema.safeParse(Object.fromEntries(formData));
   if (!input.success) return failure(input.error.issues[0]?.message ?? "Pack invalide.");
   const { id, ...values } = input.data;
+  if (!isValidPeriod(values.available_from, values.available_until)) return failure("La fin de l'offre doit être après son début.");
   const supabase = await createClient();
 
   if (id) {

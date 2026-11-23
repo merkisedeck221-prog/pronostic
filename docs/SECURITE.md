@@ -175,6 +175,16 @@ Corrections :
 | Marquer comme lues | ✅ `mark_notifications_read()` sans identifiant d'utilisateur (auth.uid()), 200 identifiants au plus |
 | Résumé du portefeuille | ✅ `get_my_wallet_summary()` en `SECURITY INVOKER` (la RLS s'applique) |
 
+## 9 ter. Crédits v2, lot 2 (24/11/2026)
+
+| Point | Résultat |
+|---|---|
+| Codes promo | ✅ jamais lisibles par un utilisateur (RLS admin) ; bonus **calculé en base** (`start_topup`), jamais reçu du navigateur ; verrou `FOR UPDATE` sur le code (pas de dépassement de `max_uses` en parallèle) ; limite par utilisateur ; **10 codes refusés par heure au plus** (anti-énumération). Vérifié en SQL (code expiré, réutilisé, deviné, autre compte) et dans le navigateur |
+| Packs datés et moyens de paiement | ✅ période de l'offre et moyen de paiement désactivé **revérifiés par la base**, y compris par l'ancienne fonction `create_topup` (testé) |
+| Annulation d'une transaction (admin) | ✅ `admin_reverse_transaction` : admin uniquement (FORBIDDEN sinon, testé), motif obligatoire, **une seule fois** (index unique + contrôle), solde jamais négatif, journal d'audit ; un déblocage remboursé n'est pas remboursé une 2e fois si le match est annulé (testé) |
+| Revenus | ✅ `admin_revenue` admin uniquement, période bornée à 2 ans |
+| Nouvelles Server Actions admin | ✅ `requireAdmin()` en première ligne ; test automatique `lib/admin/actions/actions.test.ts` étendu (promotions, moyens de paiement, annulation) |
+
 ## 10. Points ouverts et risques acceptés
 
 1. ⚠️ **`picomatch`** (outils de développement uniquement) : voir § 8.

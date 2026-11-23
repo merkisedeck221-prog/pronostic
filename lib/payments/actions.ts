@@ -17,16 +17,19 @@ function resultUrl(topupId: string, next: string): string {
 }
 
 /**
- * Choix d'un pack : crée la recharge « pending » (create_topup, session de
+ * Choix d'un pack : crée la recharge « pending » (start_topup, session de
  * l'utilisateur : montants lus EN BASE), ouvre le paiement chez le fournisseur
- * et redirige. Seuls `packId` et `next` sont lus dans le formulaire.
+ * et redirige. Seuls `packId`, `promoCode` (texte) et `next` sont lus dans le formulaire.
  */
 export async function startTopupAction(_prev: StartTopupState, formData: FormData): Promise<StartTopupState> {
   const user = await requireUser({ allowBanned: true });
   if (user.profile.is_banned) return { error: topupErrorMessage("BANNED") };
 
-  const input = startTopupSchema.safeParse({ packId: formData.get("packId") });
-  if (!input.success) return { error: "Pack invalide." };
+  const input = startTopupSchema.safeParse({
+    packId: formData.get("packId"),
+    promoCode: formData.get("promoCode") ?? undefined,
+  });
+  if (!input.success) return { error: input.error.issues[0]?.path[0] === "promoCode" ? topupErrorMessage("PROMO_INVALID") : "Pack invalide." };
   const next = safeNextPath(formData.get("next"), "/portefeuille");
 
   let provider;
@@ -38,10 +41,14 @@ export async function startTopupAction(_prev: StartTopupState, formData: FormDat
   }
 
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc("create_topup", { p_pack_id: input.data.packId, p_provider: provider.name });
+  const { data, error } = await supabase.rpc("start_topup", {
+    p_pack_id: input.data.packId,
+    p_provider: provider.name,
+    p_promo_code: input.data.promoCode,
+  });
   const created = createTopupResultSchema.safeParse(data);
   if (error || !created.success) {
-    console.error("[payments] create_topup :", error?.message ?? "réponse invalide");
+    console.error("[payments] start_topup :", error?.message ?? "réponse invalide");
     return { error: topupErrorMessage(undefined) };
   }
   if (!created.data.ok) return { error: topupErrorMessage(created.data.code) };
@@ -52,7 +59,7 @@ export async function startTopupAction(_prev: StartTopupState, formData: FormDat
     amountXof: topup.amount_xof,
     user: { id: user.id, email: user.email || null, displayName: user.profile.display_name, phone: user.profile.phone },
     returnUrl: resultUrl(topup.topup_id, next),
-    description: `Pack ${topup.pack_name} : ${topup.credits} crédits${topup.bonus_credits > 0 ? ` + ${topup.bonus_credits} bonus` : ""}`,
+    description: `Pack ${topup.pack_name} : ${topup.credits} crédits${topup.bonus_credits > 0 ? ` + ${topup.bonus_credits} bonus` : ""}${topup.promo_bonus_credits > 0 ? ` + ${topup.promo_bonus_credits} code promo` : ""}`,
   });
 
   // Référence du fournisseur : écriture serveur (topups n'est pas modifiable par l'utilisateur).

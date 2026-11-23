@@ -10,8 +10,9 @@ import { getWalletBalance } from "@/lib/credits/queries";
 import { getPaymentProvider } from "@/lib/payments";
 import { isMaintenanceMode, listActivePacks } from "@/lib/payments/queries";
 import { bonusLabel } from "@/lib/payments/schemas";
+import { formatDateTime, resolveTimezone } from "@/lib/utils/dates";
 import { formatCredits, formatXof } from "@/lib/utils/format";
-import { TopupForm } from "./topup-form";
+import { PromoCodeProvider, TopupForm } from "./topup-form";
 
 export const metadata: Metadata = { title: "Recharger mon compte · Pronostics IA" };
 
@@ -49,6 +50,7 @@ export default async function RechargerPage({ searchParams }: PageProps<"/rechar
       {packs.length === 0 ? (
         <EmptyState title="Aucun pack de recharge n'est disponible pour le moment." />
       ) : (
+        <PromoCodeProvider>
         <div className="grid gap-4 sm:grid-cols-3">
           {packs.map((pack) => {
             const bonus = bonusLabel(pack.bonus_credits);
@@ -58,6 +60,7 @@ export default async function RechargerPage({ searchParams }: PageProps<"/rechar
                   <CardDescription>{pack.name}</CardDescription>
                   <CardTitle className="text-2xl tabular-nums">{formatCredits(pack.credits)}</CardTitle>
                   {bonus ? <Badge className="w-fit">{bonus}</Badge> : null}
+                  {pack.description ? <p className="text-sm text-muted-foreground">{pack.description}</p> : null}
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <p className="text-lg font-semibold tabular-nums">{formatXof(pack.price_xof)}</p>
@@ -66,12 +69,18 @@ export default async function RechargerPage({ searchParams }: PageProps<"/rechar
                       Total crédité : {formatCredits(pack.credits + pack.bonus_credits)}
                     </p>
                   ) : null}
+                  {pack.available_until ? (
+                    <p className="text-xs text-muted-foreground">
+                      Offre valable jusqu&apos;au {formatDateTime(pack.available_until, resolveTimezone(user.profile.timezone))}
+                    </p>
+                  ) : null}
                   <TopupForm packId={pack.id} next={next} label="Choisir ce pack" disabled={maintenance || !provider} />
                 </CardContent>
               </Card>
             );
           })}
         </div>
+        </PromoCodeProvider>
       )}
 
       <p className="text-xs text-muted-foreground">

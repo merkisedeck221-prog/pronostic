@@ -29,6 +29,7 @@ Fichiers SQL versionnés dans `supabase/migrations/`, appliqués dans l'ordre :
 | `20261118064038_fixtures_window_setting.sql` | Paramètre `fixtures_window_days` (RG-F2-4, phase 11) |
 | `20261118065142_health_monitoring.sql` | Surveillance : table `health_reports`, `run_health_check()`, `admin_run_health_check()`, tâche Cron `health-check` (phase 12) |
 | `20261123220000_ledger_notifications.sql` | Crédits v2, lot 1 : journal `credit_transactions` **immuable** (déclencheur `protect_ledger`, aucun UPDATE/DELETE sauf suppression de compte en cascade), table `notifications` + déclencheurs (recharge, échec de paiement, remboursement, ajustement, bonus, pronostic résolu), `mark_notifications_read()`, `get_my_wallet_summary()` |
+| `20261124000000_packs_promotions_revenue.sql` | Crédits v2, lot 2 : packs datés (`available_from`, `available_until`, `description`), gamme Starter → VIP, `promo_codes` (admin uniquement) et `promo_attempts` (anti-énumération, 10 essais/heure), `topups.promo_code_id` / `promo_bonus_credits`, réglage `payment_methods`, `start_topup()` (remplace `create_topup`, qui la délègue), `apply_topup` (bonus promo), `admin_reverse_transaction()` (écriture inverse, une seule fois), `admin_revenue()` |
 
 Données de départ : `supabase/seed.sql` (4 marchés, 5 règles de prix, 3 packs, 6 paramètres). Idempotent (`ON CONFLICT DO NOTHING`) : relancé, il ne réécrase jamais une valeur modifiée depuis l'admin. Aucune compétition : elles arrivent en phase 4.
 
