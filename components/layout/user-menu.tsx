@@ -6,6 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -23,7 +24,10 @@ export function UserMenu({ displayName, isAdmin }: { displayName: string; isAdmi
         <ChevronDownIcon />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuLabel>{displayName}</DropdownMenuLabel>
+        {/* Base UI : un GroupLabel doit être dans un Group (sinon erreur #31 à l'ouverture). */}
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>{displayName}</DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem render={<Link href="/profil" />}>
           <UserIcon />
