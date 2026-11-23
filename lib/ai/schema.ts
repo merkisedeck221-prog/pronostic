@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 /**
- * Format de sortie imposé à l'IA (section 8). Source de vérité UNIQUE : ce
+ * Format de sortie imposé à l'IA (section 8 ; 10 marchés depuis le prompt v2). Source de vérité UNIQUE : ce
  * schéma Zod. Le JSON Schema strict envoyé à OpenAI (Structured Outputs) en
  * est dérivé par `toOpenAiJsonSchema()`.
  */
@@ -38,12 +38,64 @@ export const predictionOutputSchema = z.object({
       confidence,
       reasoning,
     }),
+    // ---- Marchés ajoutés par le prompt v2 (lot 4) ----
+    DOUBLE_CHANCE: z.object({
+      selection: z.enum(["1N", "12", "N2"]).describe("1N = domicile ou nul, 12 = pas de nul, N2 = nul ou extérieur."),
+      probability: probability.describe("Probabilité de la sélection : somme des deux issues du 1N2."),
+      confidence,
+      reasoning,
+    }),
+    HT_RESULT: z.object({
+      selection: z.enum(["1", "N", "2"]).describe("Résultat à la mi-temps : 1 = domicile mène, N = égalité, 2 = extérieur mène."),
+      probabilities: z.object({ home: probability, draw: probability, away: probability }),
+      confidence,
+      reasoning,
+    }),
+    HT_FT: z.object({
+      selection: z
+        .enum(["1/1", "1/N", "1/2", "N/1", "N/N", "N/2", "2/1", "2/N", "2/2"])
+        .describe("Résultat à la mi-temps / au temps réglementaire, ex. « N/1 »."),
+      probability: probability.describe("Probabilité de cette combinaison, en %."),
+      confidence,
+      reasoning,
+    }),
+    HANDICAP: z.object({
+      selection: z
+        .enum(["HOME_-1.5", "AWAY_+1.5", "HOME_+1.5", "AWAY_-1.5"])
+        .describe("Handicap de 1,5 but appliqué à une équipe, au temps réglementaire."),
+      probability: probability.describe("Probabilité de la sélection choisie, en %."),
+      confidence,
+      reasoning,
+    }),
+    OVER_UNDER_1_5: z.object({
+      selection: z.enum(["OVER", "UNDER"]),
+      probability: probability.describe("Probabilité de la sélection choisie, en %."),
+      confidence,
+      reasoning,
+    }),
+    OVER_UNDER_3_5: z.object({
+      selection: z.enum(["OVER", "UNDER"]),
+      probability: probability.describe("Probabilité de la sélection choisie, en %."),
+      confidence,
+      reasoning,
+    }),
   }),
 });
 
 export type PredictionOutput = z.infer<typeof predictionOutputSchema>;
 export type MarketCode = keyof PredictionOutput["markets"];
-export const MARKET_CODES = ["MATCH_RESULT", "EXACT_SCORE", "OVER_UNDER_2_5", "BTTS"] as const satisfies readonly MarketCode[];
+export const MARKET_CODES = [
+  "MATCH_RESULT",
+  "EXACT_SCORE",
+  "OVER_UNDER_2_5",
+  "BTTS",
+  "DOUBLE_CHANCE",
+  "HT_RESULT",
+  "HT_FT",
+  "HANDICAP",
+  "OVER_UNDER_1_5",
+  "OVER_UNDER_3_5",
+] as const satisfies readonly MarketCode[];
 
 /** Mots-clés JSON Schema non garantis par le mode strict d'OpenAI : retirés (Zod les revérifie). */
 const UNSUPPORTED_KEYWORDS = new Set([

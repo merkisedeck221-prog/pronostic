@@ -3,7 +3,7 @@ import { MARKET_CODES, predictionOutputSchema, type PredictionOutput } from "./s
 
 /**
  * Validation d'une réponse de l'IA (section 8, « Règles de cohérence vérifiées
- * par le code »). Renvoie la réponse normalisée (1N2 ramené à 100) ou la liste
+ * par le code », étendues au prompt v2). Renvoie la réponse normalisée (1N2 ramené à 100) ou la liste
  * des erreurs, formulées pour être renvoyées telles quelles à l'IA.
  */
 
@@ -63,8 +63,65 @@ export function validatePrediction(raw: unknown, summary: MatchSummary): Validat
     );
   }
 
+  // Double chance (v2) : exclut l'issue la moins probable du 1N2 ; probabilité = somme des deux issues.
+  const pairs = { "1N": np.home + np.draw, "12": np.home + np.away, N2: np.draw + np.away } as const;
+  const bestPair = Math.max(pairs["1N"], pairs["12"], pairs.N2);
+  if (pairs[m.DOUBLE_CHANCE.selection] !== bestPair) {
+    errors.push(
+      `DOUBLE_CHANCE : la sélection « ${m.DOUBLE_CHANCE.selection} » doit exclure l'issue la moins probable du 1N2 (1N ${pairs["1N"]}, 12 ${pairs["12"]}, N2 ${pairs.N2}).`,
+    );
+  } else {
+    m.DOUBLE_CHANCE.probability = pairs[m.DOUBLE_CHANCE.selection];
+  }
+
+  // Mi-temps (v2) : somme = 100 à ±1, normalisée ; sélection = issue la plus probable.
+  const ht = m.HT_RESULT.probabilities;
+  const htSum = ht.home + ht.draw + ht.away;
+  if (Math.abs(htSum - 100) > 1) {
+    errors.push(`HT_RESULT : la somme des probabilités vaut ${htSum}, elle doit valoir 100.`);
+  } else {
+    m.HT_RESULT.probabilities = normalize1x2(ht);
+  }
+  const nht = m.HT_RESULT.probabilities;
+  const htBySelection = { "1": nht.home, N: nht.draw, "2": nht.away } as const;
+  if (htBySelection[m.HT_RESULT.selection] !== Math.max(nht.home, nht.draw, nht.away)) {
+    errors.push(`HT_RESULT : la sélection « ${m.HT_RESULT.selection} » n'est pas l'issue la plus probable à la mi-temps.`);
+  }
+
+  // Mi-temps / fin de match (v2) : cohérent avec HT_RESULT et MATCH_RESULT, et pas plus probable qu'eux.
+  const [htPart, ftPart] = m.HT_FT.selection.split("/") as ["1" | "N" | "2", "1" | "N" | "2"];
+  if (htPart !== m.HT_RESULT.selection || ftPart !== m.MATCH_RESULT.selection) {
+    errors.push(
+      `Incohérence : HT_FT « ${m.HT_FT.selection} » doit reprendre HT_RESULT (« ${m.HT_RESULT.selection} ») puis MATCH_RESULT (« ${m.MATCH_RESULT.selection} »).`,
+    );
+  } else if (m.HT_FT.probability > Math.min(htBySelection[htPart], bySelection[ftPart])) {
+    errors.push(`HT_FT : la probabilité (${m.HT_FT.probability}) ne peut pas dépasser celle de chacune de ses deux parties.`);
+  }
+
+  // Handicap (v2) : cohérent avec le 1N2.
+  const hcp = m.HANDICAP;
+  const hcpChecks: Record<typeof hcp.selection, [boolean, string]> = {
+    "HOME_-1.5": [hcp.probability < np.home, `inférieure à la victoire domicile (${np.home})`],
+    "AWAY_-1.5": [hcp.probability < np.away, `inférieure à la victoire extérieur (${np.away})`],
+    "HOME_+1.5": [hcp.probability >= np.home + np.draw, `au moins égale à « domicile ou nul » (${np.home + np.draw})`],
+    "AWAY_+1.5": [hcp.probability >= np.draw + np.away, `au moins égale à « nul ou extérieur » (${np.draw + np.away})`],
+  };
+  const [hcpOk, hcpRule] = hcpChecks[hcp.selection];
+  if (!hcpOk) errors.push(`HANDICAP : la probabilité de « ${hcp.selection} » (${hcp.probability}) doit être ${hcpRule}.`);
+
+  // Lignes de buts (v2) : P(plus de 1,5) ≥ P(plus de 2,5) ≥ P(plus de 3,5).
+  const pOver = (x: { selection: "OVER" | "UNDER"; probability: number }) => (x.selection === "OVER" ? x.probability : 100 - x.probability);
+  const o15 = pOver(m.OVER_UNDER_1_5);
+  const o25 = pOver(m.OVER_UNDER_2_5);
+  const o35 = pOver(m.OVER_UNDER_3_5);
+  if (!(o15 >= o25 && o25 >= o35)) {
+    errors.push(
+      `Incohérence des lignes de buts : la probabilité de « plus de » doit décroître (1,5 : ${o15} %, 2,5 : ${o25} %, 3,5 : ${o35} %).`,
+    );
+  }
+
   // Marchés binaires : la sélection doit avoir au moins 50 % de probabilité.
-  for (const code of ["OVER_UNDER_2_5", "BTTS"] as const) {
+  for (const code of ["OVER_UNDER_2_5", "BTTS", "OVER_UNDER_1_5", "OVER_UNDER_3_5", "HANDICAP"] as const) {
     if (m[code].probability < 50) {
       errors.push(`${code} : la probabilité de la sélection choisie (${m[code].probability}) doit être d'au moins 50.`);
     }

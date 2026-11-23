@@ -90,7 +90,7 @@ Selon D1, en version mutualisée :
 
 La génération automatique 48 h avant le match peut rester en place pour les marchés principaux : réglage admin, activé ou non.
 
-### Lot 4 — Nouveaux types d'analyses (module 4)
+### Lot 4 — Nouveaux types d'analyses (module 4) — ✅ lot A fait sur la base de test (24/11) : 6 marchés, prompt v2, résolution TS + SQL (75 cas croisés)
 - Table `markets` étendue, prix par type dans `pricing_rules` (déjà configurable).
 - Prompt **v2** (`lib/ai/prompts/v2.ts`, jamais de modification silencieuse de v1), schéma Zod v2, règles de cohérence.
 - Règles de résolution **en double**, TypeScript et SQL, avec cas de test croisés (règle du projet).

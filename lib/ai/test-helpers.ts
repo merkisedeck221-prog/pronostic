@@ -37,6 +37,17 @@ export function validOutput(): PredictionOutput {
       EXACT_SCORE: { selection: "2-1", probability: 12, confidence: "low", reasoning: "Un score serré est probable. Les deux attaques sont efficaces." },
       OVER_UNDER_2_5: { selection: "OVER", probability: 58, confidence: "medium", reasoning: "Les deux équipes marquent beaucoup. La moyenne dépasse 3 buts." },
       BTTS: { selection: "YES", probability: 55, confidence: "low", reasoning: "Chelsea marque à l'extérieur. Arsenal encaisse peu mais pas zéro." },
+      DOUBLE_CHANCE: { selection: "1N", probability: 78, confidence: "medium", reasoning: "Arsenal perd rarement à domicile. Le nul reste possible." },
+      HT_RESULT: {
+        selection: "N",
+        probabilities: { home: 38, draw: 44, away: 18 },
+        confidence: "low",
+        reasoning: "Les débuts de match sont souvent fermés. Arsenal accélère en seconde période.",
+      },
+      HT_FT: { selection: "N/1", probability: 22, confidence: "low", reasoning: "Égalité probable à la pause. Arsenal finit fort à domicile." },
+      HANDICAP: { selection: "AWAY_+1.5", probability: 66, confidence: "medium", reasoning: "Chelsea perd rarement largement. Un écart d'un but est le plus probable." },
+      OVER_UNDER_1_5: { selection: "OVER", probability: 78, confidence: "medium", reasoning: "Les deux équipes marquent souvent. Au moins deux buts sont probables." },
+      OVER_UNDER_3_5: { selection: "UNDER", probability: 68, confidence: "medium", reasoning: "Quatre buts ou plus restent rares entre ces équipes. Les défenses sont correctes." },
     },
   };
 }

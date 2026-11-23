@@ -28,6 +28,8 @@ describe("cas valides", () => {
     out.markets.MATCH_RESULT.probabilities = { home: 32, draw: 38, away: 30 };
     out.markets.EXACT_SCORE.selection = "1-1";
     out.markets.OVER_UNDER_2_5 = { ...out.markets.OVER_UNDER_2_5, selection: "UNDER" };
+    out.markets.HT_FT.selection = "N/N";
+    out.markets.HANDICAP.probability = 70;
     expect(validatePrediction(out, solidSummary).ok).toBe(true);
   });
 
@@ -113,5 +115,72 @@ describe("findForbiddenWords", () => {
     expect(findForbiddenWords("Sûrement le favori, assurément.")).toEqual(["sûrement", "assurément"]);
     expect(findForbiddenWords("Il faut assurer le résultat ; la sureté défensive.")).toEqual([]);
     expect(findForbiddenWords("Une garantie ? Certaines équipes…")).toEqual(["garantie", "certaines"]);
+  });
+});
+
+describe("marchés du prompt v2", () => {
+  const errorsOf = (out: ReturnType<typeof validOutput>) => {
+    const r = validatePrediction(out, solidSummary);
+    return r.ok ? [] : r.errors;
+  };
+
+  it("double chance : doit exclure l'issue la moins probable ; probabilité recalculée", () => {
+    const out = validOutput();
+    out.markets.DOUBLE_CHANCE.probability = 60;
+    const r = validatePrediction(out, solidSummary);
+    expect(r.ok && r.data.markets.DOUBLE_CHANCE.probability).toBe(78);
+    out.markets.DOUBLE_CHANCE.selection = "N2";
+    expect(errorsOf(out).some((e) => e.startsWith("DOUBLE_CHANCE"))).toBe(true);
+  });
+
+  it("mi-temps : somme 100 et sélection la plus probable", () => {
+    const out = validOutput();
+    out.markets.HT_RESULT.probabilities = { home: 50, draw: 40, away: 30 };
+    expect(errorsOf(out).some((e) => e.includes("HT_RESULT : la somme"))).toBe(true);
+    const out2 = validOutput();
+    out2.markets.HT_RESULT.selection = "1";
+    expect(errorsOf(out2).some((e) => e.includes("HT_RESULT : la sélection"))).toBe(true);
+  });
+
+  it("mi-temps / fin de match : cohérent avec les deux résultats et pas plus probable qu'eux", () => {
+    const out = validOutput();
+    out.markets.HT_FT.selection = "1/1";
+    expect(errorsOf(out).some((e) => e.includes("HT_FT « 1/1 »"))).toBe(true);
+    const out2 = validOutput();
+    out2.markets.HT_FT.probability = 50;
+    expect(errorsOf(out2).some((e) => e.startsWith("HT_FT : la probabilité"))).toBe(true);
+  });
+
+  it("handicap : cohérent avec le 1N2", () => {
+    const out = validOutput();
+    out.markets.HANDICAP = { ...out.markets.HANDICAP, selection: "HOME_-1.5", probability: 55 };
+    expect(errorsOf(out).some((e) => e.startsWith("HANDICAP"))).toBe(true); // 55 ≥ victoire domicile (52)
+    out.markets.HANDICAP.probability = 50;
+    expect(errorsOf(out).filter((e) => e.startsWith("HANDICAP"))).toEqual([]);
+    const out2 = validOutput();
+    out2.markets.HANDICAP.probability = 40;
+    expect(errorsOf(out2).some((e) => e.startsWith("HANDICAP"))).toBe(true);
+  });
+
+  it("lignes de buts : la probabilité de « plus de » décroît de 1,5 à 3,5", () => {
+    const out = validOutput();
+    out.markets.OVER_UNDER_3_5 = { ...out.markets.OVER_UNDER_3_5, selection: "OVER", probability: 65 };
+    expect(errorsOf(out).some((e) => e.includes("lignes de buts"))).toBe(true);
+  });
+
+  it("marchés binaires v2 : au moins 50 % ; confiance « high » interdite sur un amical", () => {
+    const out = validOutput();
+    out.markets.OVER_UNDER_1_5.probability = 45;
+    expect(errorsOf(out).some((e) => e.startsWith("OVER_UNDER_1_5 : la probabilité"))).toBe(true);
+    const friendly = validOutput();
+    friendly.markets.HT_FT.confidence = "high";
+    const r = validatePrediction(friendly, friendlySummary);
+    expect(!r.ok && r.errors.some((e) => e.startsWith("HT_FT : la confiance"))).toBe(true);
+  });
+
+  it("mots interdits détectés dans les explications des nouveaux marchés", () => {
+    const out = validOutput();
+    out.markets.HANDICAP.reasoning = "Chelsea ne perdra sûrement pas largement.";
+    expect(errorsOf(out).some((e) => e.startsWith("HANDICAP.reasoning"))).toBe(true);
   });
 });

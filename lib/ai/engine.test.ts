@@ -3,7 +3,8 @@ import { generatePrediction, supportsTemperature } from "./generate";
 import { deName, selectionLabel, toPredictionRows } from "./labels";
 import { estimateCostUsd, modelPricing } from "./pricing";
 import { PROMPT_VERSION, SYSTEM_PROMPT_V1 } from "./prompts/v1";
-import { toOpenAiJsonSchema } from "./schema";
+import { PROMPT_VERSION as PROMPT_VERSION_V2, SYSTEM_PROMPT_V2 } from "./prompts/v2";
+import { MARKET_CODES, toOpenAiJsonSchema } from "./schema";
 import { solidSummary, validOutput } from "./test-helpers";
 
 describe("JSON Schema strict dérivé du schéma Zod", () => {
@@ -29,9 +30,20 @@ describe("JSON Schema strict dérivé du schéma Zod", () => {
     }
   });
 
-  it("décrit les 4 marchés", () => {
+  it("décrit les 10 marchés (prompt v2)", () => {
     const markets = (schema.properties as Record<string, { properties: Record<string, unknown> }>).markets;
-    expect(Object.keys(markets.properties)).toEqual(["MATCH_RESULT", "EXACT_SCORE", "OVER_UNDER_2_5", "BTTS"]);
+    expect(Object.keys(markets.properties)).toEqual([...MARKET_CODES]);
+    expect(MARKET_CODES).toHaveLength(10);
+  });
+});
+
+describe("prompt v2", () => {
+  it("contient v1 sans modification et décrit les 6 marchés ajoutés", () => {
+    expect(PROMPT_VERSION_V2).toBe("v2");
+    expect(SYSTEM_PROMPT_V2.startsWith(SYSTEM_PROMPT_V1)).toBe(true);
+    for (const code of ["DOUBLE_CHANCE", "HT_RESULT", "HT_FT", "HANDICAP", "OVER_UNDER_1_5", "OVER_UNDER_3_5"]) {
+      expect(SYSTEM_PROMPT_V2).toContain(`markets.${code}`);
+    }
   });
 });
 
@@ -59,9 +71,15 @@ describe("libellés français", () => {
 
   it("une ligne par marché, probabilité du 1N2 = celle de la sélection", () => {
     const rows = toPredictionRows(validOutput(), { home: "Arsenal", away: "Chelsea" });
-    expect(rows.map((r) => r.market_code)).toEqual(["MATCH_RESULT", "EXACT_SCORE", "OVER_UNDER_2_5", "BTTS"]);
+    expect([...rows.map((r) => r.market_code)].sort()).toEqual([...MARKET_CODES].sort());
     expect(rows[0]).toMatchObject({ selection: "1", probability: 52, probabilities: { home: 52, draw: 26, away: 22 } });
-    expect(rows[1].probabilities).toBeNull();
+    expect(rows.find((r) => r.market_code === "HT_RESULT")).toMatchObject({ selection: "N", probability: 44 });
+    expect(rows.find((r) => r.market_code === "EXACT_SCORE")?.probabilities).toBeNull();
+    const label = (code: string) => rows.find((r) => r.market_code === code)?.selection_label;
+    expect(label("DOUBLE_CHANCE")).toBe("Victoire d'Arsenal ou match nul");
+    expect(label("HT_FT")).toBe("Égalité à la mi-temps, puis victoire d'Arsenal à la fin");
+    expect(label("HANDICAP")).toBe("Chelsea ne perd pas par 2 buts d'écart ou plus (+1,5)");
+    expect(label("OVER_UNDER_3_5")).toBe("Moins de 3,5 buts");
   });
 });
 
@@ -93,7 +111,7 @@ describe("generatePrediction (OpenAI simulé)", () => {
     const { client, create } = fakeClient(JSON.stringify(validOutput()));
     const result = await generatePrediction(solidSummary, { apiKey: "k", model: "gpt-4o-mini", client });
     expect(result.ok).toBe(true);
-    expect(result.metrics).toMatchObject({ inputTokens: 1500, outputTokens: 500, attempts: 1, promptVersion: "v1" });
+    expect(result.metrics).toMatchObject({ inputTokens: 1500, outputTokens: 500, attempts: 1, promptVersion: "v2" });
     expect(result.metrics.costEstimateUsd).toBe(0.000525);
     const body = create.mock.calls[0][0];
     expect(body.temperature).toBe(0.3);

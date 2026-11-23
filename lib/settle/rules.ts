@@ -54,15 +54,89 @@ export function settleBtts(selection: string, score: RegulationScore): SettledRe
   throw new InvalidSelectionError("BTTS", selection);
 }
 
+/** Double chance : « 1N » (domicile ou nul), « 12 » (pas de nul), « N2 » (nul ou extérieur). */
+export function settleDoubleChance(selection: string, score: RegulationScore): SettledResult {
+  if (selection === "1N") return outcome(score.home >= score.away);
+  if (selection === "12") return outcome(score.home !== score.away);
+  if (selection === "N2") return outcome(score.away >= score.home);
+  throw new InvalidSelectionError("DOUBLE_CHANCE", selection);
+}
+
+/** Plus / moins de N,5 buts (1,5 ou 3,5) : OVER si total ≥ N + 1, UNDER si total ≤ N. */
+function overUnder(market: string, line: number) {
+  return (selection: string, score: RegulationScore): SettledResult => {
+    const total = score.home + score.away;
+    if (selection === "OVER") return outcome(total > line);
+    if (selection === "UNDER") return outcome(total < line);
+    throw new InvalidSelectionError(market, selection);
+  };
+}
+export const settleOverUnder15 = overUnder("OVER_UNDER_1_5", 1.5);
+export const settleOverUnder35 = overUnder("OVER_UNDER_3_5", 3.5);
+
+/**
+ * Handicap européen à ±1,5 (jamais de remboursement) :
+ * HOME_-1.5 gagne si domicile gagne de 2 buts ou plus ; AWAY_+1.5 si
+ * domicile ne gagne pas de 2 buts ou plus ; symétrique pour l'extérieur.
+ */
+export function settleHandicap(selection: string, score: RegulationScore): SettledResult {
+  const diff = score.home - score.away;
+  if (selection === "HOME_-1.5") return outcome(diff >= 2);
+  if (selection === "AWAY_+1.5") return outcome(diff <= 1);
+  if (selection === "HOME_+1.5") return outcome(diff >= -1);
+  if (selection === "AWAY_-1.5") return outcome(diff <= -2);
+  throw new InvalidSelectionError("HANDICAP", selection);
+}
+
+/** Marchés résolus sur le score du temps réglementaire uniquement. */
 const SETTLERS: Record<string, (selection: string, score: RegulationScore) => SettledResult> = {
   MATCH_RESULT: settleMatchResult,
   EXACT_SCORE: settleExactScore,
   OVER_UNDER_2_5: settleOverUnder25,
   BTTS: settleBtts,
+  DOUBLE_CHANCE: settleDoubleChance,
+  OVER_UNDER_1_5: settleOverUnder15,
+  OVER_UNDER_3_5: settleOverUnder35,
+  HANDICAP: settleHandicap,
 };
 
-/** Résultat d'un pronostic ; lève une erreur pour un marché inconnu ou une sélection invalide. */
-export function settlePrediction(market: string, selection: string, score: RegulationScore): SettledResult {
+/** Marchés qui ont besoin du score à la mi-temps. */
+export const HALF_TIME_MARKETS = ["HT_RESULT", "HT_FT"] as const;
+
+export class MissingHalfTimeScoreError extends Error {
+  constructor(market: string) {
+    super(`Score à la mi-temps indisponible pour ${market}`);
+    this.name = "MissingHalfTimeScoreError";
+  }
+}
+
+/** Résultat à la mi-temps (« 1 », « N », « 2 ») sur le score de la mi-temps. */
+export function settleHalfTimeResult(selection: string, halfTime: RegulationScore): SettledResult {
+  if (selection !== "1" && selection !== "N" && selection !== "2") throw new InvalidSelectionError("HT_RESULT", selection);
+  return settleMatchResult(selection, halfTime);
+}
+
+/** Mi-temps / fin de match, ex. « N/1 » : nul à la pause, victoire domicile au temps réglementaire. */
+export function settleHalfTimeFullTime(selection: string, score: RegulationScore, halfTime: RegulationScore): SettledResult {
+  const match = /^([1N2])\/([1N2])$/.exec(selection);
+  if (!match) throw new InvalidSelectionError("HT_FT", selection);
+  return outcome(settleMatchResult(match[1], halfTime) === "won" && settleMatchResult(match[2], score) === "won");
+}
+
+/**
+ * Résultat d'un pronostic ; lève une erreur pour un marché inconnu, une
+ * sélection invalide, ou un score de mi-temps manquant (marchés mi-temps).
+ */
+export function settlePrediction(
+  market: string,
+  selection: string,
+  score: RegulationScore,
+  halfTime: RegulationScore | null = null,
+): SettledResult {
+  if (market === "HT_RESULT" || market === "HT_FT") {
+    if (!halfTime) throw new MissingHalfTimeScoreError(market);
+    return market === "HT_RESULT" ? settleHalfTimeResult(selection, halfTime) : settleHalfTimeFullTime(selection, score, halfTime);
+  }
   const settle = SETTLERS[market];
   if (!settle) throw new Error(`Marché inconnu : ${market}`);
   return settle(selection, score);

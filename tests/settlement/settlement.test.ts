@@ -96,16 +96,19 @@ afterAll(async () => {
 });
 
 describe("test croisé TypeScript ↔ SQL", () => {
-  it("settle_outcome donne le même résultat que lib/settle/rules.ts sur toute la table de cas", async () => {
+  it("settle_outcome_ht donne le même résultat que lib/settle/rules.ts sur toute la table de cas", async () => {
     for (const c of shared.cases) {
-      const { data, error } = await serviceClient.rpc("settle_outcome", {
+      const ht = "ht_home" in c && "ht_away" in c ? { home: Number(c.ht_home), away: Number(c.ht_away) } : null;
+      const { data, error } = await serviceClient.rpc("settle_outcome_ht", {
         p_market: c.market,
         p_selection: c.selection,
         p_home: c.home,
         p_away: c.away,
+        p_ht_home: ht?.home as number,
+        p_ht_away: ht?.away as number,
       });
       expect(error).toBeNull();
-      expect(data, `${c.market} ${c.selection} ${c.home}-${c.away}`).toBe(settlePrediction(c.market, c.selection, { home: c.home, away: c.away }));
+      expect(data, `${c.market} ${c.selection} ${c.home}-${c.away}`).toBe(settlePrediction(c.market, c.selection, { home: c.home, away: c.away }, ht));
       expect(data).toBe(c.expected);
     }
   });

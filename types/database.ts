@@ -1321,6 +1321,17 @@ export type Database = {
         Returns: Json
       }
       settle_fixture: { Args: { p_fixture_id: number }; Returns: Json }
+      settle_outcome_ht: {
+        Args: {
+          p_away: number
+          p_home: number
+          p_ht_away: number
+          p_ht_home: number
+          p_market: string
+          p_selection: string
+        }
+        Returns: Database["public"]["Enums"]["prediction_result"]
+      }
       start_generation: { Args: { p_request_id: string }; Returns: Json }
       start_topup: {
         Args: { p_pack_id: number; p_promo_code?: string; p_provider: string }

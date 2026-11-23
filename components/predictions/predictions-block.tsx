@@ -52,6 +52,12 @@ function RevealedContent({ market, homeName, awayName }: { market: MarketView; h
           <ProbabilityBar label="Match nul" value={market.probabilities.draw} />
           <ProbabilityBar label={`Victoire ${awayName}`} value={market.probabilities.away} />
         </div>
+      ) : market.code === "HT_RESULT" && market.probabilities ? (
+        <div className="space-y-2">
+          <ProbabilityBar label={`${homeName} mène à la pause`} value={market.probabilities.home} />
+          <ProbabilityBar label="Égalité à la pause" value={market.probabilities.draw} />
+          <ProbabilityBar label={`${awayName} mène à la pause`} value={market.probabilities.away} />
+        </div>
       ) : market.probability !== undefined ? (
         <ProbabilityBar label="Probabilité estimée" value={market.probability} />
       ) : null}

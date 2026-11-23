@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import shared from "@/tests/fixtures/settlement-cases.json";
 import {
   InvalidSelectionError,
+  MissingHalfTimeScoreError,
   regulationScore,
   settleBtts,
   settleExactScore,
@@ -13,7 +14,20 @@ import {
 
 describe("table de cas partagée (TypeScript ↔ SQL)", () => {
   it.each(shared.cases)("$market $selection sur $home-$away → $expected", (c) => {
-    expect(settlePrediction(c.market, c.selection, { home: c.home, away: c.away })).toBe(c.expected);
+    const ht = "ht_home" in c && "ht_away" in c ? { home: Number(c.ht_home), away: Number(c.ht_away) } : null;
+    expect(settlePrediction(c.market, c.selection, { home: c.home, away: c.away }, ht)).toBe(c.expected);
+  });
+
+  it("marchés mi-temps : score de la pause obligatoire", () => {
+    expect(() => settlePrediction("HT_RESULT", "1", { home: 1, away: 0 })).toThrow(MissingHalfTimeScoreError);
+    expect(() => settlePrediction("HT_FT", "1/1", { home: 1, away: 0 }, null)).toThrow(MissingHalfTimeScoreError);
+  });
+
+  it("sélections invalides des nouveaux marchés", () => {
+    const s = { home: 1, away: 0 };
+    for (const [m, sel] of [["DOUBLE_CHANCE", "1X"], ["OVER_UNDER_1_5", "PLUS"], ["OVER_UNDER_3_5", ""], ["HANDICAP", "HOME_-2.5"], ["HT_RESULT", "X"], ["HT_FT", "1-1"]]) {
+      expect(() => settlePrediction(m, sel, s, s), `${m} ${sel}`).toThrow(InvalidSelectionError);
+    }
   });
 });
 

@@ -115,6 +115,7 @@
 - `credit_transactions` est **immuable** (déclencheur `protect_ledger`) : jamais d'UPDATE/DELETE, une correction = une écriture inverse (`admin_reverse_transaction`, `admin_adjust_balance`).
 - Notifications : écrites uniquement par déclencheurs SQL (`private.notify`), lien interne seulement.
 - Recharge : `start_topup(pack, fournisseur, code promo)` ; le bonus promo est calculé en base. Codes promo jamais lisibles par les utilisateurs.
+- 10 marchés depuis le prompt v2 (`lib/ai/prompts/v2.ts`) ; HT_RESULT et HT_FT se résolvent avec `ht_home` / `ht_away` (`settle_outcome_ht`).
 - Génération à la demande (`lib/generation/`) : `request_generation` (réserve) → `runGeneration` (orchestration testée, dépendances injectées) → `complete_generation` ou `fail_generation`. Une seule génération par match (mutualisée) ; jamais de débit sans résultat.
 
 ## Fonctionnalités d'abord, pas de design
