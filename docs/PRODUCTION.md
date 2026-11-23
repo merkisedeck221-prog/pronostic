@@ -31,10 +31,10 @@ Phase 12. Cette liste se remplit au fur et à mesure : ✅ fait · ⏳ en cours 
 | 3 | Auth : modèles d'e-mails en français | 👤 (copier-coller) | ⬜ |
 | 3 | Auth : SMTP personnalisé (**obligatoire**) | 👤 | ⬜ |
 | 4 | Vercel : variables de production | 👤 | ✅ toutes posées, redéploiement READY (23/11/2026) |
-| 5 | Supabase Cron : secrets Vault | 👤 | ⬜ |
-| 5 | Supabase Cron : planification vérifiée | Claude | ⬜ |
-| 6 | Compétitions créées et activées | Claude + 👤 | ⬜ |
-| 6 | Première synchronisation + génération < 48 h | Claude | ⬜ |
+| 5 | Supabase Cron : secrets Vault | Claude (exception accordée par le porteur, 23/11) | ✅ `app_url`, `cron_secret`, `vercel_bypass_secret` |
+| 5 | Supabase Cron : planification vérifiée | Claude | ✅ 8 tâches actives ; appel Cron → Vercel → API-Football vérifié (HTTP 200, 23/11) |
+| 6 | Compétitions créées et activées | Claude (SQL, journalisé) | ✅ 5 championnats (39, 140, 135, 78, 61) |
+| 6 | Première synchronisation + génération < 48 h | Claude | ⏳ bloquée : clé API-Football sur forfait **gratuit** (saisons 2022-2024 seulement), forfait Pro requis |
 | 7 | Compte administrateur promu | Claude (SQL, journalisé) | ✅ 23/11/2026 (audit n° 15) |
 | 8 | Domaine personnalisé (facultatif) | 👤 | ⬜ |
 | 9 | Surveillance quotidienne | Claude | ✅ (code et migration prêts) |
