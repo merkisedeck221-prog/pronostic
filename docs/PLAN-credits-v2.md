@@ -1,6 +1,8 @@
 # Système de crédits v2 — diagnostic et plan d'intégration
 
-**Date** : 23 novembre 2026 · **Statut** : proposition, **en attente des décisions du porteur** (section 4). Aucune modification de code ni de base n'a été faite.
+**Date** : 23 novembre 2026 · **Statut** : plan validé le 23/11/2026 (décisions ci-dessous). Démarrage par le lot 0.
+
+**Décisions du porteur (23/11/2026)** : D1 génération **à la demande, mutualisée** · D2 **lot A d'abord** (corners, cartons, combinés ensuite) · D3 **offres de packs datées**, crédits sans expiration · D5 **création d'un projet Supabase de développement**. D4 (prestataire de paiement réel) : en attente du compte et des clés.
 
 Demande du porteur : 8 modules (portefeuille, packs, génération à la demande, 12 types d'analyses, historique, administration, sécurité, qualité), sans repartir de zéro ni supprimer d'existant.
 
