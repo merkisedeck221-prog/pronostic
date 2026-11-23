@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { PasswordInput } from "./password-input";
 
 /**
  * Champs de formulaire sobres (shadcn/ui), avec message d'erreur sous le champ.
@@ -40,24 +41,24 @@ export function TextField({
   inputMode?: "text" | "email" | "tel";
 }) {
   const invalid = Boolean(errors?.length);
+  const inputProps = {
+    id: name,
+    name,
+    defaultValue,
+    autoComplete,
+    placeholder,
+    inputMode,
+    required,
+    "aria-invalid": invalid || undefined,
+    "aria-describedby": invalid ? `${name}-error` : undefined,
+  };
   return (
     <Field data-invalid={invalid || undefined}>
       <FieldLabel htmlFor={name}>
         {label}
         {required ? null : <span className="font-normal text-muted-foreground">(facultatif)</span>}
       </FieldLabel>
-      <Input
-        id={name}
-        name={name}
-        type={type}
-        defaultValue={defaultValue}
-        autoComplete={autoComplete}
-        placeholder={placeholder}
-        inputMode={inputMode}
-        required={required}
-        aria-invalid={invalid || undefined}
-        aria-describedby={invalid ? `${name}-error` : undefined}
-      />
+      {type === "password" ? <PasswordInput {...inputProps} /> : <Input {...inputProps} type={type} />}
       {description ? <FieldDescription>{description}</FieldDescription> : null}
       <FieldError id={`${name}-error`} errors={toFieldErrors(errors)} />
     </Field>
