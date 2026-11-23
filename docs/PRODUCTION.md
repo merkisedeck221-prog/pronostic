@@ -30,12 +30,12 @@ Phase 12. Cette liste se remplit au fur et à mesure : ✅ fait · ⏳ en cours 
 | 3 | Auth : URL du site et de redirection | 👤 (instructions ci-dessous) | ⬜ |
 | 3 | Auth : modèles d'e-mails en français | 👤 (copier-coller) | ⬜ |
 | 3 | Auth : SMTP personnalisé (**obligatoire**) | 👤 | ⬜ |
-| 4 | Vercel : variables de production | 👤 | ⏳ Supabase ✅ (intégration) ; 11 variables applicatives à ajouter |
+| 4 | Vercel : variables de production | 👤 | ✅ toutes posées, redéploiement READY (23/11/2026) |
 | 5 | Supabase Cron : secrets Vault | 👤 | ⬜ |
 | 5 | Supabase Cron : planification vérifiée | Claude | ⬜ |
 | 6 | Compétitions créées et activées | Claude + 👤 | ⬜ |
 | 6 | Première synchronisation + génération < 48 h | Claude | ⬜ |
-| 7 | Compte administrateur promu | 👤 connexion, Claude vérifie | ⬜ |
+| 7 | Compte administrateur promu | Claude (SQL, journalisé) | ✅ 23/11/2026 (audit n° 15) |
 | 8 | Domaine personnalisé (facultatif) | 👤 | ⬜ |
 | 9 | Surveillance quotidienne | Claude | ✅ (code et migration prêts) |
 | 10 | Test de fumée en production | 👤 + Claude | ⬜ |
