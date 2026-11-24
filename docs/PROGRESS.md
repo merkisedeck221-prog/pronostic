@@ -692,3 +692,11 @@ Lint, types, 328 tests unitaires, build ; migration appliquée sur la base de te
 - Les corners / cartons ne s'alimentent qu'avec de vrais matchs (forfait API-Football Pro) ; au début, la confiance sera « faible » le temps d'accumuler 3 matchs par équipe.
 - Prix du match complet à revoir (13 marchés désormais).
 
+
+## Contrôle général du 24/11/2026 (sécurité, bugs, rapidité)
+
+- **Rapidité** : les fonctions Vercel tournaient à Washington (`iad1`) alors que la base est en Irlande (`eu-west-1`) ; `vercel.json` les place à Dublin (`dub1`). Production avant changement : 0,2 à 0,5 s par page une fois le serveur réveillé (1,6 s au premier accès).
+- **Sécurité** : ajout d'une politique de sécurité du contenu (CSP) et de `Cross-Origin-Opener-Policy` (voir `docs/SECURITE.md`, section 9 septies).
+- **Bugs** : parcours complet dans un navigateur (14 pages utilisateur, 16 pages admin, connexion, navigation par le menu) : aucune erreur, aucun blocage par la CSP.
+- **Prévisualisations Vercel** : elles n'avaient aucune variable d'environnement (pages en erreur) ; elles utilisent maintenant la base de **test** `pronostics-dev` (valeurs publiques uniquement).
+- **Hors de portée des outils (à faire par le porteur dans Supabase)** : adresses de connexion (Site URL, Redirect URLs), SMTP, réactivation de la confirmation de l'e-mail (désactivée en production), protection des mots de passe piratés.
