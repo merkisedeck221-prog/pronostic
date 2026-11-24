@@ -203,6 +203,17 @@ Corrections :
 | Pronostic acheté non modifiable | 🔧 avant : rien n'empêchait techniquement de changer la sélection ou la probabilité d'un pronostic acheté (accès admin direct). Désormais refusé à tous les rôles (déclencheur) ; seuls le résultat, la visibilité et la correction historisée de l'explication restent permis. Testé en SQL (changement de sélection, de probabilité, déverrouillage, suppression : refusés) |
 | Suivi admin des générations | ✅ `admin_generation_requests` : FORBIDDEN pour un utilisateur (testé) |
 
+## 9 sexies. Crédits v2, lot B : corners, cartons, combiné (24/11/2026)
+
+| Point | Résultat |
+|---|---|
+| Règles de résolution | ✅ TypeScript (`lib/settle/rules.ts`, couverture 100 %) et SQL (`settle_outcome_full`) : 99 cas partagés, 0 écart (vérifié sur la base de test) ; combiné invalide (1 seule sélection, plus de 3, marché répété ou non autorisé) = jamais résolu |
+| Prolongation | ✅ corners / cartons d'un match AET ou PEN : `void` + remboursement (déblocage du marché en entier ; « match complet » au prorata du prix de base, arrondi au crédit supérieur) ; rejoué sans effet (testé) |
+| Double remboursement | 🔧 avant : l'admin pouvait annuler la transaction d'un déblocage déjà remboursé par un match annulé (crédits rendus deux fois). Désormais `NOT_ELIGIBLE` (testé). `refund_fixture` et `admin_refund_fixture` ne rendent que ce qui reste payé après un remboursement partiel (testé : total rendu = total payé) |
+| Nouvelle table `unlock_partial_refunds` | ✅ RLS, lecture de ses propres lignes uniquement, aucune écriture pour `anon` / `authenticated` (testé, ajouté à `tests/security/audit.test.ts`) |
+| Nouvelles fonctions | ✅ `settle_combo`, `settle_outcome_full`, `settle_fixture` : `service_role` uniquement ; `private.refund_voided_market` inaccessible (schéma privé) — testé avec un compte utilisateur |
+| Données externes | ✅ réponse `/fixtures/statistics` validée par Zod ; valeurs non entières ou hors 0–99 ignorées ; équipes rattachées par identifiant API |
+
 ## 10. Points ouverts et risques acceptés
 
 1. ⚠️ **`picomatch`** (outils de développement uniquement) : voir § 8.

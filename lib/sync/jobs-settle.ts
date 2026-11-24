@@ -32,14 +32,19 @@ export async function settlePredictions(ctx: SyncContext): Promise<void> {
 
   const toSettle = unique((pending ?? []).map((row) => row.fixture_id)).slice(0, SETTLE_MAX_FIXTURES_PER_RUN);
   let settled = 0;
+  let voidedStats = 0;
+  let waitingStats = 0;
   for (const fixtureId of toSettle) {
     const { data, error: rpcError } = await ctx.db.rpc("settle_fixture", { p_fixture_id: fixtureId });
-    const result = data as { ok?: boolean; settled?: number; invalid?: number; code?: string } | null;
+    const result = data as { ok?: boolean; settled?: number; invalid?: number; voided?: number; waiting_stats?: number; code?: string } | null;
     if (rpcError || !result?.ok) {
       ctx.error(`Résolution du match ${fixtureId} : ${rpcError?.message ?? result?.code ?? "réponse invalide"}`);
       continue;
     }
     settled += result.settled ?? 0;
+    // Corners / cartons : annulés et remboursés si prolongation ; en attente tant que les statistiques manquent.
+    voidedStats += result.voided ?? 0;
+    waitingStats += result.waiting_stats ?? 0;
     if ((result.invalid ?? 0) > 0) ctx.error(`Match ${fixtureId} : ${result.invalid} pronostic(s) à sélection invalide laissé(s) en attente`);
     ctx.processed(1);
   }
@@ -86,6 +91,8 @@ export async function settlePredictions(ctx: SyncContext): Promise<void> {
   Object.assign(ctx.details, {
     fixturesSettled: toSettle.length,
     predictionsSettled: settled,
+    statsVoided: voidedStats,
+    statsWaiting: waitingStats,
     fixturesRefundChecked: toRefund.length,
     unlocksRefunded: refunded,
     creditsRefunded: refundedCredits,

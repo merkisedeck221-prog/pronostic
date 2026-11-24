@@ -5,7 +5,7 @@ import type { ApiFootballClient } from "@/lib/api-football/client";
 import type { DB } from "@/lib/sync/runner";
 import type { Json } from "@/types/database";
 import { injuryItemSchema, predictionsItemSchema, type InjuryItem, type PredictionsItem } from "./schemas";
-import { summarizeMatchContext, type H2HInput, type MatchSummary, type RecentResult } from "./summarize";
+import { summarizeMatchContext, type H2HInput, type MatchSummary, type RecentResult, type TeamStatsInput } from "./summarize";
 
 /**
  * Constitution du dossier de match (section 8, étape 2) :
@@ -43,7 +43,7 @@ export async function buildMatchContext(db: DB, api: ApiFootballClient, fixtureI
       .in("team_id", teamIds),
     db
       .from("fixtures")
-      .select("kickoff_at, home_team_id, away_team_id, goals_home, goals_away")
+      .select("kickoff_at, home_team_id, away_team_id, goals_home, goals_away, corners_home, corners_away, cards_home, cards_away")
       .or(`home_team_id.in.(${teamIds.join(",")}),away_team_id.in.(${teamIds.join(",")})`)
       .in("status_short", FINISHED)
       .lt("kickoff_at", fixture.kickoff_at)
@@ -73,6 +73,20 @@ export async function buildMatchContext(db: DB, api: ApiFootballClient, fixtureI
         const ga = m.home_team_id === teamId ? m.goals_away! : m.goals_home!;
         return { date: m.kickoff_at, result: gf > ga ? "W" : gf === ga ? "D" : "L" };
       });
+  // Corners / cartons (lot B) : derniers matchs dont les statistiques sont en base.
+  const statsFor = (teamId: number): TeamStatsInput[] =>
+    (recentRes.data ?? [])
+      .filter((m) => m.home_team_id === teamId || m.away_team_id === teamId)
+      .map((m) => {
+        const home = m.home_team_id === teamId;
+        return {
+          corners_for: home ? m.corners_home : m.corners_away,
+          corners_against: home ? m.corners_away : m.corners_home,
+          cards: home ? m.cards_home : m.cards_away,
+        };
+      })
+      .filter((r) => r.corners_for !== null || r.cards !== null)
+      .slice(0, 5);
   const h2hFromDb: H2HInput[] = (h2hRes.data ?? []).map((m) => ({
     date: m.kickoff_at,
     home: m.home.name,
@@ -123,6 +137,7 @@ export async function buildMatchContext(db: DB, api: ApiFootballClient, fixtureI
     h2hFromDb,
     predictions,
     injuries,
+    matchStats: { home: statsFor(fixture.home_team_id), away: statsFor(fixture.away_team_id) },
   });
 
   const raw = { predictions: rawPredictions, injuries: rawInjuries, errors, fetched_at: new Date().toISOString() };

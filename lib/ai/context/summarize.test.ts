@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { injuryItemSchema, predictionsItemSchema } from "./schemas";
-import { isThinHistory, lastFive, summarizeMatchContext, type SummaryInput } from "./summarize";
+import { isThinHistory, isThinMatchStats, lastFive, summarizeMatchContext, teamMatchStats, type SummaryInput } from "./summarize";
 
 const recorded = <S extends z.ZodType>(file: string, schema: S): z.infer<S> =>
   schema.parse(JSON.parse(readFileSync(`tests/fixtures/api-football/${file}`, "utf8")).response);
@@ -150,5 +150,36 @@ describe("autres cas", () => {
   it("lastFive garde les 5 derniers résultats", () => {
     expect(lastFive("WDLWWDWLWW")).toBe("DWLWW");
     expect(lastFive(null)).toBeNull();
+  });
+});
+
+describe("statistiques corners / cartons (lot B)", () => {
+  it("moyennes sur les 5 derniers matchs avec statistiques", () => {
+    const rows = [
+      { corners_for: 6, corners_against: 2, cards: 1 },
+      { corners_for: null, corners_against: null, cards: null },
+      { corners_for: 4, corners_against: 5, cards: 3 },
+      { corners_for: null, corners_against: null, cards: 2 },
+      { corners_for: 8, corners_against: 1, cards: 0 },
+      { corners_for: 2, corners_against: 2, cards: 4 },
+      { corners_for: 10, corners_against: 10, cards: 10 },
+    ];
+    expect(teamMatchStats(rows)).toEqual({ matches: 5, avg_corners_for: 5, avg_corners_against: 2.5, avg_cards: 2 });
+    expect(teamMatchStats([])).toEqual({ matches: 0, avg_corners_for: null, avg_corners_against: null, avg_cards: null });
+  });
+
+  it("ajoutées au dossier si fournies ; moins de 3 matchs = statistiques minces", () => {
+    const withStats = summarizeMatchContext({
+      ...leagueInput,
+      matchStats: {
+        home: [1, 2, 3].map(() => ({ corners_for: 5, corners_against: 4, cards: 2 })),
+        away: [1, 2].map(() => ({ corners_for: 3, corners_against: 6, cards: 1 })),
+      },
+    });
+    expect(withStats.home.match_stats).toEqual({ matches: 3, avg_corners_for: 5, avg_corners_against: 4, avg_cards: 2 });
+    expect(withStats.away.match_stats?.matches).toBe(2);
+    expect(isThinMatchStats(withStats)).toBe(true);
+    expect(summarizeMatchContext(leagueInput).home.match_stats).toBeUndefined();
+    expect(isThinMatchStats(summarizeMatchContext(leagueInput))).toBe(true);
   });
 });

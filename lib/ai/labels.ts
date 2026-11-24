@@ -1,3 +1,4 @@
+import { COMBO_LEG_MARKETS } from "@/lib/settle/rules";
 import type { MarketCode, PredictionOutput } from "./schema";
 
 /**
@@ -51,7 +52,24 @@ export function selectionLabel(
       return selection === "OVER" ? "Plus de 1,5 but" : "Moins de 1,5 but";
     case "OVER_UNDER_3_5":
       return selection === "OVER" ? "Plus de 3,5 buts" : "Moins de 3,5 buts";
+    case "CORNERS_OVER_UNDER_9_5":
+      return selection === "OVER" ? "Plus de 9,5 corners" : "Moins de 9,5 corners";
+    case "CARDS_OVER_UNDER_4_5":
+      return selection === "OVER" ? "Plus de 4,5 cartons" : "Moins de 4,5 cartons";
+    case "COMBO":
+      return selection
+        .split("+")
+        .map((leg) => {
+          const [code, value] = leg.split(":");
+          return (COMBO_LEG_MARKETS as readonly string[]).includes(code) ? selectionLabel(code as MarketCode, value, teams) : leg;
+        })
+        .join(" + ");
   }
+}
+
+/** Sélection enregistrée d'un combiné : « MATCH_RESULT:1+OVER_UNDER_1_5:OVER ». */
+export function comboSelection(legs: { market: string; selection: string }[]): string {
+  return legs.map((leg) => `${leg.market}:${leg.selection}`).join("+");
 }
 
 /** « Arsenal mène à la mi-temps », « Égalité à la mi-temps ». */
@@ -88,7 +106,18 @@ export function toPredictionRows(output: PredictionOutput, teams: { home: string
       reasoning: m.HT_RESULT.reasoning,
     },
     ...(
-      ["EXACT_SCORE", "OVER_UNDER_2_5", "BTTS", "DOUBLE_CHANCE", "HT_FT", "HANDICAP", "OVER_UNDER_1_5", "OVER_UNDER_3_5"] as const
+      [
+        "EXACT_SCORE",
+        "OVER_UNDER_2_5",
+        "BTTS",
+        "DOUBLE_CHANCE",
+        "HT_FT",
+        "HANDICAP",
+        "OVER_UNDER_1_5",
+        "OVER_UNDER_3_5",
+        "CORNERS_OVER_UNDER_9_5",
+        "CARDS_OVER_UNDER_4_5",
+      ] as const
     ).map((code) => ({
       market_code: code,
       selection: m[code].selection,
@@ -98,5 +127,14 @@ export function toPredictionRows(output: PredictionOutput, teams: { home: string
       confidence: m[code].confidence,
       reasoning: m[code].reasoning,
     })),
+    {
+      market_code: "COMBO",
+      selection: comboSelection(m.COMBO.legs),
+      selection_label: selectionLabel("COMBO", comboSelection(m.COMBO.legs), teams),
+      probability: m.COMBO.probability,
+      probabilities: null,
+      confidence: m.COMBO.confidence,
+      reasoning: m.COMBO.reasoning,
+    },
   ];
 }

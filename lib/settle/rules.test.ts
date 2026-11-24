@@ -3,6 +3,8 @@ import shared from "@/tests/fixtures/settlement-cases.json";
 import {
   InvalidSelectionError,
   MissingHalfTimeScoreError,
+  MissingStatisticsError,
+  parseCombo,
   regulationScore,
   settleBtts,
   settleExactScore,
@@ -15,7 +17,36 @@ import {
 describe("table de cas partagée (TypeScript ↔ SQL)", () => {
   it.each(shared.cases)("$market $selection sur $home-$away → $expected", (c) => {
     const ht = "ht_home" in c && "ht_away" in c ? { home: Number(c.ht_home), away: Number(c.ht_away) } : null;
-    expect(settlePrediction(c.market, c.selection, { home: c.home, away: c.away }, ht)).toBe(c.expected);
+    const stats = "corners" in c && "cards" in c ? { corners: Number(c.corners), cards: Number(c.cards) } : null;
+    expect(settlePrediction(c.market, c.selection, { home: c.home, away: c.away }, ht, stats)).toBe(c.expected);
+  });
+
+  it("corners et cartons : statistiques obligatoires", () => {
+    const s = { home: 1, away: 0 };
+    expect(() => settlePrediction("CORNERS_OVER_UNDER_9_5", "OVER", s)).toThrow(MissingStatisticsError);
+    expect(() => settlePrediction("CARDS_OVER_UNDER_4_5", "UNDER", s, null, { corners: 10, cards: null })).toThrow(MissingStatisticsError);
+    expect(() => settlePrediction("CORNERS_OVER_UNDER_9_5", "PLUS", s, null, { corners: 10, cards: 2 })).toThrow(InvalidSelectionError);
+  });
+
+  it("combiné : 2 ou 3 marchés distincts et autorisés, sélections valides", () => {
+    const s = { home: 1, away: 0 };
+    for (const sel of [
+      "MATCH_RESULT:1",
+      "MATCH_RESULT:1+BTTS:NO+OVER_UNDER_1_5:UNDER+DOUBLE_CHANCE:1N",
+      "MATCH_RESULT:1+MATCH_RESULT:1",
+      "EXACT_SCORE:1-0+BTTS:NO",
+      "HT_RESULT:1+BTTS:NO",
+      "MATCH_RESULT:X+BTTS:NO",
+      "MATCH_RESULT:1+BTTS",
+      "match_result:1+BTTS:NO",
+      "",
+    ]) {
+      expect(() => settlePrediction("COMBO", sel, s), sel).toThrow(InvalidSelectionError);
+    }
+    expect(parseCombo("MATCH_RESULT:1+BTTS:NO")).toEqual([
+      { market: "MATCH_RESULT", selection: "1" },
+      { market: "BTTS", selection: "NO" },
+    ]);
   });
 
   it("marchés mi-temps : score de la pause obligatoire", () => {

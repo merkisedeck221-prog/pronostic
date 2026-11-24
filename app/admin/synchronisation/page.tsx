@@ -20,6 +20,7 @@ const JOB_HELP: Record<string, string> = {
   "sync-fixtures": "1 appel par compétition active",
   "sync-standings": "1 appel par compétition avec classement",
   "sync-results": "1 appel par lot de 20 matchs en cours (0 s'il n'y en a pas)",
+  "sync-statistics": "1 appel par match terminé sans corners/cartons (15 au plus)",
   "build-contexts": "2 appels par match (dossiers IA)",
   "generate-predictions": "0 appel API-Football (OpenAI)",
   "settle-predictions": "0 appel (résolution et remboursements)",

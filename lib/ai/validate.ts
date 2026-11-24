@@ -1,4 +1,4 @@
-import { isThinHistory, type MatchSummary } from "./context/summarize";
+import { isThinHistory, isThinMatchStats, type MatchSummary } from "./context/summarize";
 import { MARKET_CODES, predictionOutputSchema, type PredictionOutput } from "./schema";
 
 /**
@@ -120,8 +120,40 @@ export function validatePrediction(raw: unknown, summary: MatchSummary): Validat
     );
   }
 
+  // Combiné (v3) : 2 ou 3 de TES sélections, sur des marchés distincts et non redondants,
+  // et jamais plus probable que la moins probable de ses sélections.
+  const legProbability: Record<(typeof m.COMBO.legs)[number]["market"], { selection: string; probability: number }> = {
+    MATCH_RESULT: { selection: m.MATCH_RESULT.selection, probability: bySelection[m.MATCH_RESULT.selection] },
+    DOUBLE_CHANCE: m.DOUBLE_CHANCE,
+    OVER_UNDER_1_5: m.OVER_UNDER_1_5,
+    OVER_UNDER_2_5: m.OVER_UNDER_2_5,
+    OVER_UNDER_3_5: m.OVER_UNDER_3_5,
+    BTTS: m.BTTS,
+  };
+  const legs = m.COMBO.legs;
+  const legMarkets = legs.map((leg) => leg.market);
+  if (new Set(legMarkets).size !== legMarkets.length) {
+    errors.push("COMBO : chaque sélection du combiné doit porter sur un marché différent.");
+  } else if (legMarkets.includes("MATCH_RESULT") && legMarkets.includes("DOUBLE_CHANCE")) {
+    errors.push("COMBO : ne combine pas MATCH_RESULT et DOUBLE_CHANCE (sélections redondantes).");
+  } else if (legMarkets.filter((code) => code.startsWith("OVER_UNDER_")).length > 1) {
+    errors.push("COMBO : une seule ligne de buts (OVER_UNDER_1_5, OVER_UNDER_2_5 ou OVER_UNDER_3_5) par combiné.");
+  } else {
+    const mismatch = legs.find((leg) => leg.selection !== legProbability[leg.market].selection);
+    if (mismatch) {
+      errors.push(
+        `COMBO : la sélection « ${mismatch.selection} » pour ${mismatch.market} doit reprendre ta sélection de ce marché (« ${legProbability[mismatch.market].selection} »).`,
+      );
+    } else {
+      const minLeg = Math.min(...legs.map((leg) => legProbability[leg.market].probability));
+      if (m.COMBO.probability > minLeg) {
+        errors.push(`COMBO : la probabilité (${m.COMBO.probability}) ne peut pas dépasser celle de la moins probable de ses sélections (${minLeg}).`);
+      }
+    }
+  }
+
   // Marchés binaires : la sélection doit avoir au moins 50 % de probabilité.
-  for (const code of ["OVER_UNDER_2_5", "BTTS", "OVER_UNDER_1_5", "OVER_UNDER_3_5", "HANDICAP"] as const) {
+  for (const code of ["OVER_UNDER_2_5", "BTTS", "OVER_UNDER_1_5", "OVER_UNDER_3_5", "HANDICAP", "CORNERS_OVER_UNDER_9_5", "CARDS_OVER_UNDER_4_5"] as const) {
     if (m[code].probability < 50) {
       errors.push(`${code} : la probabilité de la sélection choisie (${m[code].probability}) doit être d'au moins 50.`);
     }
@@ -154,6 +186,12 @@ export function validatePrediction(raw: unknown, summary: MatchSummary): Validat
     for (const code of MARKET_CODES) {
       if (m[code].confidence === "high") errors.push(`${code} : la confiance « high » est interdite (${reason}).`);
     }
+  }
+
+  // Corners / cartons (lot B, décision 3) : statistiques minces → confiance « low » imposée (pas d'erreur).
+  if (isThinMatchStats(summary)) {
+    m.CORNERS_OVER_UNDER_9_5.confidence = "low";
+    m.CARDS_OVER_UNDER_4_5.confidence = "low";
   }
 
   // Mots interdits dans tous les textes.

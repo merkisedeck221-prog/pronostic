@@ -23,7 +23,26 @@ export type TeamSummary = {
   avg_goals_for: number | null;
   avg_goals_against: number | null;
   absences: string[];
+  /**
+   * Corners et cartons (lot B) : moyennes sur les derniers matchs terminés dont
+   * les statistiques sont en base ; absent des dossiers construits avant le lot B.
+   */
+  match_stats?: TeamMatchStats;
 };
+
+export type TeamMatchStats = {
+  /** Nombre de matchs utilisés (0 à 5). */
+  matches: number;
+  avg_corners_for: number | null;
+  avg_corners_against: number | null;
+  avg_cards: number | null;
+};
+
+/** Statistiques d'un match terminé, du point de vue d'une équipe. */
+export type TeamStatsInput = { corners_for: number | null; corners_against: number | null; cards: number | null };
+
+/** En dessous de ce nombre de matchs avec statistiques, la confiance des marchés corners / cartons est « low ». */
+export const MIN_STATS_MATCHES = 3;
 
 export type MatchSummary = {
   match: {
@@ -74,6 +93,8 @@ export type SummaryInput = {
   h2hFromDb: H2HInput[];
   predictions: PredictionsItem | null;
   injuries: InjuryItem[];
+  /** Statistiques des derniers matchs (récent → ancien), lot B. */
+  matchStats?: { home: TeamStatsInput[]; away: TeamStatsInput[] };
 };
 
 /** Identifiant API-Football des matchs amicaux internationaux. */
@@ -164,7 +185,24 @@ function teamSummary(
   };
   if (side === "home") summary.home_record = record(stats, "home");
   else summary.away_record = record(stats, "away");
+  if (input.matchStats) summary.match_stats = teamMatchStats(input.matchStats[side]);
   return summary;
+}
+
+function average(values: (number | null)[]): number | null {
+  const known = values.filter((v): v is number => v !== null);
+  return known.length ? round2(known.reduce((a, b) => a + b, 0) / known.length) : null;
+}
+
+/** Moyennes sur les 5 derniers matchs avec statistiques. */
+export function teamMatchStats(rows: TeamStatsInput[]): TeamMatchStats {
+  const last = rows.filter((r) => r.corners_for !== null || r.cards !== null).slice(0, 5);
+  return {
+    matches: last.length,
+    avg_corners_for: average(last.map((r) => r.corners_for)),
+    avg_corners_against: average(last.map((r) => r.corners_against)),
+    avg_cards: average(last.map((r) => r.cards)),
+  };
 }
 
 function headToHead(input: SummaryInput): MatchSummary["head_to_head"] {
@@ -227,4 +265,13 @@ export function summarizeMatchContext(input: SummaryInput): MatchSummary {
 export function isThinHistory(summary: MatchSummary): boolean {
   const formKnown = (summary.home.last5?.length ?? 0) >= 3 && (summary.away.last5?.length ?? 0) >= 3;
   return !formKnown || (summary.data_quality.h2h_count < 2 && !summary.data_quality.has_standings);
+}
+
+/**
+ * Statistiques corners / cartons trop minces (lot B, décision 3) : moins de
+ * MIN_STATS_MATCHES matchs avec statistiques pour l'une des équipes. Les
+ * marchés corners et cartons restent proposés, avec une confiance « low » imposée.
+ */
+export function isThinMatchStats(summary: MatchSummary): boolean {
+  return (summary.home.match_stats?.matches ?? 0) < MIN_STATS_MATCHES || (summary.away.match_stats?.matches ?? 0) < MIN_STATS_MATCHES;
 }

@@ -29,7 +29,8 @@ Un match qui a déjà des pronostics n'est **jamais** régénéré automatiqueme
 | `context/summarize.ts` | résumeur **pur** → dossier au format section 8 (`match`, `home`, `away`, `head_to_head`, `provider_prediction`, `data_quality`) ; `isThinHistory()` |
 | `context/build.ts` | `buildMatchContext(db, api, fixtureId)` : appels API, lecture base, enregistrement |
 | `prompts/v1.ts` | prompt système v1 (4 marchés), conservé tel quel |
-| `prompts/v2.ts` | **prompt utilisé** depuis le lot 4 : v1 + 6 marchés (double chance, mi-temps, mi-temps/fin de match, handicap ±1,5, plus/moins 1,5 et 3,5), `PROMPT_VERSION = 'v2'` |
+| `prompts/v3.ts` | **prompt utilisé** depuis le lot B : v2 + corners (plus/moins 9,5), cartons (plus/moins 4,5) et combiné IA (2 ou 3 sélections du même match), `PROMPT_VERSION = 'v3'` |
+| `prompts/v2.ts` | prompt du lot 4 : v1 + 6 marchés (double chance, mi-temps, mi-temps/fin de match, handicap ±1,5, plus/moins 1,5 et 3,5), `PROMPT_VERSION = 'v2'` |
 | `schema.ts` | schéma Zod de sortie (source unique) → `toOpenAiJsonSchema()` (JSON Schema strict) |
 | `validate.ts` | règles de cohérence et mots interdits |
 | `labels.ts` | libellés français (« Victoire d'Arsenal », « Plus de 2,5 buts »…) |
@@ -50,6 +51,8 @@ Conforme à l'exemple de la section 8. Précisions :
 ### Règles de validation
 
 Règles v2 ajoutées : double chance = paire qui exclut l'issue la moins probable (probabilité recalculée) ; mi-temps : somme 100 et sélection la plus probable ; mi-temps/fin de match = HT_RESULT puis MATCH_RESULT, pas plus probable que ses parties ; handicap cohérent avec le 1N2 ; P(plus de 1,5) ≥ P(plus de 2,5) ≥ P(plus de 3,5) ; marchés binaires ≥ 50 %. Pas de cohérence imposée entre le score exact et les lignes 1,5 / 3,5 ou le handicap (contrainte irréaliste pour l'IA).
+
+Règles v3 ajoutées : corners et cartons ≥ 50 % ; **confiance « low » imposée** (sans erreur) si l'une des équipes a moins de 3 matchs récents avec statistiques (`match_stats` du dossier, `isThinMatchStats`) ; combiné = 2 ou 3 sélections reprenant **exactement** celles de l'IA, marchés distincts, jamais 1N2 + double chance, une seule ligne de buts, probabilité ≤ celle de la sélection la moins probable. Enregistré sous la forme `MATCH_RESULT:1+OVER_UNDER_1_5:OVER`.
 
 
 1. Schéma Zod (types, entiers 0-100, 3 à 5 facteurs clés).

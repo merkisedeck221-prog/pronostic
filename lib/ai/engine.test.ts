@@ -4,6 +4,7 @@ import { deName, selectionLabel, toPredictionRows } from "./labels";
 import { estimateCostUsd, modelPricing } from "./pricing";
 import { PROMPT_VERSION, SYSTEM_PROMPT_V1 } from "./prompts/v1";
 import { PROMPT_VERSION as PROMPT_VERSION_V2, SYSTEM_PROMPT_V2 } from "./prompts/v2";
+import { PROMPT_VERSION as PROMPT_VERSION_V3, SYSTEM_PROMPT_V3 } from "./prompts/v3";
 import { MARKET_CODES, toOpenAiJsonSchema } from "./schema";
 import { solidSummary, validOutput } from "./test-helpers";
 
@@ -33,7 +34,17 @@ describe("JSON Schema strict dérivé du schéma Zod", () => {
   it("décrit les 10 marchés (prompt v2)", () => {
     const markets = (schema.properties as Record<string, { properties: Record<string, unknown> }>).markets;
     expect(Object.keys(markets.properties)).toEqual([...MARKET_CODES]);
-    expect(MARKET_CODES).toHaveLength(10);
+    expect(MARKET_CODES).toHaveLength(13);
+  });
+});
+
+describe("prompt v3", () => {
+  it("contient v2 sans modification et décrit corners, cartons et combiné", () => {
+    expect(PROMPT_VERSION_V3).toBe("v3");
+    expect(SYSTEM_PROMPT_V3.startsWith(SYSTEM_PROMPT_V2)).toBe(true);
+    for (const code of ["CORNERS_OVER_UNDER_9_5", "CARDS_OVER_UNDER_4_5", "COMBO", "match_stats"]) {
+      expect(SYSTEM_PROMPT_V3).toContain(code);
+    }
   });
 });
 
@@ -80,6 +91,11 @@ describe("libellés français", () => {
     expect(label("HT_FT")).toBe("Égalité à la mi-temps, puis victoire d'Arsenal à la fin");
     expect(label("HANDICAP")).toBe("Chelsea ne perd pas par 2 buts d'écart ou plus (+1,5)");
     expect(label("OVER_UNDER_3_5")).toBe("Moins de 3,5 buts");
+    expect(label("CORNERS_OVER_UNDER_9_5")).toBe("Plus de 9,5 corners");
+    expect(label("CARDS_OVER_UNDER_4_5")).toBe("Moins de 4,5 cartons");
+    const combo = rows.find((r) => r.market_code === "COMBO");
+    expect(combo).toMatchObject({ selection: "DOUBLE_CHANCE:1N+OVER_UNDER_1_5:OVER", probability: 62, probabilities: null });
+    expect(combo?.selection_label).toBe("Victoire d'Arsenal ou match nul + Plus de 1,5 but");
   });
 });
 
@@ -111,7 +127,7 @@ describe("generatePrediction (OpenAI simulé)", () => {
     const { client, create } = fakeClient(JSON.stringify(validOutput()));
     const result = await generatePrediction(solidSummary, { apiKey: "k", model: "gpt-4o-mini", client });
     expect(result.ok).toBe(true);
-    expect(result.metrics).toMatchObject({ inputTokens: 1500, outputTokens: 500, attempts: 1, promptVersion: "v2" });
+    expect(result.metrics).toMatchObject({ inputTokens: 1500, outputTokens: 500, attempts: 1, promptVersion: "v3" });
     expect(result.metrics.costEstimateUsd).toBe(0.000525);
     const body = create.mock.calls[0][0];
     expect(body.temperature).toBe(0.3);

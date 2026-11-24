@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { COMBO_LEG_MARKETS } from "@/lib/settle/rules";
 
 /**
- * Format de sortie imposé à l'IA (section 8 ; 10 marchés depuis le prompt v2). Source de vérité UNIQUE : ce
+ * Format de sortie imposé à l'IA (section 8 ; 10 marchés depuis le prompt v2, 13 depuis le v3). Source de vérité UNIQUE : ce
  * schéma Zod. Le JSON Schema strict envoyé à OpenAI (Structured Outputs) en
  * est dérivé par `toOpenAiJsonSchema()`.
  */
@@ -79,6 +80,34 @@ export const predictionOutputSchema = z.object({
       confidence,
       reasoning,
     }),
+    // ---- Marchés ajoutés par le prompt v3 (lot B) ----
+    CORNERS_OVER_UNDER_9_5: z.object({
+      selection: z.enum(["OVER", "UNDER"]).describe("Total des corners des deux équipes : OVER = 10 ou plus, UNDER = 9 ou moins."),
+      probability: probability.describe("Probabilité de la sélection choisie, en %."),
+      confidence,
+      reasoning,
+    }),
+    CARDS_OVER_UNDER_4_5: z.object({
+      selection: z.enum(["OVER", "UNDER"]).describe("Total des cartons (jaunes + rouges) : OVER = 5 ou plus, UNDER = 4 ou moins."),
+      probability: probability.describe("Probabilité de la sélection choisie, en %."),
+      confidence,
+      reasoning,
+    }),
+    COMBO: z.object({
+      legs: z
+        .array(
+          z.object({
+            market: z.enum(COMBO_LEG_MARKETS).describe("Marché déjà pronostiqué ci-dessus."),
+            selection: z.string().min(1).describe("Ta sélection pour ce marché, identique à celle donnée plus haut."),
+          }),
+        )
+        .min(2)
+        .max(3)
+        .describe("2 ou 3 sélections de CE match, sur des marchés distincts."),
+      probability: probability.describe("Probabilité que TOUTES les sélections soient gagnantes, en %."),
+      confidence,
+      reasoning,
+    }),
   }),
 });
 
@@ -95,6 +124,9 @@ export const MARKET_CODES = [
   "HANDICAP",
   "OVER_UNDER_1_5",
   "OVER_UNDER_3_5",
+  "CORNERS_OVER_UNDER_9_5",
+  "CARDS_OVER_UNDER_4_5",
+  "COMBO",
 ] as const satisfies readonly MarketCode[];
 
 /** Mots-clés JSON Schema non garantis par le mode strict d'OpenAI : retirés (Zod les revérifie). */

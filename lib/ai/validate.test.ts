@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { PredictionOutput } from "./schema";
 import { friendlySummary, solidSummary, validOutput } from "./test-helpers";
 import { findForbiddenWords, normalize1x2, validatePrediction } from "./validate";
 
@@ -182,5 +183,61 @@ describe("marchés du prompt v2", () => {
     const out = validOutput();
     out.markets.HANDICAP.reasoning = "Chelsea ne perdra sûrement pas largement.";
     expect(errorsOf(out).some((e) => e.startsWith("HANDICAP.reasoning"))).toBe(true);
+  });
+});
+
+describe("marchés du prompt v3 (corners, cartons, combiné)", () => {
+  it("corners / cartons : au moins 50 %", () => {
+    const out = validOutput();
+    out.markets.CORNERS_OVER_UNDER_9_5.probability = 40;
+    out.markets.CARDS_OVER_UNDER_4_5.probability = 49;
+    const errors = errorsOf(out);
+    expect(errors.some((e) => e.startsWith("CORNERS_OVER_UNDER_9_5 : la probabilité"))).toBe(true);
+    expect(errors.some((e) => e.startsWith("CARDS_OVER_UNDER_4_5 : la probabilité"))).toBe(true);
+  });
+
+  it("statistiques minces : confiance « low » imposée sans erreur ; données suffisantes : conservée", () => {
+    const thin = { ...solidSummary, away: { ...solidSummary.away, match_stats: { matches: 2, avg_corners_for: 5, avg_corners_against: 4, avg_cards: 2 } } };
+    const r = validatePrediction(validOutput(), thin);
+    expect(r.ok && r.data.markets.CORNERS_OVER_UNDER_9_5.confidence).toBe("low");
+    expect(r.ok && r.data.markets.CARDS_OVER_UNDER_4_5.confidence).toBe("low");
+    expect(r.ok && r.data.markets.MATCH_RESULT.confidence).toBe("medium");
+    // Dossier construit avant le lot B (sans match_stats) : aussi « low ».
+    const old = { ...solidSummary, home: { ...solidSummary.home, match_stats: undefined } };
+    const r2 = validatePrediction(validOutput(), old);
+    expect(r2.ok && r2.data.markets.CORNERS_OVER_UNDER_9_5.confidence).toBe("low");
+    const r3 = validatePrediction(validOutput(), solidSummary);
+    expect(r3.ok && r3.data.markets.CORNERS_OVER_UNDER_9_5.confidence).toBe("medium");
+  });
+
+  it("combiné : reprend les sélections de l'IA, marchés distincts et non redondants", () => {
+    const cases: [PredictionOutput["markets"]["COMBO"]["legs"], string][] = [
+      [[{ market: "DOUBLE_CHANCE", selection: "1N" }, { market: "DOUBLE_CHANCE", selection: "1N" }], "marché différent"],
+      [[{ market: "MATCH_RESULT", selection: "1" }, { market: "DOUBLE_CHANCE", selection: "1N" }], "redondantes"],
+      [[{ market: "OVER_UNDER_1_5", selection: "OVER" }, { market: "OVER_UNDER_2_5", selection: "OVER" }], "une seule ligne de buts"],
+      [[{ market: "MATCH_RESULT", selection: "2" }, { market: "BTTS", selection: "YES" }], "doit reprendre ta sélection"],
+    ];
+    for (const [legs, message] of cases) {
+      const out = validOutput();
+      out.markets.COMBO.legs = legs;
+      expect(errorsOf(out).some((e) => e.startsWith("COMBO") && e.includes(message)), message).toBe(true);
+    }
+  });
+
+  it("combiné : jamais plus probable que sa sélection la moins probable ; 2 ou 3 sélections", () => {
+    const out = validOutput();
+    out.markets.COMBO.probability = 79; // DOUBLE_CHANCE 78, OVER_UNDER_1_5 78
+    expect(errorsOf(out).some((e) => e.startsWith("COMBO : la probabilité"))).toBe(true);
+    const three = validOutput();
+    three.markets.COMBO.legs = [
+      { market: "MATCH_RESULT", selection: "1" },
+      { market: "OVER_UNDER_2_5", selection: "OVER" },
+      { market: "BTTS", selection: "YES" },
+    ];
+    three.markets.COMBO.probability = 30;
+    expect(validatePrediction(three, solidSummary).ok).toBe(true);
+    const one = validOutput();
+    one.markets.COMBO.legs = [{ market: "BTTS", selection: "YES" }];
+    expect(errorsOf(one).some((e) => e.startsWith("Champ markets.COMBO.legs"))).toBe(true);
   });
 });

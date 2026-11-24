@@ -152,3 +152,14 @@ export const statusSchema = z.object({
   requests: z.object({ current: z.number(), limit_day: z.number() }),
 });
 export type StatusResponse = z.infer<typeof statusSchema>;
+
+// ----------------------------------------------------------------------------
+// /fixtures/statistics (corners, cartons : lot B)
+// ----------------------------------------------------------------------------
+export const fixtureStatisticsItemSchema = z.object({
+  team: z.object({ id: z.number(), name: z.string().nullish() }),
+  statistics: z
+    .array(z.object({ type: z.string(), value: z.union([z.number(), z.string(), z.null()]).optional() }))
+    .default([]),
+});
+export type FixtureStatisticsItem = z.infer<typeof fixtureStatisticsItemSchema>;

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { syncCompetitions, syncFixtures, syncResults, syncStandings } from "./jobs";
 import { buildContexts, generatePredictions } from "./jobs-ai";
 import { settlePredictions } from "./jobs-settle";
+import { syncStatistics } from "./jobs-statistics";
 import { runJob, type RunJobOptions, type SyncJob, type SyncSummary } from "./runner";
 
 /**
@@ -14,6 +15,7 @@ export const SYNC_JOBS = {
   "sync-fixtures": syncFixtures,
   "sync-standings": syncStandings,
   "sync-results": syncResults,
+  "sync-statistics": syncStatistics,
   "build-contexts": buildContexts,
   "generate-predictions": generatePredictions,
   "settle-predictions": settlePredictions,

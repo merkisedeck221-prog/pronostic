@@ -663,4 +663,32 @@ Lint, types, 290 tests unitaires, build ; chaque migration rejouée en SQL sur l
 - Appel réel à l'IA non testé : il faut des matchs réels (forfait API-Football Pro).
 - Prix du match complet resté à 7 crédits pour 10 marchés (22 crédits au détail) : à fixer par le porteur dans `/admin/tarifs`.
 - Prix des packs Pro et VIP à fixer, puis à activer.
-- Lot B (corners, cartons, combinés) non commencé.
+- Lot B (corners, cartons, combinés) : fait sur la base de test (voir ci-dessous), en attente d'accord pour la production.
+
+## Crédits v2, lot B — corners, cartons, combiné IA (24/11/2026)
+
+Statut : **fait et vérifié sur la base de test `pronostics-dev`** ; production après accord du porteur.
+
+### Fait
+
+- 3 nouveaux types : **plus/moins de 9,5 corners**, **plus/moins de 4,5 cartons** (jaunes + rouges), **combiné IA** (2 ou 3 sélections du même match, gagné si toutes gagnées). Prix de départ : 2, 2 et 3 crédits (modifiables dans `/admin/tarifs`).
+- Tâche `sync-statistics` (chaque heure à :45) : corners et cartons des matchs terminés depuis moins de 14 jours, 1 appel par match, 15 au plus par passage, 6 essais au plus. Affichés sur la fiche match.
+- Dossier IA : moyennes de corners (pour / contre) et de cartons sur les 5 derniers matchs avec statistiques ; prompt **v3** (v2 inchangé).
+- Résolution : corners / cartons sur les totaux ; **match prolongé (AET/PEN) → annulé et remboursé** (décision 2) ; statistiques jamais reçues 7 jours après → annulé et remboursé ; sinon en attente.
+- Historique mince → **confiance « faible » imposée** sur corners et cartons (décision 3).
+- Correction de sécurité au passage : l'annulation par l'admin d'un déblocage déjà remboursé est refusée (évitait un double remboursement).
+
+### Décisions prises
+
+- Remboursement d'un pronostic annulé acheté via le **match complet** : part du prix payé proportionnelle au prix de base du marché, arrondie au crédit supérieur (ex. 7 crédits pour 13 marchés : 1 à 2 crédits). Modifiable si le porteur préfère une autre règle.
+- Statistiques API-Football : prolongations comprises, d'où l'annulation en cas de prolongation.
+
+### Vérifications
+
+Lint, types, 328 tests unitaires, build ; migration appliquée sur la base de test ; 99 cas de résolution identiques en TypeScript et en SQL ; scénarios SQL (prolongation, remboursement partiel, match ensuite annulé, statistiques manquantes puis périmées, double remboursement refusé, droits d'un utilisateur).
+
+### Points ouverts
+
+- Les corners / cartons ne s'alimentent qu'avec de vrais matchs (forfait API-Football Pro) ; au début, la confiance sera « faible » le temps d'accumuler 3 matchs par équipe.
+- Prix du match complet à revoir (13 marchés désormais).
+

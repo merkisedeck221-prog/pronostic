@@ -3,7 +3,7 @@ import "server-only";
 import OpenAI from "openai";
 import type { MatchSummary } from "./context/summarize";
 import { estimateCostUsd } from "./pricing";
-import { buildRetryMessageV2, buildUserMessageV2, PROMPT_VERSION, SYSTEM_PROMPT_V2 } from "./prompts/v2";
+import { buildRetryMessageV3, buildUserMessageV3, PROMPT_VERSION, SYSTEM_PROMPT_V3 } from "./prompts/v3";
 import { toOpenAiJsonSchema, type PredictionOutput } from "./schema";
 import { validatePrediction } from "./validate";
 
@@ -60,8 +60,8 @@ export async function generatePrediction(summary: MatchSummary, options: Generat
   };
 
   const messages: ChatMessage[] = [
-    { role: "system", content: SYSTEM_PROMPT_V2 },
-    { role: "user", content: buildUserMessageV2(JSON.stringify(summary)) },
+    { role: "system", content: SYSTEM_PROMPT_V3 },
+    { role: "user", content: buildUserMessageV3(JSON.stringify(summary)) },
   ];
 
   let lastRaw: unknown = null;
@@ -106,7 +106,7 @@ export async function generatePrediction(summary: MatchSummary, options: Generat
     } catch {
       lastRaw = content;
       lastErrors = ["La réponse n'est pas un JSON valide."];
-      messages.push({ role: "assistant", content }, { role: "user", content: buildRetryMessageV2(lastErrors) });
+      messages.push({ role: "assistant", content }, { role: "user", content: buildRetryMessageV3(lastErrors) });
       continue;
     }
 
@@ -117,7 +117,7 @@ export async function generatePrediction(summary: MatchSummary, options: Generat
       return { ok: true, output: validation.data, raw: lastRaw, metrics };
     }
     lastErrors = validation.errors;
-    messages.push({ role: "assistant", content }, { role: "user", content: buildRetryMessageV2(lastErrors) });
+    messages.push({ role: "assistant", content }, { role: "user", content: buildRetryMessageV3(lastErrors) });
   }
 
   metrics.durationMs = Date.now() - started;

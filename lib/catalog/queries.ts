@@ -18,7 +18,7 @@ const notIn = (values: readonly string[]) => `(${values.join(",")})`;
 
 /** Colonnes d'une ligne de match avec compétition et équipes (jointures). */
 const FIXTURE_LIST_COLUMNS = `
-  id, kickoff_at, status_short, round, goals_home, goals_away, ht_home, ht_away, venue,
+  id, kickoff_at, status_short, round, goals_home, goals_away, ht_home, ht_away, corners_home, corners_away, cards_home, cards_away, venue,
   competition:competitions!inner(id, name, slug, logo_url, category, country, sort_order),
   home:teams!fixtures_home_team_id_fkey(id, name, logo_url),
   away:teams!fixtures_away_team_id_fkey(id, name, logo_url)

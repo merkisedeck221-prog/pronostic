@@ -4,7 +4,7 @@
  * Le score utilisé est TOUJOURS celui du temps réglementaire (90 min + temps
  * additionnel), c'est-à-dire fixtures.ft_home / ft_away : prolongations et tirs
  * au but sont exclus (RG-F4-1). La même logique existe en SQL
- * (public.settle_outcome) ; tests/fixtures/settlement-cases.json sert aux deux.
+ * (public.settle_outcome_full) ; tests/fixtures/settlement-cases.json sert aux deux.
  */
 
 export type SettledResult = "won" | "lost";
@@ -123,16 +123,79 @@ export function settleHalfTimeFullTime(selection: string, score: RegulationScore
   return outcome(settleMatchResult(match[1], halfTime) === "won" && settleMatchResult(match[2], score) === "won");
 }
 
+/** Statistiques du match (totaux des deux équipes, API-Football). */
+export type MatchStats = { corners: number | null; cards: number | null };
+
+/** Marchés résolus sur les statistiques (lot B) : void et remboursés si le match est prolongé. */
+export const STATS_MARKETS = ["CORNERS_OVER_UNDER_9_5", "CARDS_OVER_UNDER_4_5"] as const;
+
+export class MissingStatisticsError extends Error {
+  constructor(market: string) {
+    super(`Statistiques du match indisponibles pour ${market}`);
+    this.name = "MissingStatisticsError";
+  }
+}
+
+function statsOverUnder(market: string, line: number, key: keyof MatchStats) {
+  return (selection: string, stats: MatchStats | null): SettledResult => {
+    if (selection !== "OVER" && selection !== "UNDER") throw new InvalidSelectionError(market, selection);
+    const total = stats?.[key];
+    if (total === null || total === undefined) throw new MissingStatisticsError(market);
+    return outcome(selection === "OVER" ? total > line : total < line);
+  };
+}
+/** Plus / moins de 9,5 corners : OVER si 10 corners ou plus au total. */
+export const settleCorners95 = statsOverUnder("CORNERS_OVER_UNDER_9_5", 9.5, "corners");
+/** Plus / moins de 4,5 cartons (jaunes + rouges) : OVER si 5 cartons ou plus au total. */
+export const settleCards45 = statsOverUnder("CARDS_OVER_UNDER_4_5", 4.5, "cards");
+
+/** Marchés utilisables dans un combiné (temps réglementaire uniquement). */
+export const COMBO_LEG_MARKETS = ["MATCH_RESULT", "DOUBLE_CHANCE", "OVER_UNDER_1_5", "OVER_UNDER_2_5", "OVER_UNDER_3_5", "BTTS"] as const;
+export type ComboLegMarket = (typeof COMBO_LEG_MARKETS)[number];
+export type ComboLeg = { market: ComboLegMarket; selection: string };
+
+/** « MATCH_RESULT:1+OVER_UNDER_1_5:OVER » → sélections ; 2 ou 3 marchés distincts. */
+export function parseCombo(selection: string): ComboLeg[] {
+  const parts = selection.split("+");
+  if (parts.length < 2 || parts.length > 3) throw new InvalidSelectionError("COMBO", selection);
+  const seen = new Set<string>();
+  return parts.map((part) => {
+    const match = /^([A-Z0-9_]+):([A-Z0-9]+)$/.exec(part);
+    if (!match || !(COMBO_LEG_MARKETS as readonly string[]).includes(match[1]) || seen.has(match[1])) {
+      throw new InvalidSelectionError("COMBO", selection);
+    }
+    seen.add(match[1]);
+    return { market: match[1] as ComboLegMarket, selection: match[2] };
+  });
+}
+
+/** Combiné : gagné si TOUTES les sélections sont gagnées (temps réglementaire). */
+export function settleCombo(selection: string, score: RegulationScore): SettledResult {
+  const legs = parseCombo(selection);
+  const results = legs.map((leg) => {
+    try {
+      return SETTLERS[leg.market](leg.selection, score);
+    } catch {
+      throw new InvalidSelectionError("COMBO", selection);
+    }
+  });
+  return outcome(results.every((r) => r === "won"));
+}
+
 /**
  * Résultat d'un pronostic ; lève une erreur pour un marché inconnu, une
- * sélection invalide, ou un score de mi-temps manquant (marchés mi-temps).
+ * sélection invalide, ou une donnée manquante (score de mi-temps, statistiques).
  */
 export function settlePrediction(
   market: string,
   selection: string,
   score: RegulationScore,
   halfTime: RegulationScore | null = null,
+  stats: MatchStats | null = null,
 ): SettledResult {
+  if (market === "CORNERS_OVER_UNDER_9_5") return settleCorners95(selection, stats);
+  if (market === "CARDS_OVER_UNDER_4_5") return settleCards45(selection, stats);
+  if (market === "COMBO") return settleCombo(selection, score);
   if (market === "HT_RESULT" || market === "HT_FT") {
     if (!halfTime) throw new MissingHalfTimeScoreError(market);
     return market === "HT_RESULT" ? settleHalfTimeResult(selection, halfTime) : settleHalfTimeFullTime(selection, score, halfTime);

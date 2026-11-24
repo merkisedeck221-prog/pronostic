@@ -1,5 +1,5 @@
 {
-  "description": "Table de cas partagée : résolution TypeScript (lib/settle/rules.ts) ET SQL (public.settle_outcome_ht). Score = temps réglementaire (ft_home, ft_away) ; ht_home / ht_away = score à la mi-temps (marchés HT_RESULT et HT_FT).",
+  "description": "Table de cas partagée : résolution TypeScript (lib/settle/rules.ts) ET SQL (public.settle_outcome_full). Score = temps réglementaire (ft_home, ft_away) ; ht_home / ht_away = score à la mi-temps (HT_RESULT, HT_FT) ; corners / cards = totaux du match (lot B).",
   "cases": [
     {
       "market": "MATCH_RESULT",
@@ -551,6 +551,198 @@
       "ht_home": 1,
       "ht_away": 0,
       "note": "match AET : 2-1 au temps réglementaire, la prolongation est ignorée"
+    },
+    {
+      "market": "CORNERS_OVER_UNDER_9_5",
+      "selection": "UNDER",
+      "home": 1,
+      "away": 1,
+      "corners": 9,
+      "cards": 3,
+      "expected": "won"
+    },
+    {
+      "market": "CORNERS_OVER_UNDER_9_5",
+      "selection": "OVER",
+      "home": 1,
+      "away": 1,
+      "corners": 9,
+      "cards": 3,
+      "expected": "lost"
+    },
+    {
+      "market": "CORNERS_OVER_UNDER_9_5",
+      "selection": "OVER",
+      "home": 1,
+      "away": 1,
+      "corners": 10,
+      "cards": 3,
+      "expected": "won"
+    },
+    {
+      "market": "CORNERS_OVER_UNDER_9_5",
+      "selection": "UNDER",
+      "home": 1,
+      "away": 1,
+      "corners": 10,
+      "cards": 3,
+      "expected": "lost"
+    },
+    {
+      "market": "CORNERS_OVER_UNDER_9_5",
+      "selection": "UNDER",
+      "home": 1,
+      "away": 1,
+      "corners": 0,
+      "cards": 3,
+      "expected": "won"
+    },
+    {
+      "market": "CORNERS_OVER_UNDER_9_5",
+      "selection": "OVER",
+      "home": 1,
+      "away": 1,
+      "corners": 15,
+      "cards": 3,
+      "expected": "won"
+    },
+    {
+      "market": "CARDS_OVER_UNDER_4_5",
+      "selection": "UNDER",
+      "home": 0,
+      "away": 2,
+      "corners": 8,
+      "cards": 4,
+      "expected": "won"
+    },
+    {
+      "market": "CARDS_OVER_UNDER_4_5",
+      "selection": "OVER",
+      "home": 0,
+      "away": 2,
+      "corners": 8,
+      "cards": 4,
+      "expected": "lost"
+    },
+    {
+      "market": "CARDS_OVER_UNDER_4_5",
+      "selection": "OVER",
+      "home": 0,
+      "away": 2,
+      "corners": 8,
+      "cards": 5,
+      "expected": "won"
+    },
+    {
+      "market": "CARDS_OVER_UNDER_4_5",
+      "selection": "UNDER",
+      "home": 0,
+      "away": 2,
+      "corners": 8,
+      "cards": 5,
+      "expected": "lost"
+    },
+    {
+      "market": "CARDS_OVER_UNDER_4_5",
+      "selection": "UNDER",
+      "home": 0,
+      "away": 2,
+      "corners": 8,
+      "cards": 0,
+      "expected": "won"
+    },
+    {
+      "market": "CARDS_OVER_UNDER_4_5",
+      "selection": "OVER",
+      "home": 0,
+      "away": 2,
+      "corners": 8,
+      "cards": 9,
+      "expected": "won"
+    },
+    {
+      "market": "COMBO",
+      "selection": "MATCH_RESULT:1+OVER_UNDER_1_5:OVER",
+      "home": 2,
+      "away": 1,
+      "expected": "won"
+    },
+    {
+      "market": "COMBO",
+      "selection": "MATCH_RESULT:1+OVER_UNDER_1_5:OVER",
+      "home": 1,
+      "away": 0,
+      "expected": "lost"
+    },
+    {
+      "market": "COMBO",
+      "selection": "MATCH_RESULT:1+OVER_UNDER_1_5:OVER",
+      "home": 1,
+      "away": 2,
+      "expected": "lost"
+    },
+    {
+      "market": "COMBO",
+      "selection": "DOUBLE_CHANCE:N2+BTTS:YES",
+      "home": 1,
+      "away": 1,
+      "expected": "won"
+    },
+    {
+      "market": "COMBO",
+      "selection": "DOUBLE_CHANCE:N2+BTTS:YES",
+      "home": 0,
+      "away": 1,
+      "expected": "lost"
+    },
+    {
+      "market": "COMBO",
+      "selection": "DOUBLE_CHANCE:1N+OVER_UNDER_2_5:UNDER+BTTS:NO",
+      "home": 1,
+      "away": 0,
+      "expected": "won"
+    },
+    {
+      "market": "COMBO",
+      "selection": "DOUBLE_CHANCE:1N+OVER_UNDER_2_5:UNDER+BTTS:NO",
+      "home": 2,
+      "away": 1,
+      "expected": "lost"
+    },
+    {
+      "market": "COMBO",
+      "selection": "DOUBLE_CHANCE:1N+OVER_UNDER_2_5:UNDER+BTTS:NO",
+      "home": 0,
+      "away": 0,
+      "expected": "won"
+    },
+    {
+      "market": "COMBO",
+      "selection": "MATCH_RESULT:2+OVER_UNDER_3_5:UNDER",
+      "home": 0,
+      "away": 3,
+      "expected": "won"
+    },
+    {
+      "market": "COMBO",
+      "selection": "MATCH_RESULT:2+OVER_UNDER_3_5:UNDER",
+      "home": 1,
+      "away": 3,
+      "expected": "lost"
+    },
+    {
+      "market": "COMBO",
+      "selection": "MATCH_RESULT:N+BTTS:NO",
+      "home": 0,
+      "away": 0,
+      "expected": "won"
+    },
+    {
+      "market": "COMBO",
+      "selection": "MATCH_RESULT:N+BTTS:NO",
+      "home": 2,
+      "away": 2,
+      "expected": "lost"
     }
   ]
 }

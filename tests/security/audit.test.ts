@@ -76,6 +76,7 @@ describe("lecture avec la clé publique", () => {
         ["credit_transactions", "user_id"],
         ["unlocks", "user_id"],
         ["topups", "user_id"],
+        ["unlock_partial_refunds", "user_id"],
       ] as const) {
         const { data } = await client.from(table as "wallets").select("*").eq(column as "user_id", victim.id);
         expect(data ?? [], `${who} lit ${table} de la victime`).toEqual([]);
@@ -92,6 +93,18 @@ describe("écriture avec la clé publique", () => {
     expect((await c.from("credit_transactions").insert({ user_id: attacker.id, type: "bonus", amount: 999, balance_after: 999, description: "x" })).error).not.toBeNull();
     expect((await c.from("unlocks").insert({ user_id: attacker.id, fixture_id: fx.fixtureId, market_code: "MATCH_RESULT", credits_spent: 0 })).error).not.toBeNull();
     expect((await c.from("topups").insert({ user_id: attacker.id, credits: 999, amount_xof: 1, provider: "mock", status: "succeeded" })).error).not.toBeNull();
+    expect(
+      (await c.from("unlock_partial_refunds").insert({ unlock_id: 1, user_id: attacker.id, fixture_id: fx.fixtureId, market_code: "BTTS", credits: 99 })).error,
+    ).not.toBeNull();
+    for (const fn of ["settle_fixture", "settle_outcome_full", "settle_combo"] as const) {
+      const args =
+        fn === "settle_fixture"
+          ? { p_fixture_id: fx.fixtureId }
+          : fn === "settle_combo"
+            ? { p_selection: "BTTS:YES+MATCH_RESULT:1", p_home: 1, p_away: 0 }
+            : { p_market: "BTTS", p_selection: "YES", p_home: 1, p_away: 1, p_ht_home: 0, p_ht_away: 0, p_corners: 0, p_cards: 0 };
+      expect((await c.rpc(fn, args as never)).error, fn).not.toBeNull();
+    }
     await c.from("credit_transactions").delete().eq("user_id", victim.id);
     expect((await serviceClient.from("credit_transactions").select("id").eq("user_id", victim.id)).data?.length).toBeGreaterThan(0);
   });

@@ -387,7 +387,11 @@ export type Database = {
         Row: {
           api_fixture_id: number
           away_team_id: number
+          cards_away: number | null
+          cards_home: number | null
           competition_id: number
+          corners_away: number | null
+          corners_home: number | null
           created_at: string
           ft_away: number | null
           ft_home: number | null
@@ -403,6 +407,8 @@ export type Database = {
           original_kickoff_at: string | null
           round: string | null
           season: number
+          stats_attempts: number
+          stats_synced_at: string | null
           status_long: string | null
           status_short: string
           updated_at: string
@@ -411,7 +417,11 @@ export type Database = {
         Insert: {
           api_fixture_id: number
           away_team_id: number
+          cards_away?: number | null
+          cards_home?: number | null
           competition_id: number
+          corners_away?: number | null
+          corners_home?: number | null
           created_at?: string
           ft_away?: number | null
           ft_home?: number | null
@@ -427,6 +437,8 @@ export type Database = {
           original_kickoff_at?: string | null
           round?: string | null
           season: number
+          stats_attempts?: number
+          stats_synced_at?: string | null
           status_long?: string | null
           status_short?: string
           updated_at?: string
@@ -435,7 +447,11 @@ export type Database = {
         Update: {
           api_fixture_id?: number
           away_team_id?: number
+          cards_away?: number | null
+          cards_home?: number | null
           competition_id?: number
+          corners_away?: number | null
+          corners_home?: number | null
           created_at?: string
           ft_away?: number | null
           ft_home?: number | null
@@ -451,6 +467,8 @@ export type Database = {
           original_kickoff_at?: string | null
           round?: string | null
           season?: number
+          stats_attempts?: number
+          stats_synced_at?: string | null
           status_long?: string | null
           status_short?: string
           updated_at?: string
@@ -1131,6 +1149,78 @@ export type Database = {
           },
         ]
       }
+      unlock_partial_refunds: {
+        Row: {
+          created_at: string
+          credits: number
+          fixture_id: number
+          id: number
+          market_code: string
+          transaction_id: number | null
+          unlock_id: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credits: number
+          fixture_id: number
+          id?: never
+          market_code: string
+          transaction_id?: number | null
+          unlock_id: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credits?: number
+          fixture_id?: number
+          id?: never
+          market_code?: string
+          transaction_id?: number | null
+          unlock_id?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unlock_partial_refunds_fixture_id_fkey"
+            columns: ["fixture_id"]
+            isOneToOne: false
+            referencedRelation: "fixtures"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unlock_partial_refunds_market_code_fkey"
+            columns: ["market_code"]
+            isOneToOne: false
+            referencedRelation: "markets"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "unlock_partial_refunds_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "credit_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unlock_partial_refunds_unlock_id_fkey"
+            columns: ["unlock_id"]
+            isOneToOne: false
+            referencedRelation: "unlocks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "unlock_partial_refunds_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       unlocks: {
         Row: {
           created_at: string
@@ -1322,6 +1412,23 @@ export type Database = {
         Returns: Json
       }
       settle_fixture: { Args: { p_fixture_id: number }; Returns: Json }
+      settle_combo: {
+        Args: { p_away: number; p_home: number; p_selection: string }
+        Returns: Database["public"]["Enums"]["prediction_result"]
+      }
+      settle_outcome_full: {
+        Args: {
+          p_away: number
+          p_cards: number
+          p_corners: number
+          p_home: number
+          p_ht_away: number
+          p_ht_home: number
+          p_market: string
+          p_selection: string
+        }
+        Returns: Database["public"]["Enums"]["prediction_result"]
+      }
       settle_outcome_ht: {
         Args: {
           p_away: number

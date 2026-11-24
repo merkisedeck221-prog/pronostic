@@ -12,8 +12,8 @@ export const solidSummary: MatchSummary = {
     is_neutral_venue: false,
     competition_type: "league",
   },
-  home: { name: "Arsenal", rank: 2, points: 27, played: 12, goals_for: 24, goals_against: 9, last5: "WWDWL", home_record: { w: 5, d: 1, l: 0 }, avg_goals_for: 2, avg_goals_against: 0.75, absences: [] },
-  away: { name: "Chelsea", rank: 6, points: 20, played: 12, goals_for: 18, goals_against: 14, last5: "WLDWW", away_record: { w: 2, d: 2, l: 2 }, avg_goals_for: 1.5, avg_goals_against: 1.17, absences: [] },
+  home: { name: "Arsenal", rank: 2, points: 27, played: 12, goals_for: 24, goals_against: 9, last5: "WWDWL", home_record: { w: 5, d: 1, l: 0 }, avg_goals_for: 2, avg_goals_against: 0.75, absences: [], match_stats: { matches: 5, avg_corners_for: 6.2, avg_corners_against: 3.8, avg_cards: 1.6 } },
+  away: { name: "Chelsea", rank: 6, points: 20, played: 12, goals_for: 18, goals_against: 14, last5: "WLDWW", away_record: { w: 2, d: 2, l: 2 }, avg_goals_for: 1.5, avg_goals_against: 1.17, absences: [], match_stats: { matches: 4, avg_corners_for: 4.5, avg_corners_against: 5.5, avg_cards: 2.1 } },
   head_to_head: [
     { date: "2026-04-12", home: "Chelsea", away: "Arsenal", score: "1-1" },
     { date: "2025-10-04", home: "Arsenal", away: "Chelsea", score: "2-0" },
@@ -48,6 +48,17 @@ export function validOutput(): PredictionOutput {
       HANDICAP: { selection: "AWAY_+1.5", probability: 66, confidence: "medium", reasoning: "Chelsea perd rarement largement. Un écart d'un but est le plus probable." },
       OVER_UNDER_1_5: { selection: "OVER", probability: 78, confidence: "medium", reasoning: "Les deux équipes marquent souvent. Au moins deux buts sont probables." },
       OVER_UNDER_3_5: { selection: "UNDER", probability: 68, confidence: "medium", reasoning: "Quatre buts ou plus restent rares entre ces équipes. Les défenses sont correctes." },
+      CORNERS_OVER_UNDER_9_5: { selection: "OVER", probability: 57, confidence: "medium", reasoning: "Arsenal obtient beaucoup de corners à domicile. Chelsea concède souvent des corners." },
+      CARDS_OVER_UNDER_4_5: { selection: "UNDER", probability: 60, confidence: "medium", reasoning: "Ces équipes reçoivent peu de cartons. L'arbitrage en championnat reste mesuré." },
+      COMBO: {
+        legs: [
+          { market: "DOUBLE_CHANCE", selection: "1N" },
+          { market: "OVER_UNDER_1_5", selection: "OVER" },
+        ],
+        probability: 62,
+        confidence: "low",
+        reasoning: "Arsenal perd rarement à domicile et les deux équipes marquent souvent. Les deux sélections vont dans le même sens.",
+      },
     },
   };
 }

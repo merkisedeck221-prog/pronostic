@@ -113,6 +113,16 @@ export default async function FixturePage({ params }: PageProps<"/matchs/[id]">)
                   Mi-temps : {fixture.ht_home} – {fixture.ht_away}
                 </p>
               ) : null}
+              {started && fixture.corners_home !== null && fixture.corners_away !== null ? (
+                <p className="text-xs text-muted-foreground">
+                  Corners : {fixture.corners_home} – {fixture.corners_away}
+                </p>
+              ) : null}
+              {started && fixture.cards_home !== null && fixture.cards_away !== null ? (
+                <p className="text-xs text-muted-foreground">
+                  Cartons : {fixture.cards_home} – {fixture.cards_away}
+                </p>
+              ) : null}
             </div>
             <div className="flex flex-col items-center gap-2 text-center">
               <TeamLogo name={fixture.away.name} src={fixture.away.logo_url} size={48} />

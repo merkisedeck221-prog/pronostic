@@ -20,6 +20,7 @@ Supabase Cron (pg_cron) ──► private.invoke_sync_job('sync-…') ──pg_n
 | `sync-fixtures` | 05:07 et 17:07 | 1 / compétition active | matchs J-3 à J+14 (équipes créées à la volée, `is_published` jamais écrasé, coup d'envoi initial conservé) |
 | `sync-standings` | 05:37 | 1 / compétition avec classement | classements |
 | `sync-results` | toutes les 15 min | 1 / 20 matchs en cours | scores, mi-temps, temps réglementaire, statut ; **0 appel** s'il n'y a aucun match commencé depuis moins de 4 h |
+| `sync-statistics` | :45 chaque heure | 1 / match (15 au plus) | corners et cartons (jaunes + rouges) des matchs terminés depuis moins de 14 jours (`/fixtures/statistics`) ; 6 essais au plus par match ; **0 appel** si tout est à jour. Sert à résoudre les marchés corners / cartons et aux moyennes du dossier IA |
 | `build-contexts` | :11 chaque heure | 2 / match | dossiers IA (phase 6) |
 | `generate-predictions` | :31 chaque heure | 0 (OpenAI) | pronostics IA (phase 6) |
 | `settle-predictions` | :05, :20, :35, :50 | **0** | résout les matchs FT / AET / PEN avec score (`settle_fixture`) ; rembourse les matchs annulés ou reportés de plus de 48 h (`refund_fixture`) |
