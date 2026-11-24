@@ -214,6 +214,18 @@ Corrections :
 | Nouvelles fonctions | ✅ `settle_combo`, `settle_outcome_full`, `settle_fixture` : `service_role` uniquement ; `private.refund_voided_market` inaccessible (schéma privé) — testé avec un compte utilisateur |
 | Données externes | ✅ réponse `/fixtures/statistics` validée par Zod ; valeurs non entières ou hors 0–99 ignorées ; équipes rattachées par identifiant API |
 
+## 9 septies. Contrôle général du 24/11/2026 (sécurité, bugs, rapidité)
+
+| Point | Résultat |
+|---|---|
+| Politique de sécurité du contenu (CSP) | 🔧 absente avant ; ajoutée dans `next.config.ts` : connexions limitées au site et à Supabase, images limitées aux logos API-Football, aucun cadre (`frame-ancestors 'none'`), aucun plugin, formulaires vers le site seulement, `upgrade-insecure-requests`. `'unsafe-inline'` reste nécessaire pour les scripts de Next.js (pas de nonce). Parcours complet (14 pages utilisateur, 16 pages admin) : 0 blocage, 0 erreur de console |
+| `Cross-Origin-Opener-Policy: same-origin` | 🔧 ajouté |
+| Région du serveur | 🔧 fonctions Vercel à Washington (`iad1`) alors que la base est en Irlande (`eu-west-1`) : `vercel.json` les place à Dublin (`dub1`) |
+| Tâches planifiées | ✅ `/api/cron/*` : 401 sans secret ou avec un faux secret (production) |
+| Pages privées / admin | ✅ 307 vers la connexion sans session ; `/admin` : 404 pour un non-admin |
+| Confirmation de l'e-mail à l'inscription | ⚠️ **désactivée** en production (`mailer_autoconfirm: true`) : n'importe qui peut s'inscrire avec l'adresse d'un autre. À réactiver dès qu'un SMTP est configuré (réglage Supabase, hors de portée des outils) |
+| Protection des mots de passe piratés | ⚠️ désactivée (réglage Supabase, hors de portée des outils) |
+
 ## 10. Points ouverts et risques acceptés
 
 1. ⚠️ **`picomatch`** (outils de développement uniquement) : voir § 8.
