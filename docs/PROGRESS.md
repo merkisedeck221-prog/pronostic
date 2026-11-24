@@ -663,11 +663,11 @@ Lint, types, 290 tests unitaires, build ; chaque migration rejouée en SQL sur l
 - Appel réel à l'IA non testé : il faut des matchs réels (forfait API-Football Pro).
 - Prix du match complet resté à 7 crédits pour 10 marchés (22 crédits au détail) : à fixer par le porteur dans `/admin/tarifs`.
 - Prix des packs Pro et VIP à fixer, puis à activer.
-- Lot B (corners, cartons, combinés) : fait sur la base de test (voir ci-dessous), en attente d'accord pour la production.
+- Lot B (corners, cartons, combinés) : en production depuis le 24/11 (voir ci-dessous).
 
 ## Crédits v2, lot B — corners, cartons, combiné IA (24/11/2026)
 
-Statut : **fait et vérifié sur la base de test `pronostics-dev`** ; production après accord du porteur.
+Statut : **EN PRODUCTION (24/11/2026)** : migration appliquée sur `pronostics` après essai dans une transaction annulée, code fusionné dans `main`, déploiement Vercel `READY`, aucune erreur d'exécution.
 
 ### Fait
 
