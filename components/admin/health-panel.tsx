@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ActivityIcon } from "lucide-react";
 import { AdminActionForm } from "@/components/admin/action-form";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,13 +10,20 @@ import { formatDateTime } from "@/lib/utils/dates";
 /** Surveillance : dernier rapport quotidien, affiché en tête de /admin. */
 export function HealthPanel({ report, anomalies, timezone }: { report: { created_at: string; status: string } | null; anomalies: HealthAnomaly[]; timezone: string }) {
   const stale = isReportStale(report?.created_at ?? null);
+  const alert = anomalies.length > 0 || stale;
   return (
-    <Card className={anomalies.length > 0 || stale ? "border-destructive" : undefined}>
+    <Card className={alert ? "border-destructive/60 bg-destructive/5" : "border-emerald-400/30 bg-linear-to-r from-emerald-400/10 to-card"}>
       <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex flex-wrap items-center gap-2">
+            <ActivityIcon className={alert ? "size-4 text-destructive" : "size-4 text-emerald-300"} aria-hidden />
             Surveillance
-            <Badge variant={anomalies.length > 0 ? "destructive" : "default"}>{report ? (anomalies.length > 0 ? `${anomalies.length} anomalie(s)` : "Aucune anomalie") : "Jamais lancée"}</Badge>
+            <Badge
+              variant={anomalies.length > 0 ? "destructive" : "outline"}
+              className={anomalies.length > 0 || !report ? undefined : "border-emerald-400/40 text-emerald-300"}
+            >
+              {report ? (anomalies.length > 0 ? `${anomalies.length} anomalie(s)` : "Aucune anomalie") : "Jamais lancée"}
+            </Badge>
           </CardTitle>
           <CardDescription>
             {report ? `Dernière vérification : ${formatDateTime(report.created_at, timezone)}` : "Aucun rapport."} Vérification automatique chaque jour à 7 h 07 (heure de Porto-Novo).

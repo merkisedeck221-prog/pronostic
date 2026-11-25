@@ -69,7 +69,7 @@ export default async function AdminSyncPage({ searchParams }: PageProps<"/admin/
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2">
           {jobNames.map((name) => (
-            <div key={name} className="space-y-1 rounded-lg border p-3">
+            <div key={name} className="space-y-1 rounded-xl border border-white/10 bg-white/[0.02] p-3">
               <p className="text-sm font-medium">{name}</p>
               <p className="text-xs text-muted-foreground">{JOB_HELP[name] ?? ""}</p>
               <AdminActionForm action={adminRunSyncJobAction} hidden={{ job: name }} submitLabel="Lancer" pendingLabel="Exécution…" variant="outline" confirmMessage={`Lancer ${name} maintenant ?`} />
@@ -119,7 +119,7 @@ export default async function AdminSyncPage({ searchParams }: PageProps<"/admin/
       <FilterBar resetHref={PATH}>
         <FilterSelect name="tache" label="Tâche" value={job} options={[{ value: "", label: "Toutes" }, ...jobNames.map((n) => ({ value: n, label: n }))]} />
       </FilterBar>
-      <div className="overflow-x-auto rounded-lg border">
+      <div className="overflow-x-auto rounded-xl border border-white/10 bg-card">
         <Table>
           <TableHeader>
             <TableRow>

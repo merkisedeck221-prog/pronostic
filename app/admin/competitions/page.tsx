@@ -35,7 +35,7 @@ export default async function AdminCompetitionsPage() {
         />
       }
     >
-      <div className="overflow-x-auto rounded-lg border">
+      <div className="overflow-x-auto rounded-xl border border-white/10 bg-card">
         <Table>
           <TableHeader>
             <TableRow>

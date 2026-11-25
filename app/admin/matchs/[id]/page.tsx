@@ -168,7 +168,7 @@ export default async function AdminFixturePage({ params }: PageProps<"/admin/mat
         <CardContent className="space-y-4">
           {!hasPredictions ? <p className="text-sm text-muted-foreground">Aucun pronostic pour ce match.</p> : null}
           {sorted.map((p) => (
-            <div key={p.id} className="space-y-3 rounded-lg border p-3">
+            <div key={p.id} className="space-y-3 rounded-xl border border-white/10 bg-white/[0.02] p-3">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="font-medium">{p.market?.label ?? p.market_code}</span>
                 <span>· {p.selection_label}</span>
@@ -202,7 +202,7 @@ export default async function AdminFixturePage({ params }: PageProps<"/admin/mat
             </div>
           ))}
           {analysis ? (
-            <div className="space-y-1 rounded-lg border p-3 text-sm">
+            <div className="space-y-1 rounded-xl border border-white/10 bg-white/[0.02] p-3 text-sm">
               <p className="font-medium">Analyse globale</p>
               <p className="text-muted-foreground">{analysis.summary}</p>
               <ul className="list-disc pl-5 text-muted-foreground">
