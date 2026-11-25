@@ -12,7 +12,7 @@ import type { Counts } from "@/lib/settle/schemas";
 import { formatNumericDate, resolveTimezone } from "@/lib/utils/dates";
 
 export const metadata: Metadata = {
-  title: "Performances de l'IA · Pronostics IA",
+  title: "Performances de l'IA · PRONEX",
   description: "Taux de réussite des pronostics de l'IA : global, par type de pronostic, par compétition et sur 30 jours.",
 };
 

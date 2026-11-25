@@ -3,7 +3,7 @@ import Link from "next/link";
 import { AuthCard } from "@/components/auth/auth-card";
 import { ForgotPasswordForm } from "@/components/auth/password-forms";
 
-export const metadata: Metadata = { title: "Mot de passe oublié · Pronostics IA" };
+export const metadata: Metadata = { title: "Mot de passe oublié · PRONEX" };
 
 export default function ForgotPasswordPage() {
   return (

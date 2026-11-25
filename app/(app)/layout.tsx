@@ -1,4 +1,5 @@
 import { AppHeader } from "@/components/layout/app-header";
+import { BottomNav } from "@/components/layout/app-nav";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -56,7 +57,11 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
         unreadCount={unreadCount}
       />
       <div className="flex flex-1 flex-col">{children}</div>
-      <SiteFooter />
+      {/* Espace réservé à la barre de navigation mobile (fixe en bas). */}
+      <div className="pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">
+        <SiteFooter />
+      </div>
+      <BottomNav />
     </>
   );
 }

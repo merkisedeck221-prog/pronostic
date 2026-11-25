@@ -90,7 +90,7 @@
 
 ## Administration (phase 10)
 
-- Pages `app/admin/*` : `requireAdmin()` dans la mise en page **et** dans chaque page ; barre latérale `components/admin/nav.ts` (13 entrées du MVP + Promotions, Moyens de paiement, Revenus).
+- Pages `app/admin/*` : `requireAdmin()` dans la mise en page **et** dans chaque page ; barre latérale `components/admin/nav.ts` (13 entrées du MVP + Moyens de paiement, Revenus ; Promotions retirée le 25/11/2026).
 - Server Actions `lib/admin/actions/*.ts` : signature `(prev, formData) => AdminActionState`, `requireAdmin()` en première ligne, Zod, puis fonction SQL `admin_*` (journalisée) ou écriture par la RLS admin suivie de `logAdminAction()`. Formulaires : `components/admin/action-form.tsx`.
 - Le test `lib/admin/actions/actions.test.ts` découvre **automatiquement** toutes les actions exportées et vérifie qu'elles refusent un non-admin avant tout accès aux données : toute nouvelle action doit commencer par `requireAdmin()`.
 - Export CSV : `app/admin/transactions/export/route.ts` (mêmes filtres que la page, `lib/admin/transactions.ts`).
@@ -119,9 +119,12 @@
 - 13 marchés depuis le prompt v3 (lot B) : corners, cartons (`fixtures.corners_*`, `cards_*`, tâche `sync-statistics`) et combiné (`MARCHÉ:SÉL+…`). Résolution SQL : `settle_outcome_full`. Corners / cartons d'un match prolongé = `void` + remboursement (`private.refund_voided_market`, partiel pour un match complet : `unlock_partial_refunds`).
 - Génération à la demande (`lib/generation/`) : `request_generation` (réserve) → `runGeneration` (orchestration testée, dépendances injectées) → `complete_generation` ou `fail_generation`. Une seule génération par match (mutualisée) ; jamais de débit sans résultat.
 
-## Fonctionnalités d'abord, pas de design
+## Design PRONEX (phase design ouverte le 25/11/2026)
 
-Interface sobre avec les composants shadcn/ui par défaut. **Aucun travail de design (couleurs, illustrations, animations, landing page) avant la phase dédiée**, qui se fera à partir des inspirations fournies par le porteur du projet.
+- Identité : **PRONEX**, slogan « Prédisez. Analysez. Dominez. ». Thème **sombre unique** : noir nuit #080B20, rose néon #FF1493, violet #A000FF, blanc, gris #9CA3AF (jetons dans `app/globals.css`, classe `dark` sur `<html>`). Titres en Exo 2 (`--font-display`), texte en Geist.
+- Logo : `public/brand/` (icône, logotype, logo complet, fond transparent, tirés du fichier fourni) et `components/layout/brand.tsx` ; icônes `app/icon.png`, `app/apple-icon.png`, `app/favicon.ico`. Remplacer par la version vectorielle dès qu'elle est fournie.
+- Navigation : en-tête collant (`components/layout/app-header.tsx`), barre fixe en bas sur mobile (`BottomNav` dans `components/layout/app-nav.tsx`).
+- Plan de la refonte : phases A (fondations) → G (contrôle final), validées une par une par le porteur ; aucune donnée ni statistique inventée, états vides soignés.
 
 ## Commandes utiles
 

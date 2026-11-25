@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalPage } from "@/components/layout/legal-page";
 
-export const metadata: Metadata = { title: "Conditions générales d'utilisation · Pronostics IA" };
+export const metadata: Metadata = { title: "Conditions générales d'utilisation · PRONEX" };
 
 // Texte provisoire conforme à la section 11 du cahier des charges.
 export default function TermsPage() {
@@ -11,7 +11,7 @@ export default function TermsPage() {
       <section>
         <h2>1. Nature du service</h2>
         <p>
-          Pronostics IA propose des <strong>analyses de matchs de football</strong> produites par une intelligence
+          PRONEX propose des <strong>analyses de matchs de football</strong> produites par une intelligence
           artificielle à partir de données sportives (forme, classement, confrontations, absences). Le service vend
           l&apos;accès à ces analyses. <strong>Il ne s&apos;agit pas d&apos;un site de paris</strong> : aucune mise
           n&apos;est prise et aucun gain n&apos;est versé.

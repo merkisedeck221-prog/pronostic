@@ -11,7 +11,7 @@ import { getOwnTopup } from "@/lib/payments/queries";
 import { topupIdSchema } from "@/lib/payments/schemas";
 import { formatCredits, formatXof } from "@/lib/utils/format";
 
-export const metadata: Metadata = { title: "Paiement simulé · Pronostics IA", robots: { index: false } };
+export const metadata: Metadata = { title: "Paiement simulé · PRONEX", robots: { index: false } };
 
 export default async function MockPaymentPage({ params, searchParams }: PageProps<"/recharger/paiement-simule/[topupId]">) {
   const user = await requireUser();

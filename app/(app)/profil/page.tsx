@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { signOutAction } from "@/lib/auth/actions";
 import { requireUser } from "@/lib/auth/session";
 
-export const metadata: Metadata = { title: "Profil · Pronostics IA" };
+export const metadata: Metadata = { title: "Profil · PRONEX" };
 
 export default async function ProfilePage() {
   const user = await requireUser();

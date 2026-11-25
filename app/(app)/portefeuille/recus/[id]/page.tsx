@@ -10,7 +10,7 @@ import { getReceipt } from "@/lib/credits/queries";
 import { formatDateTime, resolveTimezone } from "@/lib/utils/dates";
 import { formatCredits, formatXof } from "@/lib/utils/format";
 
-export const metadata: Metadata = { title: "Reçu de paiement · Pronostics IA" };
+export const metadata: Metadata = { title: "Reçu de paiement · PRONEX" };
 
 const PROVIDER_LABELS: Record<string, string> = {
   mock: "Paiement simulé (test)",
@@ -55,7 +55,7 @@ export default async function RecuPage({ params }: PageProps<"/portefeuille/recu
       {receipt.provider === "mock" ? <TestPaymentBanner /> : null}
       <Card>
         <CardHeader>
-          <CardDescription>Pronostics IA</CardDescription>
+          <CardDescription>PRONEX</CardDescription>
           <CardTitle>
             <h1 className="text-xl font-semibold">Reçu de paiement</h1>
           </CardTitle>

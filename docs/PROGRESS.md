@@ -712,3 +712,12 @@ Statut : **fait et vérifié sur la base de test** ; production après accord du
 - Migration non destructive `20261125120000_fixed_packs_no_bonus.sql` : aucune table, colonne, donnée ni solde supprimé ou modifié.
 - Écart volontaire avec le cahier des charges (packs avec bonus, crédits de bienvenue configurables) : décision du porteur.
 
+
+## Refonte PRONEX — phase A : fondations (25/11/2026)
+
+- Audit UX/UI (étape 1) remis au porteur ; plan en phases A → G validé.
+- Thème sombre unique aux couleurs PRONEX dans tout le site (jetons `app/globals.css`), titres en Exo 2, halo néon discret.
+- Logo intégré (`public/brand/`, `components/layout/brand.tsx`), icônes d'onglet et d'application ; nom « PRONEX » dans les titres, les pages légales, l'administration et les modèles d'e-mails (`supabase/templates/`, à recopier dans Supabase).
+- En-tête collant (logo, navigation sur ordinateur, solde cliquable vers l'achat, notifications, menu) ; **barre de navigation fixe en bas sur mobile** (le menu horizontal coupé est supprimé) ; pied de page avec le slogan.
+- Vérifié : lint, types, 329 tests, build ; 14 pages utilisateur et 12 pages admin sans erreur ; aucun débordement horizontal à 360 px.
+- Restent pour les phases suivantes : accueil (B), fiche match et cartes de pronostics (C), portefeuille en cartes sur mobile (D), administration (E).

@@ -10,7 +10,7 @@ import { requireAdmin } from "@/lib/auth/session";
 import { formatDateTime, resolveTimezone } from "@/lib/utils/dates";
 import { formatXof } from "@/lib/utils/format";
 
-export const metadata: Metadata = { title: "Administration · Pronostics IA" };
+export const metadata: Metadata = { title: "Administration · PRONEX" };
 
 const n = (value: number) => new Intl.NumberFormat("fr-FR").format(value);
 

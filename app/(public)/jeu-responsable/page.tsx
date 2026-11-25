@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/layout/legal-page";
 
-export const metadata: Metadata = { title: "Jeu responsable · Pronostics IA" };
+export const metadata: Metadata = { title: "Jeu responsable · PRONEX" };
 
 // Texte provisoire (section 4). Liens d'aide à compléter avec des ressources locales.
 export default function ResponsibleGamingPage() {
@@ -11,7 +11,7 @@ export default function ResponsibleGamingPage() {
         <h2>Des analyses, pas des certitudes</h2>
         <p>
           Nos pronostics sont des estimations produites par une intelligence artificielle. Même un pronostic à forte
-          probabilité peut être perdu. Pronostics IA ne prend aucun pari et ne verse aucun gain.
+          probabilité peut être perdu. PRONEX ne prend aucun pari et ne verse aucun gain.
         </p>
       </section>
 

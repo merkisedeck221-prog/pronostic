@@ -11,7 +11,7 @@ import { listNotifications } from "@/lib/notifications/queries";
 import { cn } from "@/lib/utils";
 import { formatDateTime, resolveTimezone } from "@/lib/utils/dates";
 
-export const metadata: Metadata = { title: "Notifications · Pronostics IA" };
+export const metadata: Metadata = { title: "Notifications · PRONEX" };
 
 export default async function NotificationsPage() {
   const user = await requireUser();

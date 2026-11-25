@@ -13,7 +13,7 @@ import { formatDateTime, resolveTimezone } from "@/lib/utils/dates";
 import { cn } from "@/lib/utils";
 import { formatCredits } from "@/lib/utils/format";
 
-export const metadata: Metadata = { title: "Mes pronostics · Pronostics IA" };
+export const metadata: Metadata = { title: "Mes pronostics · PRONEX" };
 
 const FILTERS = [
   { value: "a-venir", label: "À venir" },

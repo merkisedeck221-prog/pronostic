@@ -12,7 +12,7 @@ import { topupIdSchema } from "@/lib/payments/schemas";
 import { formatCredits } from "@/lib/utils/format";
 import { AutoRefresh } from "./auto-refresh";
 
-export const metadata: Metadata = { title: "Résultat de la recharge · Pronostics IA", robots: { index: false } };
+export const metadata: Metadata = { title: "Résultat de la recharge · PRONEX", robots: { index: false } };
 
 const TITLES = {
   succeeded: "Recharge réussie",

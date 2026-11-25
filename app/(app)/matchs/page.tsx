@@ -12,7 +12,7 @@ import { clampWindowDays, parsePeriod, periodOptions, periodRange, resolveTimezo
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Matchs à venir · Pronostics IA",
+  title: "Matchs à venir · PRONEX",
   description: "Matchs d'aujourd'hui, de demain et des 7 prochains jours, avec les pronostics de l'IA disponibles.",
 };
 

@@ -10,7 +10,7 @@ import { listReceipts } from "@/lib/credits/queries";
 import { formatDateTime, resolveTimezone } from "@/lib/utils/dates";
 import { formatXof } from "@/lib/utils/format";
 
-export const metadata: Metadata = { title: "Mes reçus · Pronostics IA" };
+export const metadata: Metadata = { title: "Mes reçus · PRONEX" };
 
 export default async function RecusPage() {
   const user = await requireUser();

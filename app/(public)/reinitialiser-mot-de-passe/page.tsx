@@ -4,7 +4,7 @@ import { AuthCard } from "@/components/auth/auth-card";
 import { ResetPasswordForm } from "@/components/auth/password-forms";
 import { getCurrentUser } from "@/lib/auth/session";
 
-export const metadata: Metadata = { title: "Nouveau mot de passe · Pronostics IA" };
+export const metadata: Metadata = { title: "Nouveau mot de passe · PRONEX" };
 
 /**
  * Atteinte via le lien de réinitialisation : /auth/callback a ouvert une session

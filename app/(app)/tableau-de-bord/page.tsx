@@ -12,7 +12,7 @@ import { getMyPredictions } from "@/lib/settle/queries";
 import { formatShortDate, resolveTimezone } from "@/lib/utils/dates";
 import { formatCredits } from "@/lib/utils/format";
 
-export const metadata: Metadata = { title: "Tableau de bord · Pronostics IA" };
+export const metadata: Metadata = { title: "Tableau de bord · PRONEX" };
 
 const UPCOMING_WINDOW_HOURS = 48;
 const UPCOMING_MAX = 8;

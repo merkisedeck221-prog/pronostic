@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { formatDateTime, resolveTimezone } from "@/lib/utils/dates";
 import { formatCredits } from "@/lib/utils/format";
 
-export const metadata: Metadata = { title: "Portefeuille · Pronostics IA" };
+export const metadata: Metadata = { title: "Portefeuille · PRONEX" };
 
 function pageHref(filter: TransactionFilter, page = 1): string {
   const params = new URLSearchParams();

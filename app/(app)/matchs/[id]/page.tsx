@@ -20,10 +20,10 @@ import { matchStatus } from "@/lib/utils/match-status";
 export async function generateMetadata({ params }: PageProps<"/matchs/[id]">): Promise<Metadata> {
   const { id } = await params;
   const fixture = /^\d{1,12}$/.test(id) ? await getFixture(Number(id)) : null;
-  if (!fixture) return { title: "Match introuvable · Pronostics IA" };
+  if (!fixture) return { title: "Match introuvable · PRONEX" };
   const title = `${fixture.home.name} – ${fixture.away.name}`;
   return {
-    title: `${title} · ${fixture.competition.name} · Pronostics IA`,
+    title: `${title} · ${fixture.competition.name} · PRONEX`,
     description: `${title} (${fixture.competition.name}) : forme des équipes, classement, confrontations directes et pronostics de l'IA.`,
   };
 }
