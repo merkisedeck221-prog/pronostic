@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BarChart3Icon } from "lucide-react";
 import { EmptyState } from "@/components/layout/empty-state";
 import { PageHeader } from "@/components/layout/page-header";
 import { PredictionResultBadge } from "@/components/settle/result-badge";
@@ -21,7 +22,9 @@ function RateCard({ title, counts }: { title: string; counts: Counts }) {
     <Card>
       <CardHeader>
         <CardDescription>{title}</CardDescription>
-        <CardTitle className="text-3xl tabular-nums">{formatRate(counts.won, counts.lost)}</CardTitle>
+        <CardTitle className="bg-linear-to-r from-pronex-pink to-pronex-violet bg-clip-text font-heading text-4xl font-extrabold text-transparent tabular-nums">
+          {formatRate(counts.won, counts.lost)}
+        </CardTitle>
       </CardHeader>
       <CardContent className="text-sm text-muted-foreground">
         {counts.won} gagnés · {counts.lost} perdus{counts.void > 0 ? ` · ${counts.void} annulés` : ""}
@@ -87,11 +90,14 @@ export default async function PerformancesPage() {
       />
 
       {resolved === 0 ? (
-        <EmptyState title="Aucun pronostic n'est encore terminé : les statistiques apparaîtront après les premiers matchs." />
+        <EmptyState icon={BarChart3Icon} title="Aucun pronostic n'est encore terminé.">
+          Les statistiques apparaîtront ici après les premiers matchs analysés. Elles sont calculées sur tous les pronostics publiés,
+          achetés ou non : aucun chiffre n&apos;est affiché avant d&apos;être réel.
+        </EmptyState>
       ) : (
         <>
           {isSmallSample(global.won, global.lost) ? (
-            <p className="rounded-md border p-3 text-sm" role="note">
+            <p className="rounded-xl border border-pronex-violet/40 bg-pronex-violet/10 p-3 text-sm" role="note">
               Échantillon encore faible : {resolved} pronostic{resolved > 1 ? "s" : ""} résolu{resolved > 1 ? "s" : ""} seulement.
               Ces chiffres peuvent beaucoup varier et ne permettent pas encore de juger la fiabilité de l&apos;IA.
             </p>

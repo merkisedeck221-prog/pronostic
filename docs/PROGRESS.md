@@ -721,3 +721,10 @@ Statut : **fait et vérifié sur la base de test** ; production après accord du
 - En-tête collant (logo, navigation sur ordinateur, solde cliquable vers l'achat, notifications, menu) ; **barre de navigation fixe en bas sur mobile** (le menu horizontal coupé est supprimé) ; pied de page avec le slogan.
 - Vérifié : lint, types, 329 tests, build ; 14 pages utilisateur et 12 pages admin sans erreur ; aucun débordement horizontal à 360 px.
 - Restent pour les phases suivantes : accueil (B), fiche match et cartes de pronostics (C), portefeuille en cartes sur mobile (D), administration (E).
+
+## Refonte PRONEX — phase B : pages publiques (25/11/2026)
+
+- Accueil : accroche « Prédisez. Analysez. Dominez. », logo, « Comment ça marche » en 3 étapes, liste des types de pronostics **lue en base** (actifs uniquement), bloc performances (vrai taux de réussite ou message d'attente, jamais de chiffre inventé), prix du plus petit pack lu en base (`lib/catalog/landing.ts`).
+- Connexion, inscription, mot de passe oublié et réinitialisation : panneau PRONEX sur ordinateur, carte du formulaire au contour néon (`components/auth/auth-card.tsx`).
+- Performances : grands chiffres en dégradé, état vide explicatif ; composants partagés `EmptyState` (icône) et `PageHeader` (trait néon) ; pages CGU et jeu responsable en carte.
+- Vérifié : lint, types, 329 tests, build ; 6 pages publiques sur mobile et ordinateur sans erreur ni débordement.

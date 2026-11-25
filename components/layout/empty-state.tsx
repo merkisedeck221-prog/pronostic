@@ -1,11 +1,15 @@
 import type { ReactNode } from "react";
+import { InboxIcon, type LucideIcon } from "lucide-react";
 
-/** État vide explicite (aucune donnée à afficher). */
-export function EmptyState({ title, children }: { title: string; children?: ReactNode }) {
+/** État vide explicite (aucune donnée à afficher) : jamais de donnée inventée à la place. */
+export function EmptyState({ title, children, icon: Icon = InboxIcon }: { title: string; children?: ReactNode; icon?: LucideIcon }) {
   return (
-    <div className="rounded-xl border border-dashed px-4 py-8 text-center">
-      <p className="font-medium">{title}</p>
-      {children ? <div className="mt-1 text-sm text-muted-foreground">{children}</div> : null}
+    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-4 py-10 text-center">
+      <span className="flex size-11 items-center justify-center rounded-full bg-linear-to-br from-pronex-pink/20 to-pronex-violet/20 text-pronex-pink">
+        <Icon className="size-5" aria-hidden />
+      </span>
+      <p className="max-w-md font-medium">{title}</p>
+      {children ? <div className="max-w-md text-sm text-muted-foreground">{children}</div> : null}
     </div>
   );
 }
