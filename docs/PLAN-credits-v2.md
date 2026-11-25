@@ -95,7 +95,7 @@ La génération automatique 48 h avant le match peut rester en place pour les ma
 - Prompt **v2** (`lib/ai/prompts/v2.ts`, jamais de modification silencieuse de v1), schéma Zod v2, règles de cohérence.
 - Règles de résolution **en double**, TypeScript et SQL, avec cas de test croisés (règle du projet).
 - Lot B (corners, cartons) : synchronisation `/fixtures/statistics` et dossier enrichi.
-- ✅ **Lot B fait sur la base de test (24/11/2026)** : migration `20261124050000_corners_cards_combo.sql`, tâche `sync-statistics`, prompt v3.
+- ✅ **Lot B en production (24/11/2026)** : migration `20261124050000_corners_cards_combo.sql`, tâche `sync-statistics`, prompt v3.
 - **Décisions du porteur pour le lot B (24/11/2026)** : combinés = **combiné dans un même match** (2 ou 3 choix, gagné si tous gagnés) ; corners et cartons d'un match **avec prolongation → pronostic annulé et crédits de ce pronostic rendus** ; historique mince → analyses proposées avec **confiance « faible » imposée**.
 
 ### Lot 5 — Historique et contrôles finaux (modules 5 et 8) — ✅ fait sur la base de test (24/11)

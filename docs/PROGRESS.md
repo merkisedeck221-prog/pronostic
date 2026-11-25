@@ -663,11 +663,11 @@ Lint, types, 290 tests unitaires, build ; chaque migration rejouée en SQL sur l
 - Appel réel à l'IA non testé : il faut des matchs réels (forfait API-Football Pro).
 - Prix du match complet resté à 7 crédits pour 10 marchés (22 crédits au détail) : à fixer par le porteur dans `/admin/tarifs`.
 - Prix des packs Pro et VIP à fixer, puis à activer.
-- Lot B (corners, cartons, combinés) : fait sur la base de test (voir ci-dessous), en attente d'accord pour la production.
+- Lot B (corners, cartons, combinés) : en production depuis le 24/11 (voir ci-dessous).
 
 ## Crédits v2, lot B — corners, cartons, combiné IA (24/11/2026)
 
-Statut : **fait et vérifié sur la base de test `pronostics-dev`** ; production après accord du porteur.
+Statut : **EN PRODUCTION (24/11/2026)** : migration appliquée sur `pronostics` après essai dans une transaction annulée, code fusionné dans `main`, déploiement Vercel `READY`, aucune erreur d'exécution.
 
 ### Fait
 
@@ -692,3 +692,11 @@ Lint, types, 328 tests unitaires, build ; migration appliquée sur la base de te
 - Les corners / cartons ne s'alimentent qu'avec de vrais matchs (forfait API-Football Pro) ; au début, la confiance sera « faible » le temps d'accumuler 3 matchs par équipe.
 - Prix du match complet à revoir (13 marchés désormais).
 
+
+## Contrôle général du 24/11/2026 (sécurité, bugs, rapidité)
+
+- **Rapidité** : les fonctions Vercel tournaient à Washington (`iad1`) alors que la base est en Irlande (`eu-west-1`) ; `vercel.json` les place à Dublin (`dub1`). Production avant changement : 0,2 à 0,5 s par page une fois le serveur réveillé (1,6 s au premier accès).
+- **Sécurité** : ajout d'une politique de sécurité du contenu (CSP) et de `Cross-Origin-Opener-Policy` (voir `docs/SECURITE.md`, section 9 septies).
+- **Bugs** : parcours complet dans un navigateur (14 pages utilisateur, 16 pages admin, connexion, navigation par le menu) : aucune erreur, aucun blocage par la CSP.
+- **Prévisualisations Vercel** : elles n'avaient aucune variable d'environnement (pages en erreur) ; elles utilisent maintenant la base de **test** `pronostics-dev` (valeurs publiques uniquement).
+- **Hors de portée des outils (à faire par le porteur dans Supabase)** : adresses de connexion (Site URL, Redirect URLs), SMTP, réactivation de la confirmation de l'e-mail (désactivée en production), protection des mots de passe piratés.
