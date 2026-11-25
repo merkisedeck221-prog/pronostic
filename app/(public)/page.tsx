@@ -20,7 +20,7 @@ const STEPS = [
 ] as const;
 
 const primaryCta =
-  "inline-flex h-12 items-center justify-center rounded-xl bg-linear-to-r from-pronex-pink to-pronex-violet px-6 font-semibold text-white shadow-[0_0_32px_-8px] shadow-pronex-pink/70 transition hover:brightness-110";
+  "inline-flex h-12 items-center justify-center rounded-xl bg-linear-to-r from-pronex-pink/85 to-pronex-violet px-6 font-semibold text-white shadow-[0_0_32px_-8px] shadow-pronex-pink/70 transition hover:brightness-110";
 const secondaryCta =
   "inline-flex h-12 items-center justify-center rounded-xl border border-white/15 bg-white/5 px-6 font-semibold text-white transition hover:border-white/30 hover:bg-white/10";
 
@@ -41,7 +41,7 @@ export default async function HomePage() {
           </p>
           <h1 className="text-4xl leading-tight font-extrabold tracking-tight italic sm:text-5xl">
             Prédisez.{" "}
-            <span className="bg-linear-to-r from-pronex-pink to-pronex-violet bg-clip-text text-transparent">Analysez.</span>
+            <span className="bg-linear-to-r from-pronex-pink/85 to-pronex-violet bg-clip-text text-transparent">Analysez.</span>
             <br />
             Dominez.
           </h1>
@@ -73,7 +73,7 @@ export default async function HomePage() {
             {STEPS.map(({ icon: Icon, title, text }, i) => (
               <li key={title} className="space-y-3 rounded-2xl border border-white/10 bg-card p-6">
                 <div className="flex items-center gap-3">
-                  <span className="flex size-10 items-center justify-center rounded-xl bg-linear-to-br from-pronex-pink to-pronex-violet text-white">
+                  <span className="flex size-10 items-center justify-center rounded-xl bg-linear-to-br from-pronex-pink/85 to-pronex-violet text-white">
                     <Icon className="size-5" aria-hidden />
                   </span>
                   <span className="font-heading text-sm font-bold text-muted-foreground">0{i + 1}</span>

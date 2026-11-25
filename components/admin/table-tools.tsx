@@ -45,7 +45,7 @@ export function FilterBar({ children, resetHref }: { children: ReactNode; resetH
   return (
     <form method="get" className="flex flex-wrap items-end gap-2 rounded-xl border border-white/10 bg-card p-3">
       {children}
-      <button type="submit" className={cn(buttonVariants({ size: "sm" }), "bg-linear-to-r from-pronex-pink to-pronex-violet text-white hover:brightness-110")}>
+      <button type="submit" className={cn(buttonVariants({ size: "sm" }), "bg-linear-to-r from-pronex-pink/85 to-pronex-violet text-white hover:brightness-110")}>
         Filtrer
       </button>
       <Link href={resetHref} className={buttonVariants({ variant: "ghost", size: "sm" })}>
@@ -132,7 +132,7 @@ export function AdminPage({ title, description, children, actions }: { title: st
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-2">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
-          <div aria-hidden className="h-1 w-12 rounded-full bg-linear-to-r from-pronex-pink to-pronex-violet" />
+          <div aria-hidden className="h-1 w-12 rounded-full bg-linear-to-r from-pronex-pink/85 to-pronex-violet" />
           {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
         </div>
         {actions}

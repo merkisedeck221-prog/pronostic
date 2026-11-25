@@ -50,7 +50,7 @@ export default async function DashboardPage() {
             <div className="flex flex-wrap gap-2">
               <Link
                 href="/recharger?next=/tableau-de-bord"
-                className="inline-flex h-9 items-center rounded-lg bg-linear-to-r from-pronex-pink to-pronex-violet px-4 text-sm font-semibold text-white transition hover:brightness-110"
+                className="inline-flex h-9 items-center rounded-lg bg-linear-to-r from-pronex-pink/85 to-pronex-violet px-4 text-sm font-semibold text-white transition hover:brightness-110"
               >
                 Acheter des crédits
               </Link>

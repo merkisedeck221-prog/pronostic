@@ -22,7 +22,7 @@ function RateCard({ title, counts }: { title: string; counts: Counts }) {
     <Card>
       <CardHeader>
         <CardDescription>{title}</CardDescription>
-        <CardTitle className="bg-linear-to-r from-pronex-pink to-pronex-violet bg-clip-text font-heading text-4xl font-extrabold text-transparent tabular-nums">
+        <CardTitle className="bg-linear-to-r from-pronex-pink/85 to-pronex-violet bg-clip-text font-heading text-4xl font-extrabold text-transparent tabular-nums">
           {formatRate(counts.won, counts.lost)}
         </CardTitle>
       </CardHeader>

@@ -39,7 +39,7 @@ export default async function MesPronosticsPage({ searchParams }: PageProps<"/me
       <section className="flex flex-col gap-2 rounded-3xl border border-white/10 bg-linear-to-br from-pronex-pink/15 via-card to-pronex-violet/20 p-6 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-xs tracking-wider text-muted-foreground uppercase">Mon taux de réussite</p>
-          <p className="bg-linear-to-r from-pronex-pink to-pronex-violet bg-clip-text font-heading text-4xl font-extrabold text-transparent tabular-nums">
+          <p className="bg-linear-to-r from-pronex-pink/85 to-pronex-violet bg-clip-text font-heading text-4xl font-extrabold text-transparent tabular-nums">
             {formatRate(won, lost)}
           </p>
         </div>
@@ -58,7 +58,7 @@ export default async function MesPronosticsPage({ searchParams }: PageProps<"/me
             aria-current={filter === f.value ? "page" : undefined}
             className={cn(
               "rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
-              filter === f.value && "bg-linear-to-r from-pronex-pink to-pronex-violet text-white",
+              filter === f.value && "bg-linear-to-r from-pronex-pink/85 to-pronex-violet text-white",
             )}
           >
             {f.label} ({f.value === "a-venir" ? upcoming.length : finished.length})

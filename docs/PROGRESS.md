@@ -755,3 +755,14 @@ Statut : **fait et vérifié sur la base de test** ; production après accord du
 - Tableaux : en-têtes discrets ; sur téléphone, chaque ligne devient une carte « libellé / valeur » (aucune modification des 11 pages à tableaux).
 - Aucune modification des fonctions, des contrôles d'accès, des Server Actions ni de la base de données.
 - Vérifié : 16 pages admin à 320, 390, 768 et 1366 px, sans débordement ni erreur console ; lint, typecheck, 329 tests, build.
+
+## Refonte PRONEX — phase F : finitions (26/11/2026)
+
+- Pages 404 et erreur (500, erreur globale) aux couleurs PRONEX : logo, grand code en dégradé, actions claires (`components/layout/status-screen.tsx`).
+- Chargements : squelettes avec reflet rose / violet (`[data-slot=skeleton]`), apparition douce des pages ; toutes les animations sont coupées si l'appareil demande moins d'animations.
+- Accessibilité (audit axe-core, WCAG 2 A/AA, 22 pages, mobile) : 0 problème restant.
+  - Texte blanc sur rose plein (3,6:1) : boutons et badges principaux passés au dégradé PRONEX avec le rose à 85 % (≥ 4,5:1), couleurs de marque inchangées.
+  - Bouton « danger » : texte éclairci (4,48:1 → conforme).
+  - Administration : zone principale `<main>` (repère manquant).
+  - Lien « Aller au contenu » au premier appui sur Tab ; contour de focus rose visible au clavier partout.
+- Recherche globale : non faite (non demandée).
