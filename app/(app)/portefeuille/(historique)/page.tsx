@@ -38,7 +38,7 @@ export default async function PortefeuillePage({ searchParams }: PageProps<"/por
   ]);
 
   const totals = [
-    { label: "Crédits reçus", value: summary?.received, hint: "Recharges, bonus, ajustements" },
+    { label: "Crédits reçus", value: summary?.received, hint: "Recharges et ajustements" },
     { label: "Crédits consommés", value: summary?.consumed, hint: "Déblocages, débits de l'administration" },
     { label: "Crédits remboursés", value: summary?.refunded, hint: "Matchs annulés ou reportés" },
   ];

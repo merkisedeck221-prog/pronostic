@@ -1,54 +1,46 @@
 "use client";
 
-import { createContext, useActionState, useContext, useId, useState, type ReactNode } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { useActionState } from "react";
 import { startTopupAction, type StartTopupState } from "@/lib/payments/actions";
-
-/** Code promo saisi une seule fois, partagé par tous les boutons de pack. */
-const PromoCodeContext = createContext<string>("");
-
-export function PromoCodeProvider({ children }: { children: ReactNode }) {
-  const [code, setCode] = useState("");
-  const id = useId();
-  return (
-    <PromoCodeContext.Provider value={code}>
-      <div className="max-w-sm space-y-1.5">
-        <Label htmlFor={id}>Code promo (facultatif)</Label>
-        <Input
-          id={id}
-          value={code}
-          onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, "").slice(0, 30))}
-          autoComplete="off"
-          autoCapitalize="characters"
-          spellCheck={false}
-          placeholder="EX. BIENVENUE"
-        />
-        <p className="text-xs text-muted-foreground">Le bonus est vérifié et ajouté au moment du paiement.</p>
-      </div>
-      {children}
-    </PromoCodeContext.Provider>
-  );
-}
+import { cn } from "@/lib/utils";
 
 /**
- * Bouton de choix d'un pack. Seuls l'identifiant du pack, le code promo (texte)
- * et `next` sont envoyés : jamais de montant ni de nombre de crédits.
+ * Bouton d'achat d'un pack. Seuls l'identifiant du pack et `next` sont
+ * envoyés : jamais de montant ni de nombre de crédits (lus en base).
  */
-export function TopupForm({ packId, next, label, disabled }: { packId: number; next: string; label: string; disabled?: boolean }) {
-  const promoCode = useContext(PromoCodeContext);
+export function TopupForm({
+  packId,
+  next,
+  label,
+  disabled,
+  featured,
+}: {
+  packId: number;
+  next: string;
+  label: string;
+  disabled?: boolean;
+  featured?: boolean;
+}) {
   const [state, action, pending] = useActionState<StartTopupState, FormData>(startTopupAction, null);
   return (
     <form action={action} className="space-y-2">
       <input type="hidden" name="packId" value={packId} />
-      <input type="hidden" name="promoCode" value={promoCode} />
       <input type="hidden" name="next" value={next} />
-      <Button type="submit" className="w-full" disabled={pending || disabled}>
+      <button
+        type="submit"
+        disabled={pending || disabled}
+        className={cn(
+          "h-11 w-full rounded-lg px-4 text-sm font-semibold text-white transition outline-none",
+          "focus-visible:ring-3 focus-visible:ring-pronex-pink/60 disabled:cursor-not-allowed disabled:opacity-50",
+          featured
+            ? "bg-linear-to-r from-pronex-pink to-pronex-violet hover:brightness-110"
+            : "border border-white/15 bg-white/5 hover:border-pronex-pink/70 hover:bg-white/10",
+        )}
+      >
         {pending ? "Redirection…" : label}
-      </Button>
+      </button>
       {state?.error ? (
-        <p className="text-sm text-destructive" role="alert">
+        <p className="text-sm text-pronex-pink" role="alert">
           {state.error}
         </p>
       ) : null}

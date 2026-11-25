@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { deriveMockSecret, signMockPayload, verifyMockSignature } from "./mock-signature";
 import { isProductionDeployment, isProviderAllowed } from "./registry";
-import { bonusLabel, startTopupSchema, topupErrorMessage } from "./schemas";
+import { startTopupSchema, topupErrorMessage } from "./schemas";
 
 const SECRET = "s".repeat(40);
 const BODY = JSON.stringify({ providerRef: "mock_00000000-0000-4000-8000-000000000000", status: "succeeded" });
@@ -67,21 +67,15 @@ describe("choix du fournisseur (RG-F6-3)", () => {
 });
 
 describe("entrée de la recharge", () => {
-  it("ne garde que le pack : montant et crédits envoyés par le navigateur ignorés", () => {
-    expect(startTopupSchema.parse({ packId: "2", amountXof: 1, credits: 9999 })).toEqual({ packId: 2, promoCode: "" });
-    // Code promo : seulement le texte (le bonus est calculé en base), caractères limités.
-    expect(startTopupSchema.parse({ packId: "2", promoCode: " bienvenue " }).promoCode).toBe("bienvenue");
-    expect(startTopupSchema.safeParse({ packId: "2", promoCode: "x'; drop" }).success).toBe(false);
-    expect(startTopupSchema.safeParse({ packId: "2", promoCode: "A".repeat(31) }).success).toBe(false);
+  it("ne garde que le pack : montant, crédits, bonus et code promo envoyés par le navigateur ignorés", () => {
+    expect(startTopupSchema.parse({ packId: "2", amountXof: 1, credits: 9999, bonus_credits: 50, promoCode: "BIENVENUE" })).toEqual({ packId: 2 });
     expect(startTopupSchema.safeParse({ packId: "-1" }).success).toBe(false);
     expect(startTopupSchema.safeParse({ packId: "abc" }).success).toBe(false);
   });
 
-  it("messages et libellés", () => {
+  it("messages", () => {
     expect(topupErrorMessage("MAINTENANCE")).toMatch(/maintenance/);
+    expect(topupErrorMessage("PROMO_DISABLED")).toMatch(/plus proposés/);
     expect(topupErrorMessage("XYZ")).toMatch(/Aucun montant/);
-    expect(bonusLabel(3)).toBe("+3 crédits offerts");
-    expect(bonusLabel(1)).toBe("+1 crédit offert");
-    expect(bonusLabel(0)).toBeNull();
   });
 });

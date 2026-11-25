@@ -43,12 +43,6 @@ export default async function MockPaymentPage({ params, searchParams }: PageProp
             <dd className="text-right font-semibold tabular-nums">{formatXof(topup.amount_xof)}</dd>
             <dt>Crédits</dt>
             <dd className="text-right tabular-nums">{formatCredits(topup.credits)}</dd>
-            {topup.bonus_credits > 0 ? (
-              <>
-                <dt>Bonus</dt>
-                <dd className="text-right tabular-nums">{formatCredits(topup.bonus_credits)}</dd>
-              </>
-            ) : null}
           </dl>
           <div className="grid gap-2">
             <form action={simulate.bind(null, "succeeded", back)}>

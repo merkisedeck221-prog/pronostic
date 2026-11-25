@@ -31,7 +31,6 @@ export default async function TopupResultPage({ searchParams }: PageProps<"/rech
   if (!topup) notFound();
 
   const next = safeNextPath(query.next, "/portefeuille");
-  const total = topup.credits + topup.bonus_credits;
 
   return (
     <main className="mx-auto w-full max-w-md flex-1 space-y-6 px-4 py-8">
@@ -45,7 +44,7 @@ export default async function TopupResultPage({ searchParams }: PageProps<"/rech
         </CardHeader>
         <CardContent className="space-y-4 text-sm">
           {topup.status === "succeeded" ? (
-            <p>{formatCredits(total)} ont été ajoutés à votre compte.</p>
+            <p>{formatCredits(topup.credits)} ont été ajoutés à votre compte.</p>
           ) : topup.status === "failed" ? (
             <p>Le paiement n&apos;a pas abouti. Aucun crédit n&apos;a été ajouté.</p>
           ) : topup.status === "cancelled" ? (

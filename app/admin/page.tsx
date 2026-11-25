@@ -29,7 +29,7 @@ export default async function AdminOverviewPage() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="Inscrits" value={n(o.users_total)} hint={`+${n(o.users_7d)} sur 7 jours`} />
         <Stat label="Chiffre d'affaires simulé" value={formatXof(o.revenue_xof)} hint="Recharges réussies" />
-        <Stat label="Crédits vendus" value={n(o.credits_sold)} hint="Bonus compris" />
+        <Stat label="Crédits vendus" value={n(o.credits_sold)} hint="Crédits des packs payés" />
         <Stat label="Crédits dépensés" value={n(o.credits_spent)} hint={`${n(o.credits_refunded)} remboursés`} />
         <Stat label="Crédits en circulation" value={n(o.credits_in_circulation)} hint="Somme des soldes" />
         <Stat label="Matchs < 48 h avec pronostic" value={n(o.upcoming_48h_with)} />

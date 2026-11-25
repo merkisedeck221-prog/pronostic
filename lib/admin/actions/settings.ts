@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@/types/database";
 import { logAdminAction } from "../audit";
 import { failure, success, type AdminActionState } from "../result";
-import { parseSettingInput, settingDefinition } from "../settings";
+import { isRetiredSetting, parseSettingInput, settingDefinition } from "../settings";
 
 const PATH = "/admin/parametres";
 
@@ -15,6 +15,7 @@ export async function saveSettingAction(_prev: AdminActionState, formData: FormD
   await requireAdmin();
   const key = z.string().regex(/^[a-z0-9_]{1,60}$/).safeParse(formData.get("key"));
   if (!key.success) return failure("Clé invalide.");
+  if (isRetiredSetting(key.data)) return failure("Ce paramètre n'existe plus (packs fixes, aucun crédit gratuit).");
   const definition = settingDefinition(key.data);
   const raw = formData.get("value");
   const parsed = parseSettingInput(definition, typeof raw === "string" ? raw : definition.kind === "boolean" ? "false" : null);

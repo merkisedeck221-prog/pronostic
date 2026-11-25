@@ -26,8 +26,9 @@ test("parcours utilisateur complet", async ({ page }) => {
   page.on("dialog", (dialog) => dialog.accept());
   const exactPrice = await price("market", "EXACT_SCORE");
   const bundlePrice = await price("match_bundle");
-  const { data: pack } = await service.from("credit_packs").select("name, credits, bonus_credits").eq("is_active", true).order("sort_order").limit(1).single();
-  const packTotal = pack!.credits + pack!.bonus_credits;
+  const { data: pack } = await service.from("credit_packs").select("name, credits").eq("is_active", true).order("sort_order").limit(1).single();
+  // Packs fixes PRONEX : le pack crédite exactement ses crédits (aucun bonus).
+  const packTotal = pack!.credits;
 
   // 1. Inscription
   await page.goto("/inscription");
@@ -67,8 +68,9 @@ test("parcours utilisateur complet", async ({ page }) => {
 
   // 4. Recharge simulée
   await expect(page.getByText("Paiement de test")).toBeVisible();
-  const packCard = page.locator("[data-slot=card]", { hasText: pack!.name }).first();
-  await packCard.getByRole("button", { name: "Choisir ce pack" }).click();
+  await expect(page.getByText(/bonus|offert/i)).toHaveCount(0);
+  const packCard = page.locator("article", { hasText: pack!.name }).first();
+  await packCard.getByRole("button", { name: `Acheter ${pack!.credits} crédits` }).click();
   await expect(page).toHaveURL(/\/recharger\/paiement-simule\//);
   await page.getByRole("button", { name: "Simuler un paiement réussi" }).click();
   await expect(page.getByRole("heading", { name: "Recharge réussie" })).toBeVisible();

@@ -226,6 +226,16 @@ Corrections :
 | Confirmation de l'e-mail à l'inscription | ⚠️ **désactivée** en production (`mailer_autoconfirm: true`) : n'importe qui peut s'inscrire avec l'adresse d'un autre. À réactiver dès qu'un SMTP est configuré (réglage Supabase, hors de portée des outils) |
 | Protection des mots de passe piratés | ⚠️ désactivée (réglage Supabase, hors de portée des outils) |
 
+## 9 octies. Packs fixes PRONEX, suppression des bonus (25/11/2026)
+
+| Point | Résultat |
+|---|---|
+| Crédits attribués | ✅ `apply_topup` crédite exactement `topups.credits`, figé à la création par `start_topup` à partir du pack en base ; le navigateur n'envoie que l'identifiant du pack (montant, crédits, bonus, code promo ignorés : test `payments.test.ts`) |
+| Double attribution | ✅ verrou `FOR UPDATE` sur la recharge + passage `pending` → final une seule fois : un second appel ou une rafale renvoie `already_processed` sans crédit (testé en SQL sur les 5 packs ; test d'intégration `topup.test.ts`) |
+| Bonus réintroduits par erreur | ✅ contraintes `credit_packs_no_bonus` (pack) et `topups_no_bonus` (recharges futures) ; `handle_new_user` n'attribue plus de crédit même si `welcome_credits` est modifié en base (testé) ; paramètre retiré de l'administration |
+| Codes promo | ✅ refusés par `start_topup` (`PROMO_DISABLED`), page et actions d'administration retirées, tables conservées |
+| Soldes existants | ✅ inchangés (vérifié avant / après sur la base de test) |
+
 ## 10. Points ouverts et risques acceptés
 
 1. ⚠️ **`picomatch`** (outils de développement uniquement) : voir § 8.

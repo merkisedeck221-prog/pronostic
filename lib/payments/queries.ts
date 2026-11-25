@@ -10,7 +10,7 @@ export async function listActivePacks() {
   const now = new Date().toISOString();
   const { data, error } = await supabase
     .from("credit_packs")
-    .select("id, name, description, credits, bonus_credits, price_xof, available_until")
+    .select("id, name, description, credits, price_xof, is_featured, available_until")
     .eq("is_active", true)
     .or(`available_from.is.null,available_from.lte."${now}"`)
     .or(`available_until.is.null,available_until.gt."${now}"`)
@@ -30,7 +30,7 @@ export async function getOwnTopup(userId: string, topupId: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("topups")
-    .select("id, status, provider, provider_ref, credits, bonus_credits, amount_xof, created_at, completed_at, pack:credit_packs(name)")
+    .select("id, status, provider, provider_ref, credits, amount_xof, created_at, completed_at, pack:credit_packs(name)")
     .eq("id", topupId)
     .eq("user_id", userId)
     .maybeSingle();

@@ -104,7 +104,7 @@ export default async function AdminTransactionsPage({ searchParams }: PageProps<
               { value: "tous", label: "Tous" },
               { value: "topup", label: "Recharge" },
               { value: "unlock", label: "Déblocage" },
-              { value: "bonus", label: "Bonus" },
+              { value: "bonus", label: "Bonus (historique)" },
               { value: "refund", label: "Remboursement" },
               { value: "admin_adjustment", label: "Ajustement" },
             ]}
@@ -228,7 +228,6 @@ export default async function AdminTransactionsPage({ searchParams }: PageProps<
                   <TableCell>{t.pack ?? "—"}</TableCell>
                   <TableCell className="text-right tabular-nums">
                     {t.credits}
-                    {t.bonus_credits ? ` + ${t.bonus_credits}` : ""}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">{formatXof(t.amount_xof)}</TableCell>
                   <TableCell>{t.provider}</TableCell>

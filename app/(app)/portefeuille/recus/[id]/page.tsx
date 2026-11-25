@@ -34,8 +34,13 @@ export default async function RecuPage({ params }: PageProps<"/portefeuille/recu
     ["Adresse e-mail", user.email ?? "—"],
     ["Pack", receipt.pack_name ?? "—"],
     ["Crédits", formatCredits(receipt.credits)],
-    ["Bonus", formatCredits(receipt.bonus_credits)],
-    ["Total crédité", formatCredits(receipt.credits + receipt.bonus_credits)],
+    // Historique uniquement : les packs PRONEX actuels n'ont aucun bonus.
+    ...(receipt.bonus_credits > 0
+      ? ([
+          ["Bonus (ancienne offre)", formatCredits(receipt.bonus_credits)],
+          ["Total crédité", formatCredits(receipt.credits + receipt.bonus_credits)],
+        ] as [string, string][])
+      : []),
     ["Moyen de paiement", PROVIDER_LABELS[receipt.provider] ?? receipt.provider],
     ["Référence du paiement", receipt.provider_ref ?? receipt.id],
   ];

@@ -46,6 +46,11 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  /* Identité PRONEX (page de recharge ; reste du site lors de la phase design). */
+  --color-pronex-night: #080b20;
+  --color-pronex-pink: #ff1493;
+  --color-pronex-violet: #a000ff;
+  --color-pronex-gray: #9ca3af;
 }
 
 :root {

@@ -26,7 +26,7 @@ export type CreateCheckoutInput = {
   user: CheckoutUser;
   /** Chemin interne vers lequel revenir après le paiement (page de résultat). */
   returnUrl: string;
-  /** Libellé affiché par le fournisseur (« Pack Standard : 25 crédits + 3 bonus »). */
+  /** Libellé affiché par le fournisseur (« Pack Basic : 25 crédits »). */
   description: string;
 };
 

@@ -700,3 +700,15 @@ Lint, types, 328 tests unitaires, build ; migration appliquée sur la base de te
 - **Bugs** : parcours complet dans un navigateur (14 pages utilisateur, 16 pages admin, connexion, navigation par le menu) : aucune erreur, aucun blocage par la CSP.
 - **Prévisualisations Vercel** : elles n'avaient aucune variable d'environnement (pages en erreur) ; elles utilisent maintenant la base de **test** `pronostics-dev` (valeurs publiques uniquement).
 - **Hors de portée des outils (à faire par le porteur dans Supabase)** : adresses de connexion (Site URL, Redirect URLs), SMTP, réactivation de la confirmation de l'e-mail (désactivée en production), protection des mots de passe piratés.
+
+## PRONEX — packs fixes, suppression des bonus (25/11/2026)
+
+Statut : **fait et vérifié sur la base de test** ; production après accord du porteur.
+
+- Grille officielle : STARTER 1 000 F = 10, BASIC 2 500 F = 25, PREMIUM 5 000 F = 50 (recommandé), PRO 10 000 F = 110, VIP 20 000 F = 250 crédits. Chaque achat crédite exactement ces crédits.
+- Supprimés : crédits de bienvenue, bonus des packs, codes promo (page `/admin/promotions` et actions retirées). Il n'existait ni bonus de premier achat ni parrainage.
+- Page `/recharger` aux couleurs PRONEX (nuit #080B20, rose #FF1493, violet #A000FF, gris #9CA3AF), PREMIUM mis en avant, solde affiché, aucun bonus affiché.
+- Admin : prix, crédits, activation et « Recommandé » dans `/admin/packs` (ventes et montant encaissé par pack) ; `/admin/revenus` : ventes par pack (crédits) et lien d'export CSV des ventes ; indicateurs de bonus retirés.
+- Migration non destructive `20261125120000_fixed_packs_no_bonus.sql` : aucune table, colonne, donnée ni solde supprimé ou modifié.
+- Écart volontaire avec le cahier des charges (packs avec bonus, crédits de bienvenue configurables) : décision du porteur.
+

@@ -9,7 +9,16 @@ import { anonClient, createTestUser, deleteTestUser, serviceClient, type TestUse
  * (signature HMAC, recherche de la recharge, apply_topup avec la clé secrète).
  */
 
-type Pack = { id: number; credits: number; bonus_credits: number; price_xof: number };
+type Pack = { id: number; name: string; credits: number; bonus_credits: number; price_xof: number };
+
+/** Grille officielle PRONEX : crédits EXACTS par pack, aucun bonus. */
+const OFFICIAL_PACKS: Record<string, { price_xof: number; credits: number }> = {
+  starter: { price_xof: 1000, credits: 10 },
+  basic: { price_xof: 2500, credits: 25 },
+  premium: { price_xof: 5000, credits: 50 },
+  pro: { price_xof: 10000, credits: 110 },
+  vip: { price_xof: 20000, credits: 250 },
+};
 
 let pack: Pack;
 const users: TestUser[] = [];
@@ -25,7 +34,7 @@ async function createTopup(u: TestUser): Promise<{ id: string; ref: string }> {
   const { data, error } = await u.client.rpc("create_topup", { p_pack_id: pack.id, p_provider: "mock" });
   const created = data as { ok: boolean; topup_id: string; amount_xof: number; credits: number; bonus_credits: number };
   if (error || !created?.ok) throw new Error(`create_topup : ${error?.message ?? JSON.stringify(data)}`);
-  expect(created).toMatchObject({ amount_xof: pack.price_xof, credits: pack.credits, bonus_credits: pack.bonus_credits });
+  expect(created).toMatchObject({ amount_xof: pack.price_xof, credits: pack.credits, bonus_credits: 0 });
   const ref = mockProviderRef(created.topup_id);
   const { error: e2 } = await serviceClient.from("topups").update({ provider_ref: ref }).eq("id", created.topup_id);
   if (e2) throw new Error(e2.message);
@@ -50,13 +59,11 @@ async function statusOf(topupId: string) {
 beforeAll(async () => {
   const { data, error } = await serviceClient
     .from("credit_packs")
-    .select("id, credits, bonus_credits, price_xof")
+    .select("id, name, credits, bonus_credits, price_xof")
     .eq("is_active", true)
-    .gt("bonus_credits", 0)
-    .order("sort_order")
-    .limit(1)
+    .ilike("name", "premium")
     .single();
-  if (error || !data) throw new Error(`Aucun pack actif avec bonus : ${error?.message}`);
+  if (error || !data) throw new Error(`Pack Premium introuvable : ${error?.message}`);
   pack = data;
 });
 
@@ -65,7 +72,27 @@ afterAll(async () => {
 });
 
 describe("recharge simulée", () => {
-  it("1. recharge réussie : solde + crédits + bonus", async () => {
+  it("0. grille officielle : 5 packs actifs, prix et crédits exacts, aucun bonus", async () => {
+    const { data } = await serviceClient.from("credit_packs").select("name, credits, bonus_credits, price_xof").eq("is_active", true);
+    const byName = Object.fromEntries((data ?? []).map((p) => [p.name.toLowerCase(), p]));
+    for (const [name, expected] of Object.entries(OFFICIAL_PACKS)) {
+      expect(byName[name], name).toMatchObject({ ...expected, bonus_credits: 0 });
+    }
+    // Un bonus ne peut plus être remis sur un pack (contrainte credit_packs_no_bonus).
+    const { error } = await serviceClient.from("credit_packs").update({ bonus_credits: 5 }).eq("id", pack.id);
+    expect(error).not.toBeNull();
+  });
+
+  it("0 bis. code promo refusé ; inscription sans crédit offert", async () => {
+    const u = await user("promo");
+    const { data } = await u.client.rpc("start_topup", { p_pack_id: pack.id, p_provider: "mock", p_promo_code: "BIENVENUE" });
+    expect(data).toMatchObject({ ok: false, code: "PROMO_DISABLED" });
+    expect(await balanceOf(u.id)).toBe(0);
+    const { count } = await serviceClient.from("credit_transactions").select("id", { count: "exact", head: true }).eq("user_id", u.id);
+    expect(count).toBe(0);
+  });
+
+  it("1. recharge réussie : solde + crédits EXACTS du pack", async () => {
     const u = await user("ok");
     const { id, ref } = await createTopup(u);
 
@@ -73,7 +100,8 @@ describe("recharge simulée", () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject({ ok: true, status: "succeeded", alreadyProcessed: false });
 
-    const total = pack.credits + pack.bonus_credits;
+    const total = pack.credits;
+    expect(total).toBe(50);
     expect(await balanceOf(u.id)).toBe(total);
     expect(await topupTransactions(u.id)).toEqual([{ amount: total, balance_after: total, reference_id: id }]);
     const st = await statusOf(id);
@@ -98,7 +126,7 @@ describe("recharge simulée", () => {
     );
     expect(burst.every((r) => r.status === 200)).toBe(true);
 
-    const total = pack.credits + pack.bonus_credits;
+    const total = pack.credits;
     expect(await balanceOf(u.id)).toBe(2 * total);
     expect(await topupTransactions(u.id)).toHaveLength(2);
   });
@@ -142,7 +170,7 @@ describe("recharge simulée", () => {
 
     // d. Le crédit final correspond au pack en base.
     await processPaymentWebhook("mock", buildSignedMockWebhook(ref, "succeeded"));
-    expect(await balanceOf(u.id)).toBe(pack.credits + pack.bonus_credits);
+    expect(await balanceOf(u.id)).toBe(pack.credits);
     const { count } = await serviceClient.from("topups").select("id", { count: "exact", head: true }).eq("user_id", u.id);
     expect(count).toBe(1);
   });

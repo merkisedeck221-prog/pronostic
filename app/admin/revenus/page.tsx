@@ -61,7 +61,7 @@ export default async function AdminRevenusPage({ searchParams }: PageProps<"/adm
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Chiffre d'affaires" value={formatXof(revenue.revenue_xof)} hint={`${revenue.topups} recharge(s), ${revenue.buyers} acheteur(s)`} />
-        <Stat label="Crédits vendus" value={revenue.credits_sold} hint={`+ ${revenue.credits_bonus} bonus pack, + ${revenue.credits_promo} codes promo`} />
+        <Stat label="Crédits vendus" value={revenue.credits_sold} hint="Crédits des packs payés (aucun bonus)" />
         <Stat label="Crédits consommés" value={revenue.credits_consumed} hint="Déblocages" />
         <Stat label="Crédits remboursés" value={revenue.credits_refunded} hint={`${revenue.failed_topups} paiement(s) échoué(s) ou annulé(s)`} />
       </div>
@@ -74,10 +74,16 @@ export default async function AdminRevenusPage({ searchParams }: PageProps<"/adm
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Par pack</CardTitle>
+            <CardTitle>Ventes par pack</CardTitle>
           </CardHeader>
-          <CardContent>
-            <SimpleTable head={["Pack", "Recharges", "Montant"]} rows={revenue.by_pack.map((p) => [p.pack_name, p.topups, formatXof(p.revenue_xof)])} />
+          <CardContent className="space-y-3">
+            <SimpleTable
+              head={["Pack", "Ventes", "Crédits", "Montant"]}
+              rows={revenue.by_pack.map((p) => [p.pack_name, p.topups, p.credits, formatXof(p.revenue_xof)])}
+            />
+            <a href="/admin/transactions/export?vue=recharges&statut=succeeded&periode=tout" className="text-sm underline underline-offset-4">
+              Exporter les ventes (CSV)
+            </a>
           </CardContent>
         </Card>
         <Card>
@@ -89,14 +95,6 @@ export default async function AdminRevenusPage({ searchParams }: PageProps<"/adm
               head={["Moyen", "Recharges", "Montant"]}
               rows={revenue.by_provider.map((p) => [PROVIDER_LABELS[p.provider] ?? p.provider, p.topups, formatXof(p.revenue_xof)])}
             />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Par code promo</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <SimpleTable head={["Code", "Recharges", "Crédits offerts"]} rows={revenue.by_promo.map((p) => [p.code, p.topups, p.credits])} />
           </CardContent>
         </Card>
         <Card>
