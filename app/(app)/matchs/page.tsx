@@ -66,7 +66,7 @@ export default async function FixturesPage({ searchParams }: PageProps<"/matchs"
               aria-current={option.value === period ? "page" : undefined}
               className={cn(
                 "rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
-                option.value === period && "bg-linear-to-r from-pronex-pink to-pronex-violet text-white",
+                option.value === period && "bg-linear-to-r from-pronex-pink/85 to-pronex-violet text-white",
               )}
             >
               {option.label}

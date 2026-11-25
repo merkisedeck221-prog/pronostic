@@ -211,3 +211,51 @@
     display: none;
   }
 }
+
+/*
+ * Animations PRONEX (phase F) : apparition douce des pages, reflet sur les
+ * squelettes de chargement. Désactivées si l'utilisateur réduit les animations.
+ */
+@keyframes pronex-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pronex-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+#contenu > main,
+main#contenu > * {
+  animation: pronex-enter 0.28s ease-out both;
+}
+[data-slot="skeleton"] {
+  background-image: linear-gradient(90deg, rgb(255 255 255 / 0.04) 20%, rgb(255 20 147 / 0.10) 40%, rgb(160 0 255 / 0.10) 60%, rgb(255 255 255 / 0.04) 80%);
+  background-size: 200% 100%;
+  animation: pronex-shimmer 1.6s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Accessibilité : contour de focus visible au clavier sur tous les éléments interactifs. */
+:where(a, button, summary, [role="button"], [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}

@@ -35,7 +35,7 @@ function labelTables(root: HTMLElement) {
  * with its column header, and keeps doing so when the rows change.
  */
 export function AdminContent({ children }: { children: ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLElement>(null);
   useEffect(() => {
     const root = ref.current;
     if (!root) return;
@@ -45,8 +45,8 @@ export function AdminContent({ children }: { children: ReactNode }) {
     return () => observer.disconnect();
   }, []);
   return (
-    <div ref={ref} data-admin-content className="flex min-w-0 flex-1">
+    <main ref={ref} id="contenu" tabIndex={-1} data-admin-content className="flex min-w-0 flex-1 outline-none">
       {children}
-    </div>
+    </main>
   );
 }

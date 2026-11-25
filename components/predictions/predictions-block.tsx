@@ -44,7 +44,7 @@ function ProbabilityBar({ label, value }: { label: string; value: number }) {
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-white/10" role="presentation">
         <div
-          className="h-full rounded-full bg-linear-to-r from-pronex-pink to-pronex-violet"
+          className="h-full rounded-full bg-linear-to-r from-pronex-pink/85 to-pronex-violet"
           style={{ width: `${Math.max(0, Math.min(100, value))}%` }}
         />
       </div>
@@ -125,7 +125,7 @@ export function PredictionsBlock({ fixtureId, homeName, awayName, data, balance,
       ) : null}
 
       {showBundle && bundle.purchasable && bundle.price !== null ? (
-        <div className="rounded-2xl bg-linear-to-r from-pronex-pink to-pronex-violet p-px shadow-[0_0_40px_-12px] shadow-pronex-pink/60">
+        <div className="rounded-2xl bg-linear-to-r from-pronex-pink/85 to-pronex-violet p-px shadow-[0_0_40px_-12px] shadow-pronex-pink/60">
           <div className="flex flex-col gap-4 rounded-2xl bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
               <p className="font-heading text-lg font-bold">Match complet</p>
@@ -144,7 +144,7 @@ export function PredictionsBlock({ fixtureId, homeName, awayName, data, balance,
               price={bundle.price}
               balance={balance}
               buttonLabel={`Débloquer le match complet (${formatCredits(bundle.price)})`}
-              className="h-11 rounded-xl bg-linear-to-r from-pronex-pink to-pronex-violet px-5 font-semibold hover:brightness-110"
+              className="h-11 rounded-xl bg-linear-to-r from-pronex-pink/85 to-pronex-violet px-5 font-semibold hover:brightness-110"
             />
           </div>
         </div>

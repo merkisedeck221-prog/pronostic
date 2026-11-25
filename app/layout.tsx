@@ -40,6 +40,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`dark ${geistSans.variable} ${geistMono.variable} ${exo2.variable} h-full font-sans antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <a
+          href="#contenu"
+          className="sr-only z-50 rounded-lg bg-pronex-night px-4 py-2 text-sm font-semibold text-white ring-2 ring-pronex-pink focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:px-4 focus:py-2"
+        >
+          Aller au contenu
+        </a>
         {children}
         <Toaster />
       </body>

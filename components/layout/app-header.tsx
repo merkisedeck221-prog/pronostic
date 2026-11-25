@@ -42,7 +42,7 @@ export function AppHeader({
           >
             <BellIcon className="size-5" aria-hidden />
             {unreadCount > 0 ? (
-              <span className="absolute top-0.5 right-0.5 min-w-4 rounded-full bg-pronex-pink px-1 text-center text-[10px] leading-4 font-semibold text-white">
+              <span className="absolute top-0.5 right-0.5 min-w-4 rounded-full bg-pronex-pink/85 px-1 text-center text-[10px] leading-4 font-semibold text-white">
                 {unreadCount > 99 ? "99+" : unreadCount}
               </span>
             ) : null}

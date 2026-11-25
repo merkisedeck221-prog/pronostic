@@ -56,7 +56,9 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
         isAdmin={isAdmin === true}
         unreadCount={unreadCount}
       />
-      <div className="flex flex-1 flex-col">{children}</div>
+      <div id="contenu" tabIndex={-1} className="flex flex-1 flex-col outline-none">
+        {children}
+      </div>
       {/* Espace réservé à la barre de navigation mobile (fixe en bas). */}
       <div className="pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0">
         <SiteFooter />

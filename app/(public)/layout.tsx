@@ -16,14 +16,16 @@ export default function PublicLayout({ children }: LayoutProps<"/">) {
             </Link>
             <Link
               href="/inscription"
-              className="rounded-lg bg-linear-to-r from-pronex-pink to-pronex-violet px-3 py-1.5 font-semibold text-white transition hover:brightness-110"
+              className="rounded-lg bg-linear-to-r from-pronex-pink/85 to-pronex-violet px-3 py-1.5 font-semibold text-white transition hover:brightness-110"
             >
               S&apos;inscrire
             </Link>
           </nav>
         </div>
       </header>
-      <div className="flex flex-1 flex-col">{children}</div>
+      <div id="contenu" tabIndex={-1} className="flex flex-1 flex-col outline-none">
+        {children}
+      </div>
       <SiteFooter />
     </>
   );
