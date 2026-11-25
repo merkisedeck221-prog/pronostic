@@ -91,7 +91,7 @@ export default async function AdminPacksPage() {
                 <CardTitle className="flex flex-wrap items-center gap-2">
                   {pack.name}
                   <Badge variant={pack.is_active ? "default" : "outline"}>{pack.is_active ? "Actif" : "Inactif"}</Badge>
-                  {pack.is_featured ? <Badge variant="secondary">Recommandé</Badge> : null}
+                  {pack.is_featured ? <Badge className="bg-linear-to-r from-pronex-pink to-pronex-violet text-white">Recommandé</Badge> : null}
                 </CardTitle>
                 <CardDescription>
                   {pack.credits} crédits (exactement, sans bonus) · {formatXof(pack.price_xof)} · {sale.count} vente(s) payée(s),{" "}

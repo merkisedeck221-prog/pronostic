@@ -33,7 +33,7 @@ export default async function AdminAuditPage({ searchParams }: PageProps<"/admin
       <FilterBar resetHref={PATH}>
         <FilterInput name="action" label="Action" value={action} placeholder="ex. adjust_balance" />
       </FilterBar>
-      <div className="overflow-x-auto rounded-lg border">
+      <div className="overflow-x-auto rounded-xl border border-white/10 bg-card">
         <Table>
           <TableHeader>
             <TableRow>

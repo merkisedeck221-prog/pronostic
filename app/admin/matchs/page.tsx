@@ -116,7 +116,7 @@ export default async function AdminFixturesPage({ searchParams }: PageProps<"/ad
         />
       </FilterBar>
 
-      <div className="overflow-x-auto rounded-lg border">
+      <div className="overflow-x-auto rounded-xl border border-white/10 bg-card">
         <Table>
           <TableHeader>
             <TableRow>

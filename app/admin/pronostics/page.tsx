@@ -112,7 +112,7 @@ export default async function AdminPredictionsPage({ searchParams }: PageProps<"
         <Stat label="Perdus" value={lostCount} />
       </div>
 
-      <div className="overflow-x-auto rounded-lg border">
+      <div className="overflow-x-auto rounded-xl border border-white/10 bg-card">
         <Table>
           <TableHeader>
             <TableRow>

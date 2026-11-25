@@ -137,7 +137,7 @@ export default async function AdminTransactionsPage({ searchParams }: PageProps<
         <FilterInput name="utilisateur" label="Utilisateur (e-mail, nom ou identifiant)" value={filters.user} className="min-w-64" />
       </FilterBar>
 
-      <div className="overflow-x-auto rounded-lg border">
+      <div className="overflow-x-auto rounded-xl border border-white/10 bg-card">
         {movements ? (
           <Table>
             <TableHeader>
@@ -172,7 +172,7 @@ export default async function AdminTransactionsPage({ searchParams }: PageProps<
                     <span className="text-xs text-muted-foreground">n° {t.id} · </span>
                     {t.description}
                   </TableCell>
-                  <TableCell className={`text-right tabular-nums ${t.amount > 0 ? "text-green-700 dark:text-green-400" : "text-destructive"}`}>
+                  <TableCell className={`text-right tabular-nums ${t.amount > 0 ? "text-emerald-300" : "text-destructive"}`}>
                     {formatSignedAmount(t.amount)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">{t.balance_after}</TableCell>

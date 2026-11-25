@@ -90,7 +90,8 @@
 
 ## Administration (phase 10)
 
-- Pages `app/admin/*` : `requireAdmin()` dans la mise en page **et** dans chaque page ; barre latérale `components/admin/nav.ts` (13 entrées du MVP + Moyens de paiement, Revenus ; Promotions retirée le 25/11/2026).
+- Pages `app/admin/*` : `requireAdmin()` dans la mise en page **et** dans chaque page ; barre latérale `components/admin/nav.ts` (groupes Contenu / Ventes / Système, icônes ; 13 entrées du MVP + Moyens de paiement, Revenus ; Promotions retirée le 25/11/2026), menu repliable sur téléphone.
+- Tableaux admin : sur téléphone (< 768 px) chaque ligne devient une carte (CSS `[data-admin-content]` dans `app/globals.css`, libellés posés par `components/admin/table-labels.tsx`). Utiliser `Table` + `TableHead` normalement : rien à ajouter.
 - Server Actions `lib/admin/actions/*.ts` : signature `(prev, formData) => AdminActionState`, `requireAdmin()` en première ligne, Zod, puis fonction SQL `admin_*` (journalisée) ou écriture par la RLS admin suivie de `logAdminAction()`. Formulaires : `components/admin/action-form.tsx`.
 - Le test `lib/admin/actions/actions.test.ts` découvre **automatiquement** toutes les actions exportées et vérifie qu'elles refusent un non-admin avant tout accès aux données : toute nouvelle action doit commencer par `requireAdmin()`.
 - Export CSV : `app/admin/transactions/export/route.ts` (mêmes filtres que la page, `lib/admin/transactions.ts`).

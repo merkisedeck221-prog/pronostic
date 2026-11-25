@@ -48,7 +48,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps<"/admin
         <input type="hidden" name="tri" value={sort} />
       </FilterBar>
 
-      <div className="overflow-x-auto rounded-lg border">
+      <div className="overflow-x-auto rounded-xl border border-white/10 bg-card">
         <Table>
           <TableHeader>
             <TableRow>

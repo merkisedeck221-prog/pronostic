@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { AdminContent } from "@/components/admin/table-labels";
 import { Brand } from "@/components/layout/brand";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { requireAdmin } from "@/lib/auth/session";
@@ -22,14 +23,17 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
               Administration
             </Link>
           </div>
-          <span className="hidden text-sm text-muted-foreground sm:inline">{admin.profile.display_name}</span>
+          <span className="hidden items-center gap-2 text-sm text-muted-foreground sm:flex">
+            <span aria-hidden className="size-2 rounded-full bg-emerald-400" />
+            {admin.profile.display_name}
+          </span>
         </div>
       </header>
       <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-6 md:flex-row">
-        <aside className="md:w-52 md:shrink-0">
+        <aside className="md:w-56 md:shrink-0">
           <AdminSidebar />
         </aside>
-        {children}
+        <AdminContent>{children}</AdminContent>
       </div>
       <SiteFooter />
     </>

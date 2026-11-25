@@ -746,3 +746,12 @@ Statut : **fait et vérifié sur la base de test** ; production après accord du
 - Notifications : pastille rose pour les non lues ; profil avec en-tête de page ; résultat de recharge avec icône d'état ; bandeau « Paiement de test » harmonisé.
 - En-tête : menu horizontal à partir de 1024 px (barre du bas en dessous), nom et mot « crédits » masqués entre 1024 et 1280 px ; vérifié sans chevauchement de 320 à 1280 px.
 - Vérifié : lint, types, 329 tests, build ; 6 pages sur mobile et ordinateur sans erreur ni débordement ; aperçu d'impression du reçu.
+
+## Refonte PRONEX — phase E : administration (26/11/2026)
+
+- Barre latérale groupée (Contenu, Ventes, Système) avec icônes et page active en néon ; sur téléphone, menu repliable qui affiche la page en cours et se referme après chaque navigation.
+- En-têtes de page avec trait néon, tuiles chiffrées (`Stat`) avec icône et tons (rose, violet, alerte ambre), filtres et champs aux couleurs PRONEX.
+- Vue d'ensemble : chiffres regroupés (« Ventes et crédits », « Activité »), encadrés « À surveiller » verts (OK) ou ambre (à traiter), panneau de surveillance vert ou rouge.
+- Tableaux : en-têtes discrets ; sur téléphone, chaque ligne devient une carte « libellé / valeur » (aucune modification des 11 pages à tableaux).
+- Aucune modification des fonctions, des contrôles d'accès, des Server Actions ni de la base de données.
+- Vérifié : 16 pages admin à 320, 390, 768 et 1366 px, sans débordement ni erreur console ; lint, typecheck, 329 tests, build.
