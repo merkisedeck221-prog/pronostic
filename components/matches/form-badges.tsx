@@ -14,9 +14,9 @@ export function FormBadges({ results }: { results: ("W" | "D" | "L")[] }) {
           aria-label={LABELS[result].long}
           className={cn(
             "inline-flex size-7 items-center justify-center rounded-md border text-xs font-semibold",
-            result === "W" && "border-foreground bg-foreground text-background",
-            result === "D" && "bg-muted text-foreground",
-            result === "L" && "border-destructive/40 text-destructive",
+            result === "W" && "border-emerald-400/50 bg-emerald-400/15 text-emerald-300",
+            result === "D" && "border-white/15 bg-white/5 text-muted-foreground",
+            result === "L" && "border-red-400/50 bg-red-400/15 text-red-300",
           )}
         >
           {LABELS[result].short}

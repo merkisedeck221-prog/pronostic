@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SparklesIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { FixtureListItem } from "@/lib/catalog/queries";
 import { formatShortDate, formatTime } from "@/lib/utils/dates";
@@ -27,11 +28,11 @@ export function FixtureRow({
   return (
     <Link
       href={`/matchs/${fixture.id}`}
-      className="flex items-center gap-3 rounded-lg px-2 py-2.5 hover:bg-muted/60 focus-visible:bg-muted/60 focus-visible:outline-none"
+      className="group flex items-center gap-3 px-3 py-3 transition-colors hover:bg-white/[0.04] focus-visible:bg-white/[0.06] focus-visible:outline-none"
     >
       <div className="w-14 shrink-0 text-xs text-muted-foreground tabular-nums">
         {showDate ? <div>{formatShortDate(fixture.kickoff_at, timezone)}</div> : null}
-        <div className="text-sm font-medium text-foreground">{formatTime(fixture.kickoff_at, timezone)}</div>
+        <div className="font-heading text-sm font-bold text-foreground">{formatTime(fixture.kickoff_at, timezone)}</div>
       </div>
 
       <div className="min-w-0 flex-1 space-y-1">
@@ -41,7 +42,7 @@ export function FixtureRow({
         ].map(({ team, goals }, index) => (
           <div key={index} className="flex items-center gap-2">
             <TeamLogo name={team.name} src={team.logo_url} size={20} />
-            <span className="truncate text-sm">{team.name}</span>
+            <span className="truncate text-sm font-medium">{team.name}</span>
             {showScore ? <span className="ml-auto pl-2 text-sm font-semibold tabular-nums">{goals}</span> : null}
           </div>
         ))}
@@ -49,7 +50,13 @@ export function FixtureRow({
 
       <div className="flex shrink-0 flex-col items-end gap-1">
         <StatusBadge status={fixture.status_short} />
-        {hasPrediction && status.phase === "upcoming" ? <Badge variant="outline">Pronostic disponible</Badge> : null}
+        {hasPrediction && status.phase === "upcoming" ? (
+          <Badge variant="outline" className="gap-1 border-pronex-pink/40 bg-pronex-pink/10 text-pink-200">
+            <SparklesIcon className="size-3" aria-hidden />
+            <span className="hidden sm:inline">Pronostic disponible</span>
+            <span className="sm:hidden">IA</span>
+          </Badge>
+        ) : null}
       </div>
     </Link>
   );

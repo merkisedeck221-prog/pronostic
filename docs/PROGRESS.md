@@ -728,3 +728,12 @@ Statut : **fait et vérifié sur la base de test** ; production après accord du
 - Connexion, inscription, mot de passe oublié et réinitialisation : panneau PRONEX sur ordinateur, carte du formulaire au contour néon (`components/auth/auth-card.tsx`).
 - Performances : grands chiffres en dégradé, état vide explicatif ; composants partagés `EmptyState` (icône) et `PageHeader` (trait néon) ; pages CGU et jeu responsable en carte.
 - Vérifié : lint, types, 329 tests, build ; 6 pages publiques sur mobile et ordinateur sans erreur ni débordement.
+
+## Refonte PRONEX — phase C : cœur de l'application (26/11/2026)
+
+- Fiche match : en-tête du match (compétition, date, logos, score ou heure en grand, statut, pastilles mi-temps / corners / cartons), section « Données du match » (forme, classement, confrontations), avertissement en double supprimé ; texte des matchs annulés conforme au réglage `refund_on_cancel` (lecture seule).
+- Cartes de pronostics (`components/predictions/predictions-block.tsx`) : offre « match complet » mise en avant, cartes en grille, carte verrouillée avec aperçu flou **décoratif** (aucune donnée envoyée avant déblocage), bouton « Débloquer · N crédits », confiance et résultats en couleurs (vert gagné, rouge perdu, gris annulé), barres de probabilité en dégradé, analyse du match.
+- Liste des matchs : sélecteur de période en pastilles, groupes par compétition en cartes, badge « Pronostic disponible » ; statut « en direct » animé.
+- Tableau de bord : bandeau d'accueil avec solde et « Acheter des crédits ».
+- Aucun changement de logique (prix, déblocage, résolution, remboursements).
+- Vérifié : lint, types, 329 tests, build ; tableau de bord, matchs, fiche match et compétitions sur mobile et ordinateur, sans erreur ni débordement ; fenêtre de confirmation du déblocage.

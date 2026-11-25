@@ -6,5 +6,10 @@ export function StatusBadge({ status, showUpcoming = false }: { status: string |
   const info = matchStatus(status);
   if (info.phase === "upcoming" && !showUpcoming && info.code === "NS") return null;
   const variant = info.phase === "live" ? "default" : info.phase === "cancelled" ? "destructive" : info.phase === "finished" ? "secondary" : "outline";
-  return <Badge variant={variant}>{info.label}</Badge>;
+  return (
+    <Badge variant={variant} className={info.phase === "live" ? "gap-1.5" : undefined}>
+      {info.phase === "live" ? <span aria-hidden className="size-1.5 animate-pulse rounded-full bg-white" /> : null}
+      {info.label}
+    </Badge>
+  );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BarChart3Icon } from "lucide-react";
 import { EmptyState } from "@/components/layout/empty-state";
 import { FixtureRow } from "@/components/matches/fixture-row";
 import { PredictionResultBadge } from "@/components/settle/result-badge";
@@ -34,22 +35,32 @@ export default async function DashboardPage() {
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 space-y-6 px-4 py-8">
-      <h1 className="text-2xl font-semibold tracking-tight">Bonjour {user.profile.display_name}</h1>
-
-      <Card>
-        <CardHeader>
-          <CardDescription>Votre solde</CardDescription>
-          <CardTitle className="text-3xl tabular-nums">{balance !== null ? formatCredits(balance) : "—"}</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-2">
-          <Link href="/recharger?next=/tableau-de-bord" className={buttonVariants()}>
-            Recharger
-          </Link>
-          <Link href="/portefeuille" className={buttonVariants({ variant: "outline" })}>
-            Historique
-          </Link>
-        </CardContent>
-      </Card>
+      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-br from-pronex-pink/20 via-card to-pronex-violet/25 p-6 sm:p-8">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div className="space-y-1">
+            <p className="text-sm text-muted-foreground">Bonjour</p>
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{user.profile.display_name}</h1>
+            <p className="font-heading text-sm font-semibold text-pronex-pink italic">Prédisez. Analysez. Dominez.</p>
+          </div>
+          <div className="space-y-3">
+            <div>
+              <p className="text-xs tracking-wider text-muted-foreground uppercase">Votre solde</p>
+              <p className="font-heading text-4xl font-extrabold tabular-nums">{balance !== null ? formatCredits(balance) : "—"}</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href="/recharger?next=/tableau-de-bord"
+                className="inline-flex h-9 items-center rounded-lg bg-linear-to-r from-pronex-pink to-pronex-violet px-4 text-sm font-semibold text-white transition hover:brightness-110"
+              >
+                Acheter des crédits
+              </Link>
+              <Link href="/portefeuille" className={buttonVariants({ variant: "outline" })}>
+                Historique
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
@@ -61,7 +72,7 @@ export default async function DashboardPage() {
             {upcoming.length === 0 ? (
               <EmptyState title="Aucun pronostic disponible dans les 48 prochaines heures." />
             ) : (
-              <div className="-mx-2">
+              <div className="-mx-3 divide-y divide-white/5">
                 {upcoming.map((fixture) => (
                   <FixtureRow key={fixture.id} fixture={fixture} timezone={timezone} hasPrediction showDate />
                 ))}
@@ -81,7 +92,7 @@ export default async function DashboardPage() {
             {myPredictions.length === 0 ? (
               <EmptyState title="Vous n'avez encore débloqué aucun pronostic." />
             ) : (
-              <ul className="divide-y text-sm">
+              <ul className="divide-y divide-white/5 text-sm">
                 {myPredictions.map((p) => (
                   <li key={p.prediction_id}>
                     <Link href={`/matchs/${p.fixture_id}`} className="flex items-center justify-between gap-3 py-2 hover:underline">
@@ -106,9 +117,12 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      <Card>
+      <Card className="border-pronex-violet/30 bg-linear-to-r from-pronex-violet/10 to-transparent">
         <CardHeader>
-          <CardTitle>Performances de l&apos;IA</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3Icon className="size-5 text-pronex-violet" aria-hidden />
+            Performances de l&apos;IA
+          </CardTitle>
           <CardDescription>Taux de réussite public, calculé sur tous les pronostics publiés.</CardDescription>
         </CardHeader>
         <CardContent>
