@@ -54,7 +54,7 @@ export default async function AdminUserPage({ params }: PageProps<"/admin/utilis
       .eq("user_id", id)
       .order("created_at", { ascending: false })
       .limit(50),
-    supabase.from("topups").select("id, credits, bonus_credits, amount_xof, provider, status, created_at, pack:credit_packs(name)").eq("user_id", id).order("created_at", { ascending: false }).limit(50),
+    supabase.from("topups").select("id, credits, amount_xof, provider, status, created_at, pack:credit_packs(name)").eq("user_id", id).order("created_at", { ascending: false }).limit(50),
   ]);
 
   return (
@@ -200,7 +200,7 @@ export default async function AdminUserPage({ params }: PageProps<"/admin/utilis
             {(topups ?? []).length === 0 ? <p className="text-muted-foreground">Aucune.</p> : null}
             {(topups ?? []).map((t) => (
               <p key={t.id}>
-                {formatDateTime(t.created_at, tz)} · {t.pack?.name ?? "pack"} · {t.credits}+{t.bonus_credits} cr. · {formatXof(t.amount_xof)} ·{" "}
+                {formatDateTime(t.created_at, tz)} · {t.pack?.name ?? "pack"} · {t.credits} cr. · {formatXof(t.amount_xof)} ·{" "}
                 {TOPUP_STATUS[t.status]} ({t.provider})
               </p>
             ))}

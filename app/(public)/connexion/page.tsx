@@ -7,7 +7,7 @@ import { FormMessage } from "@/components/forms/fields";
 import { safeNextPath } from "@/lib/auth/redirect";
 import { getCurrentUser } from "@/lib/auth/session";
 
-export const metadata: Metadata = { title: "Connexion · Pronostics IA" };
+export const metadata: Metadata = { title: "Connexion · PRONEX" };
 
 const ERRORS: Record<string, string> = {
   "lien-invalide": "Ce lien n'est plus valide (expiré ou déjà utilisé). Reconnectez-vous ou demandez un nouveau lien.",

@@ -39,15 +39,12 @@ export const revenueSchema = z.object({
   topups: z.number(),
   buyers: z.number(),
   credits_sold: z.number(),
-  credits_bonus: z.number(),
-  credits_promo: z.number(),
   credits_consumed: z.number(),
   credits_refunded: z.number(),
   failed_topups: z.number(),
   by_day: z.array(row.extend({ day: z.string() })),
-  by_pack: z.array(row.extend({ pack_name: z.string() })),
+  by_pack: z.array(row.extend({ pack_name: z.string(), credits: z.number() })),
   by_provider: z.array(row.extend({ provider: z.string() })),
-  by_promo: z.array(z.object({ code: z.string(), topups: z.number(), credits: z.number() })),
 });
 
 export type Revenue = z.infer<typeof revenueSchema>;

@@ -9,7 +9,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-display);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -46,75 +46,54 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  /* Identité PRONEX (page de recharge ; reste du site lors de la phase design). */
+  --color-pronex-night: #080b20;
+  --color-pronex-pink: #ff1493;
+  --color-pronex-violet: #a000ff;
+  --color-pronex-gray: #9ca3af;
 }
 
-:root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
+/*
+ * Charte PRONEX (thème sombre unique) : noir nuit #080B20, rose néon #FF1493,
+ * violet #A000FF, blanc #FFFFFF, gris secondaire #9CA3AF. Les mêmes valeurs
+ * servent pour :root et .dark (la classe dark active les variantes dark: des
+ * composants shadcn/ui).
+ */
+:root,
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  color-scheme: dark;
+  --background: #080b20;
+  --foreground: #ffffff;
+  --card: #0e1230;
+  --card-foreground: #ffffff;
+  --popover: #121738;
+  --popover-foreground: #ffffff;
+  --primary: #ff1493;
+  --primary-foreground: #ffffff;
+  --secondary: #181d45;
+  --secondary-foreground: #ffffff;
+  --muted: #151a3d;
+  --muted-foreground: #9ca3af;
+  --accent: #1d2352;
+  --accent-foreground: #ffffff;
+  --destructive: #ff4d6d;
+  --border: rgb(255 255 255 / 10%);
+  --input: rgb(255 255 255 / 14%);
+  --ring: #ff1493;
+  --chart-1: #ff1493;
+  --chart-2: #a000ff;
+  --chart-3: #6d7cff;
+  --chart-4: #22d3ee;
+  --chart-5: #9ca3af;
+  --radius: 0.75rem;
+  --sidebar: #0b0f28;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #ff1493;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1d2352;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgb(255 255 255 / 10%);
+  --sidebar-ring: #ff1493;
 }
 
 @layer base {
@@ -123,8 +102,43 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Halo néon discret en haut de page (décor, aucune image). */
+    background-image:
+      radial-gradient(60rem 28rem at 15% -10%, rgb(255 20 147 / 0.10), transparent 70%),
+      radial-gradient(50rem 26rem at 95% -5%, rgb(160 0 255 / 0.12), transparent 70%);
+    background-repeat: no-repeat;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
   }
   html {
     @apply font-sans;
+  }
+}
+/*
+ * Impression (reçus) : thème clair sur papier, sans en-tête, navigation ni
+ * pied de page (les navigateurs n'impriment pas les fonds sombres).
+ */
+@media print {
+  :root,
+  .dark {
+    color-scheme: light;
+    --background: #ffffff;
+    --foreground: #0b0b14;
+    --card: #ffffff;
+    --card-foreground: #0b0b14;
+    --muted-foreground: #4b5563;
+    --border: #d1d5db;
+  }
+  body {
+    background-image: none;
+  }
+  body > header,
+  body header.sticky,
+  footer,
+  nav[aria-label="Navigation principale"] {
+    display: none !important;
   }
 }

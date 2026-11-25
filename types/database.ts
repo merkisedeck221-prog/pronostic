@@ -288,6 +288,7 @@ export type Database = {
           credits: number
           id: number
           is_active: boolean
+          is_featured: boolean
           name: string
           price_xof: number
           sort_order: number
@@ -302,6 +303,7 @@ export type Database = {
           credits: number
           id?: never
           is_active?: boolean
+          is_featured?: boolean
           name: string
           price_xof: number
           sort_order?: number
@@ -316,6 +318,7 @@ export type Database = {
           credits?: number
           id?: never
           is_active?: boolean
+          is_featured?: boolean
           name?: string
           price_xof?: number
           sort_order?: number

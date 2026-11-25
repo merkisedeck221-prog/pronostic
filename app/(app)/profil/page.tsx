@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { ChangePasswordForm } from "@/components/auth/password-forms";
+import { PageHeader } from "@/components/layout/page-header";
 import { ProfileForm } from "@/components/auth/profile-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { signOutAction } from "@/lib/auth/actions";
 import { requireUser } from "@/lib/auth/session";
 
-export const metadata: Metadata = { title: "Profil · Pronostics IA" };
+export const metadata: Metadata = { title: "Profil · PRONEX" };
 
 export default async function ProfilePage() {
   const user = await requireUser();
@@ -14,7 +15,7 @@ export default async function ProfilePage() {
 
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-4 py-8">
-      <h1 className="text-2xl font-semibold tracking-tight">Mon profil</h1>
+      <PageHeader title="Mon profil" description="Vos informations, votre mot de passe et votre compte." />
 
       <Card>
         <CardHeader>

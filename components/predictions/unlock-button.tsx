@@ -28,9 +28,11 @@ type Props = {
   balance: number;
   buttonLabel: string;
   variant?: "default" | "outline";
+  /** Classes du bouton déclencheur (mise en forme uniquement). */
+  className?: string;
 };
 
-export function UnlockButton({ fixtureId, marketCode, label, price, balance, buttonLabel, variant = "default" }: Props) {
+export function UnlockButton({ fixtureId, marketCode, label, price, balance, buttonLabel, variant = "default", className }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -64,7 +66,7 @@ export function UnlockButton({ fixtureId, marketCode, label, price, balance, but
 
   return (
     <AlertDialog open={open} onOpenChange={(next) => !pending && setOpen(next)}>
-      <Button variant={variant} size="sm" onClick={() => setOpen(true)} disabled={pending}>
+      <Button variant={variant} size="sm" onClick={() => setOpen(true)} disabled={pending} className={className}>
         {buttonLabel}
       </Button>
       <AlertDialogContent>

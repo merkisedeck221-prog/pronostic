@@ -5,7 +5,7 @@ import { AuthCard } from "@/components/auth/auth-card";
 import { SignUpForm } from "@/components/auth/sign-up-form";
 import { getCurrentUser } from "@/lib/auth/session";
 
-export const metadata: Metadata = { title: "Inscription · Pronostics IA" };
+export const metadata: Metadata = { title: "Inscription · PRONEX" };
 
 export default async function SignUpPage() {
   if (await getCurrentUser()) redirect("/tableau-de-bord");

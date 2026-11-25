@@ -49,7 +49,8 @@ export type TopupCsvRow = {
   display_name: string | null;
   pack: string | null;
   credits: number;
-  bonus_credits: number;
+  /** Crédits réellement versés (égal à credits ; ancien bonus inclus pour l'historique). */
+  credited: number;
   amount_xof: number;
   provider: string;
   provider_ref: string | null;
@@ -64,7 +65,7 @@ export const TOPUP_CSV_COLUMNS: readonly CsvColumn<TopupCsvRow>[] = [
   { header: "utilisateur", value: (r) => r.display_name },
   { header: "pack", value: (r) => r.pack },
   { header: "credits", value: (r) => r.credits },
-  { header: "bonus", value: (r) => r.bonus_credits },
+  { header: "credits_verses", value: (r) => r.credited },
   { header: "montant_xof", value: (r) => r.amount_xof },
   { header: "fournisseur", value: (r) => r.provider },
   { header: "reference", value: (r) => r.provider_ref },

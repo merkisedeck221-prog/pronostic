@@ -76,7 +76,7 @@ export async function queryTopups(filters: TransactionFilters, range: { from: nu
   if (userIds && userIds.length === 0) return { rows: [] as TopupCsvRow[], total: 0 };
   let q = supabase
     .from("topups")
-    .select("id, created_at, user_id, credits, bonus_credits, amount_xof, provider, provider_ref, status, completed_at, pack:credit_packs(name), profile:profiles!topups_user_id_fkey(display_name)", { count: "exact" })
+    .select("id, created_at, user_id, credits, bonus_credits, promo_bonus_credits, amount_xof, provider, provider_ref, status, completed_at, pack:credit_packs(name), profile:profiles!topups_user_id_fkey(display_name)", { count: "exact" })
     .order("created_at", { ascending: false });
   if (filters.topupStatus !== "tous") q = q.eq("status", filters.topupStatus);
   const start = periodStart(filters.period);
@@ -91,7 +91,7 @@ export async function queryTopups(filters: TransactionFilters, range: { from: nu
     display_name: r.profile?.display_name ?? null,
     pack: r.pack?.name ?? null,
     credits: r.credits,
-    bonus_credits: r.bonus_credits,
+    credited: r.status === "succeeded" ? r.credits + r.bonus_credits + r.promo_bonus_credits : 0,
     amount_xof: r.amount_xof,
     provider: r.provider,
     provider_ref: r.provider_ref,

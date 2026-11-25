@@ -700,3 +700,49 @@ Lint, types, 328 tests unitaires, build ; migration appliquée sur la base de te
 - **Bugs** : parcours complet dans un navigateur (14 pages utilisateur, 16 pages admin, connexion, navigation par le menu) : aucune erreur, aucun blocage par la CSP.
 - **Prévisualisations Vercel** : elles n'avaient aucune variable d'environnement (pages en erreur) ; elles utilisent maintenant la base de **test** `pronostics-dev` (valeurs publiques uniquement).
 - **Hors de portée des outils (à faire par le porteur dans Supabase)** : adresses de connexion (Site URL, Redirect URLs), SMTP, réactivation de la confirmation de l'e-mail (désactivée en production), protection des mots de passe piratés.
+
+## PRONEX — packs fixes, suppression des bonus (25/11/2026)
+
+Statut : **fait et vérifié sur la base de test** ; production après accord du porteur.
+
+- Grille officielle : STARTER 1 000 F = 10, BASIC 2 500 F = 25, PREMIUM 5 000 F = 50 (recommandé), PRO 10 000 F = 110, VIP 20 000 F = 250 crédits. Chaque achat crédite exactement ces crédits.
+- Supprimés : crédits de bienvenue, bonus des packs, codes promo (page `/admin/promotions` et actions retirées). Il n'existait ni bonus de premier achat ni parrainage.
+- Page `/recharger` aux couleurs PRONEX (nuit #080B20, rose #FF1493, violet #A000FF, gris #9CA3AF), PREMIUM mis en avant, solde affiché, aucun bonus affiché.
+- Admin : prix, crédits, activation et « Recommandé » dans `/admin/packs` (ventes et montant encaissé par pack) ; `/admin/revenus` : ventes par pack (crédits) et lien d'export CSV des ventes ; indicateurs de bonus retirés.
+- Migration non destructive `20261125120000_fixed_packs_no_bonus.sql` : aucune table, colonne, donnée ni solde supprimé ou modifié.
+- Écart volontaire avec le cahier des charges (packs avec bonus, crédits de bienvenue configurables) : décision du porteur.
+
+
+## Refonte PRONEX — phase A : fondations (25/11/2026)
+
+- Audit UX/UI (étape 1) remis au porteur ; plan en phases A → G validé.
+- Thème sombre unique aux couleurs PRONEX dans tout le site (jetons `app/globals.css`), titres en Exo 2, halo néon discret.
+- Logo intégré (`public/brand/`, `components/layout/brand.tsx`), icônes d'onglet et d'application ; nom « PRONEX » dans les titres, les pages légales, l'administration et les modèles d'e-mails (`supabase/templates/`, à recopier dans Supabase).
+- En-tête collant (logo, navigation sur ordinateur, solde cliquable vers l'achat, notifications, menu) ; **barre de navigation fixe en bas sur mobile** (le menu horizontal coupé est supprimé) ; pied de page avec le slogan.
+- Vérifié : lint, types, 329 tests, build ; 14 pages utilisateur et 12 pages admin sans erreur ; aucun débordement horizontal à 360 px.
+- Restent pour les phases suivantes : accueil (B), fiche match et cartes de pronostics (C), portefeuille en cartes sur mobile (D), administration (E).
+
+## Refonte PRONEX — phase B : pages publiques (25/11/2026)
+
+- Accueil : accroche « Prédisez. Analysez. Dominez. », logo, « Comment ça marche » en 3 étapes, liste des types de pronostics **lue en base** (actifs uniquement), bloc performances (vrai taux de réussite ou message d'attente, jamais de chiffre inventé), prix du plus petit pack lu en base (`lib/catalog/landing.ts`).
+- Connexion, inscription, mot de passe oublié et réinitialisation : panneau PRONEX sur ordinateur, carte du formulaire au contour néon (`components/auth/auth-card.tsx`).
+- Performances : grands chiffres en dégradé, état vide explicatif ; composants partagés `EmptyState` (icône) et `PageHeader` (trait néon) ; pages CGU et jeu responsable en carte.
+- Vérifié : lint, types, 329 tests, build ; 6 pages publiques sur mobile et ordinateur sans erreur ni débordement.
+
+## Refonte PRONEX — phase C : cœur de l'application (26/11/2026)
+
+- Fiche match : en-tête du match (compétition, date, logos, score ou heure en grand, statut, pastilles mi-temps / corners / cartons), section « Données du match » (forme, classement, confrontations), avertissement en double supprimé ; texte des matchs annulés conforme au réglage `refund_on_cancel` (lecture seule).
+- Cartes de pronostics (`components/predictions/predictions-block.tsx`) : offre « match complet » mise en avant, cartes en grille, carte verrouillée avec aperçu flou **décoratif** (aucune donnée envoyée avant déblocage), bouton « Débloquer · N crédits », confiance et résultats en couleurs (vert gagné, rouge perdu, gris annulé), barres de probabilité en dégradé, analyse du match.
+- Liste des matchs : sélecteur de période en pastilles, groupes par compétition en cartes, badge « Pronostic disponible » ; statut « en direct » animé.
+- Tableau de bord : bandeau d'accueil avec solde et « Acheter des crédits ».
+- Aucun changement de logique (prix, déblocage, résolution, remboursements).
+- Vérifié : lint, types, 329 tests, build ; tableau de bord, matchs, fiche match et compétitions sur mobile et ordinateur, sans erreur ni débordement ; fenêtre de confirmation du déblocage.
+
+## Refonte PRONEX — phase D : compte (26/11/2026)
+
+- Portefeuille : bandeau solde, filtres en pastilles, **historique en cartes** (icône par type, montant coloré, solde après, lien vers le reçu) : plus aucune colonne coupée sur mobile.
+- Reçus : liste en cartes, reçu avec logo ; **style d'impression clair** (`@media print` dans `app/globals.css` : fond blanc, sans en-tête, navigation ni pied de page).
+- Mes pronostics : taux de réussite en grand, filtres en pastilles, cartes avec la sélection mise en avant.
+- Notifications : pastille rose pour les non lues ; profil avec en-tête de page ; résultat de recharge avec icône d'état ; bandeau « Paiement de test » harmonisé.
+- En-tête : menu horizontal à partir de 1024 px (barre du bas en dessous), nom et mot « crédits » masqués entre 1024 et 1280 px ; vérifié sans chevauchement de 320 à 1280 px.
+- Vérifié : lint, types, 329 tests, build ; 6 pages sur mobile et ordinateur sans erreur ni débordement ; aperçu d'impression du reçu.

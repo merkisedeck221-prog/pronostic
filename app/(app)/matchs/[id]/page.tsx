@@ -15,15 +15,16 @@ import { getFixturePredictions, getWalletBalance } from "@/lib/credits/queries";
 import { getGenerationOffer } from "@/lib/generation/queries";
 import { createClient } from "@/lib/supabase/server";
 import { formatLongDate, formatNumericDate, formatTime, resolveTimezone } from "@/lib/utils/dates";
+import { cn } from "@/lib/utils";
 import { matchStatus } from "@/lib/utils/match-status";
 
 export async function generateMetadata({ params }: PageProps<"/matchs/[id]">): Promise<Metadata> {
   const { id } = await params;
   const fixture = /^\d{1,12}$/.test(id) ? await getFixture(Number(id)) : null;
-  if (!fixture) return { title: "Match introuvable · Pronostics IA" };
+  if (!fixture) return { title: "Match introuvable · PRONEX" };
   const title = `${fixture.home.name} – ${fixture.away.name}`;
   return {
-    title: `${title} · ${fixture.competition.name} · Pronostics IA`,
+    title: `${title} · ${fixture.competition.name} · PRONEX`,
     description: `${title} (${fixture.competition.name}) : forme des équipes, classement, confrontations directes et pronostics de l'IA.`,
   };
 }
@@ -33,6 +34,13 @@ async function predictionWindowHours(): Promise<number> {
   const { data } = await supabase.from("app_settings").select("value").eq("key", "prediction_window_hours").maybeSingle();
   const hours = typeof data?.value === "number" ? data.value : Number(data?.value);
   return Number.isFinite(hours) && hours > 0 ? hours : 48;
+}
+
+/** Réglage « remboursement automatique » : seulement pour un texte exact (aucune action ici). */
+async function refundOnCancelEnabled(): Promise<boolean> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("app_settings").select("value").eq("key", "refund_on_cancel").maybeSingle();
+  return data?.value !== false;
 }
 
 function SideForm({ name, side }: { name: string; side: FixtureContext["home"] }) {
@@ -61,6 +69,7 @@ export default async function FixturePage({ params }: PageProps<"/matchs/[id]">)
     getWalletBalance(user.id),
     predictionWindowHours(),
   ]);
+  const refundOnCancel = await refundOnCancelEnabled();
 
   const status = matchStatus(fixture.status_short);
   const started = status.phase === "live" || status.phase === "finished";
@@ -69,77 +78,79 @@ export default async function FixturePage({ params }: PageProps<"/matchs/[id]">)
     status.phase === "upcoming" && !(predictions && predictions.markets.length > 0) ? await getGenerationOffer(user.id, fixture.id, fixture.kickoff_at) : null;
   const homeStanding = context?.home.standing ?? null;
   const awayStanding = context?.away.standing ?? null;
+  const hasStandings = Boolean(homeStanding || awayStanding);
+
+  const statChips = started
+    ? [
+        fixture.ht_home !== null && fixture.ht_away !== null ? `Mi-temps ${fixture.ht_home} – ${fixture.ht_away}` : null,
+        fixture.corners_home !== null && fixture.corners_away !== null ? `Corners ${fixture.corners_home} – ${fixture.corners_away}` : null,
+        fixture.cards_home !== null && fixture.cards_away !== null ? `Cartons ${fixture.cards_home} – ${fixture.cards_away}` : null,
+      ].filter((chip): chip is string => chip !== null)
+    : [];
 
   return (
-    <main className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
-      <nav className="text-sm text-muted-foreground">
-        <Link href="/matchs" className="underline-offset-4 hover:underline">
+    <main className="mx-auto w-full max-w-4xl flex-1 space-y-8 px-4 py-6 sm:py-8">
+      <nav aria-label="Fil d'Ariane" className="text-sm text-muted-foreground">
+        <Link href="/matchs" className="transition-colors hover:text-foreground">
           Matchs
         </Link>{" "}
         /{" "}
-        <Link href={`/competitions/${fixture.competition.slug}`} className="underline-offset-4 hover:underline">
+        <Link href={`/competitions/${fixture.competition.slug}`} className="transition-colors hover:text-foreground">
           {fixture.competition.name}
         </Link>
       </nav>
 
       {/* En-tête du match */}
-      <Card>
-        <CardHeader className="text-center">
-          <CardDescription>
+      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-br from-pronex-pink/15 via-card to-pronex-violet/20 px-4 py-6 sm:px-8 sm:py-8">
+        <div className="space-y-1 text-center">
+          <p className="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1 text-xs font-semibold">
+            <TeamLogo name={fixture.competition.name} src={fixture.competition.logo_url} size={16} />
             {fixture.competition.name}
             {fixture.round ? ` · ${fixture.round}` : ""}
-          </CardDescription>
-          <CardDescription className="capitalize">
+          </p>
+          <p className="text-sm text-muted-foreground capitalize">
             {formatLongDate(fixture.kickoff_at, timezone)} à {formatTime(fixture.kickoff_at, timezone)}
             {fixture.venue ? ` · ${fixture.venue}` : ""}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
-            <div className="flex flex-col items-center gap-2 text-center">
-              <TeamLogo name={fixture.home.name} src={fixture.home.logo_url} size={48} />
-              <h1 className="text-base font-semibold sm:text-lg">{fixture.home.name}</h1>
-            </div>
-            <div className="text-center">
-              {started && fixture.goals_home !== null && fixture.goals_away !== null ? (
-                <p className="text-3xl font-semibold tabular-nums">
-                  {fixture.goals_home} – {fixture.goals_away}
-                </p>
-              ) : (
-                <p className="text-xl font-semibold tabular-nums">{formatTime(fixture.kickoff_at, timezone)}</p>
-              )}
-              {started && fixture.ht_home !== null && fixture.ht_away !== null ? (
-                <p className="text-xs text-muted-foreground">
-                  Mi-temps : {fixture.ht_home} – {fixture.ht_away}
-                </p>
-              ) : null}
-              {started && fixture.corners_home !== null && fixture.corners_away !== null ? (
-                <p className="text-xs text-muted-foreground">
-                  Corners : {fixture.corners_home} – {fixture.corners_away}
-                </p>
-              ) : null}
-              {started && fixture.cards_home !== null && fixture.cards_away !== null ? (
-                <p className="text-xs text-muted-foreground">
-                  Cartons : {fixture.cards_home} – {fixture.cards_away}
-                </p>
-              ) : null}
-            </div>
-            <div className="flex flex-col items-center gap-2 text-center">
-              <TeamLogo name={fixture.away.name} src={fixture.away.logo_url} size={48} />
-              <p className="text-base font-semibold sm:text-lg">{fixture.away.name}</p>
-            </div>
+          </p>
+        </div>
+        <div className="mt-6 grid grid-cols-[1fr_auto_1fr] items-center gap-3 sm:gap-6">
+          <div className="flex flex-col items-center gap-3 text-center">
+            <TeamLogo name={fixture.home.name} src={fixture.home.logo_url} size={64} className="drop-shadow-[0_0_12px_rgb(255_20_147_/_0.35)]" />
+            <h1 className="text-base leading-tight font-bold sm:text-xl">{fixture.home.name}</h1>
           </div>
-          <div className="flex justify-center">
+          <div className="flex flex-col items-center gap-2 text-center">
+            {started && fixture.goals_home !== null && fixture.goals_away !== null ? (
+              <p className="font-heading text-4xl font-extrabold tabular-nums sm:text-5xl">
+                {fixture.goals_home} – {fixture.goals_away}
+              </p>
+            ) : (
+              <p className="font-heading text-3xl font-extrabold tabular-nums sm:text-4xl">{formatTime(fixture.kickoff_at, timezone)}</p>
+            )}
             <StatusBadge status={fixture.status_short} showUpcoming />
           </div>
-          {status.phase === "cancelled" ? (
-            <p className="text-center text-sm text-muted-foreground">
-              Ce match est {status.label.toLowerCase()}. Les crédits dépensés seront remboursés s&apos;il est annulé ou
-              reporté de plus de 48 h.
-            </p>
-          ) : null}
-        </CardContent>
-      </Card>
+          <div className="flex flex-col items-center gap-3 text-center">
+            <TeamLogo name={fixture.away.name} src={fixture.away.logo_url} size={64} className="drop-shadow-[0_0_12px_rgb(160_0_255_/_0.35)]" />
+            <p className="text-base leading-tight font-bold sm:text-xl">{fixture.away.name}</p>
+          </div>
+        </div>
+        {statChips.length > 0 ? (
+          <ul className="mt-6 flex flex-wrap justify-center gap-2">
+            {statChips.map((chip) => (
+              <li key={chip} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs tabular-nums">
+                {chip}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {status.phase === "cancelled" ? (
+          <p className="mt-4 text-center text-sm text-muted-foreground">
+            Ce match est {status.label.toLowerCase()}.{" "}
+            {refundOnCancel
+              ? "Les crédits dépensés seront remboursés s'il est annulé ou reporté de plus de 48 h."
+              : "Les pronostics de ce match seront annulés s'il est annulé ou reporté de plus de 48 h."}
+          </p>
+        ) : null}
+      </section>
 
       {/* Pronostics IA (phase 7) : contenu fourni par get_fixture_predictions UNIQUEMENT si débloqué */}
       {predictions && predictions.markets.length > 0 ? (
@@ -168,6 +179,8 @@ export default async function FixturePage({ params }: PageProps<"/matchs/[id]">)
         </Card>
       )}
 
+      <h2 className="text-xl font-bold">Données du match</h2>
+      <div className={cn("grid gap-4", hasStandings && "md:grid-cols-2")}>
       {/* Forme */}
       <Card>
         <CardHeader>
@@ -223,6 +236,7 @@ export default async function FixturePage({ params }: PageProps<"/matchs/[id]">)
           </CardContent>
         </Card>
       ) : null}
+      </div>
 
       {/* Confrontations directes */}
       <Card>
@@ -254,10 +268,6 @@ export default async function FixturePage({ params }: PageProps<"/matchs/[id]">)
           )}
         </CardContent>
       </Card>
-
-      <p className="text-center text-xs text-muted-foreground">
-        Les pronostics sont des estimations, sans garantie de résultat. Réservé aux 18 ans et plus.
-      </p>
     </main>
   );
 }

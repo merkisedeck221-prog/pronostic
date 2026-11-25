@@ -4,7 +4,7 @@ import { EmptyState } from "@/components/layout/empty-state";
 import { PageHeader } from "@/components/layout/page-header";
 import { FixtureRow } from "@/components/matches/fixture-row";
 import { TeamLogo } from "@/components/matches/team-logo";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth/session";
 import { getCompetitionsOverview, getPredictionFlags, listFixtures, type FixtureListItem } from "@/lib/catalog/queries";
 import { cn } from "@/lib/utils";
@@ -12,7 +12,7 @@ import { clampWindowDays, parsePeriod, periodOptions, periodRange, resolveTimezo
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Matchs à venir · Pronostics IA",
+  title: "Matchs à venir · PRONEX",
   description: "Matchs d'aujourd'hui, de demain et des 7 prochains jours, avec les pronostics de l'IA disponibles.",
 };
 
@@ -58,13 +58,16 @@ export default async function FixturesPage({ searchParams }: PageProps<"/matchs"
       <PageHeader title="Matchs à venir" description={`Heures affichées dans votre fuseau (${timezone}).`} />
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <nav aria-label="Période" className="flex gap-1">
+        <nav aria-label="Période" className="inline-flex w-fit gap-1 rounded-xl border border-white/10 bg-white/5 p-1">
           {periodOptions(windowDays).map((option) => (
             <Link
               key={option.value}
               href={buildHref(option.value, selected?.slug)}
               aria-current={option.value === period ? "page" : undefined}
-              className={buttonVariants({ variant: option.value === period ? "default" : "outline", size: "sm" })}
+              className={cn(
+                "rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
+                option.value === period && "bg-linear-to-r from-pronex-pink to-pronex-violet text-white",
+              )}
             >
               {option.label}
             </Link>
@@ -78,7 +81,7 @@ export default async function FixturesPage({ searchParams }: PageProps<"/matchs"
             <select
               name="competition"
               defaultValue={selected?.slug ?? ""}
-              className="h-8 rounded-lg border border-input bg-transparent px-2 text-sm"
+              className="h-9 rounded-lg border border-input bg-card px-2 text-sm"
             >
               <option value="">Toutes</option>
               {competitions.map((competition) => (
@@ -112,14 +115,14 @@ export default async function FixturesPage({ searchParams }: PageProps<"/matchs"
         <div className="space-y-6">
           {orderedGroups.map(({ competition, items }) => (
             <section key={competition.id} className="space-y-1" aria-labelledby={`competition-${competition.id}`}>
-              <h2 id={`competition-${competition.id}`} className="flex items-center gap-2 px-2 text-sm font-medium">
+              <h2 id={`competition-${competition.id}`} className="flex items-center gap-2 px-1 pb-1 text-sm font-semibold">
                 <TeamLogo name={competition.name} src={competition.logo_url} size={18} />
                 <Link href={`/competitions/${competition.slug}`} className={cn("underline-offset-4 hover:underline")}>
                   {competition.name}
                 </Link>
                 <span className="text-muted-foreground">· {items.length}</span>
               </h2>
-              <div className="divide-y rounded-xl border">
+              <div className="divide-y divide-white/5 overflow-hidden rounded-2xl border border-white/10 bg-card">
                 {items.map((fixture) => (
                   <FixtureRow
                     key={fixture.id}

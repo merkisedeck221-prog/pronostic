@@ -14,9 +14,10 @@ const packSchema = z.object({
   id: z.coerce.number().int().positive().optional().or(z.literal("")),
   name: z.string().trim().min(2, "Nom trop court.").max(40),
   credits: z.coerce.number().int().min(1, "Au moins 1 crédit.").max(100_000),
-  bonus_credits: z.coerce.number().int().min(0).max(100_000),
   price_xof: z.coerce.number().int().min(1, "Prix en XOF positif.").max(10_000_000),
   sort_order: z.coerce.number().int().min(0).max(9999).default(0),
+  // Case « Recommandé » : mise en avant visuelle uniquement (packs fixes, aucun bonus).
+  is_featured: z.preprocess((v) => v === "on" || v === "true", z.boolean()),
   description: z
     .string()
     .trim()

@@ -1,4 +1,4 @@
-/** Entrées de la barre latérale d'administration (13 du MVP + 3 du lot 2 des crédits v2). */
+/** Entrées de la barre latérale d'administration (13 du MVP + 2 du lot 2 des crédits v2). */
 export const ADMIN_NAV = [
   { href: "/admin", label: "Vue d'ensemble" },
   { href: "/admin/competitions", label: "Compétitions" },
@@ -7,7 +7,6 @@ export const ADMIN_NAV = [
   { href: "/admin/utilisateurs", label: "Utilisateurs" },
   { href: "/admin/tarifs", label: "Tarifs" },
   { href: "/admin/packs", label: "Packs de recharge" },
-  { href: "/admin/promotions", label: "Promotions" },
   { href: "/admin/paiements", label: "Moyens de paiement" },
   { href: "/admin/transactions", label: "Transactions" },
   { href: "/admin/revenus", label: "Revenus" },

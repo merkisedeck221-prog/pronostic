@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 
-export const metadata: Metadata = { title: "Page introuvable · Pronostics IA" };
+export const metadata: Metadata = { title: "Page introuvable · PRONEX" };
 
 /** 404 en français (pages inexistantes, matchs non publiés, accès admin refusé). */
 export default function NotFound() {

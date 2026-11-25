@@ -4,7 +4,7 @@ import { AdminPage, inputClass } from "@/components/admin/table-tools";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { saveSettingAction, setMarketActiveAction } from "@/lib/admin/actions/settings";
-import { settingDefinition } from "@/lib/admin/settings";
+import { isRetiredSetting, settingDefinition } from "@/lib/admin/settings";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 
@@ -26,7 +26,7 @@ export default async function AdminSettingsPage() {
           <CardTitle>Paramètres de l&apos;application</CardTitle>
         </CardHeader>
         <CardContent className="divide-y">
-          {(settings ?? []).map((s) => {
+          {(settings ?? []).filter((s) => !isRetiredSetting(s.key)).map((s) => {
             const def = settingDefinition(s.key);
             return (
               <div key={s.key} className="grid gap-2 py-3 md:grid-cols-[1fr_auto] md:items-center">

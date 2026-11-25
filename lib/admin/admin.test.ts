@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { csvEscape, TOPUP_CSV_COLUMNS, TRANSACTION_CSV_COLUMNS, toCsv, type TransactionCsvRow } from "./csv";
 import { fixturePeriodRange, pageCount, pageRange, parseEnumParam, parseIntParam, parsePageParam, periodStart, withParams } from "./params";
 import { failure, isOk, sqlFailure } from "./result";
-import { bundleWarning, parseSettingInput, settingDefinition } from "./settings";
+import { bundleWarning, isRetiredSetting, parseSettingInput, settingDefinition } from "./settings";
 
 const tx: TransactionCsvRow = {
   id: 7,
@@ -33,7 +33,7 @@ describe("export CSV", () => {
   it("colonnes des recharges", () => {
     const header = toCsv(TOPUP_CSV_COLUMNS, []).slice(1).trimEnd();
     expect(header.split(";")).toEqual([
-      "id", "date_utc", "utilisateur_id", "utilisateur", "pack", "credits", "bonus", "montant_xof", "fournisseur", "reference", "statut", "termine_le_utc",
+      "id", "date_utc", "utilisateur_id", "utilisateur", "pack", "credits", "credits_verses", "montant_xof", "fournisseur", "reference", "statut", "termine_le_utc",
     ]);
   });
 
@@ -78,11 +78,16 @@ describe("paramètres d'URL", () => {
 });
 
 describe("paramètres de l'application", () => {
+  it("crédits de bienvenue retirés (packs fixes, aucun crédit gratuit)", () => {
+    expect(isRetiredSetting("welcome_credits")).toBe(true);
+    expect(isRetiredSetting("maintenance_mode")).toBe(false);
+  });
+
   it("convertit et valide chaque type de champ", () => {
     expect(parseSettingInput(settingDefinition("maintenance_mode"), "true")).toEqual({ ok: true, value: true });
     expect(parseSettingInput(settingDefinition("maintenance_mode"), "false")).toEqual({ ok: true, value: false });
-    expect(parseSettingInput(settingDefinition("welcome_credits"), "5")).toEqual({ ok: true, value: 5 });
-    expect(parseSettingInput(settingDefinition("welcome_credits"), "-1")).toMatchObject({ ok: false });
+    expect(parseSettingInput(settingDefinition("fixtures_window_days"), "5")).toEqual({ ok: true, value: 5 });
+    expect(parseSettingInput(settingDefinition("fixtures_window_days"), "-1")).toMatchObject({ ok: false });
     expect(parseSettingInput(settingDefinition("prediction_window_hours"), "2,5")).toMatchObject({ ok: false });
     expect(parseSettingInput(settingDefinition("pricing_mode"), "both")).toEqual({ ok: true, value: "both" });
     expect(parseSettingInput(settingDefinition("pricing_mode"), "free")).toMatchObject({ ok: false });

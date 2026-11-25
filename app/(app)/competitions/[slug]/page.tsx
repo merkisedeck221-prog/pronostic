@@ -19,9 +19,9 @@ import { dayHeading, groupByDay, resolveTimezone } from "@/lib/utils/dates";
 export async function generateMetadata({ params }: PageProps<"/competitions/[slug]">): Promise<Metadata> {
   const { slug } = await params;
   const competition = await getCompetitionBySlug(slug);
-  if (!competition) return { title: "Compétition introuvable · Pronostics IA" };
+  if (!competition) return { title: "Compétition introuvable · PRONEX" };
   return {
-    title: `${competition.name} · Pronostics IA`,
+    title: `${competition.name} · PRONEX`,
     description: `${competition.name} : matchs à venir, classement et derniers résultats, avec les pronostics de l'IA.`,
   };
 }

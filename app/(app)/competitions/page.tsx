@@ -8,7 +8,7 @@ import { requireUser } from "@/lib/auth/session";
 import { getCompetitionsOverview, type CompetitionSummary } from "@/lib/catalog/queries";
 
 export const metadata: Metadata = {
-  title: "Compétitions · Pronostics IA",
+  title: "Compétitions · PRONEX",
   description: "Championnats européens et compétitions internationales de sélections couverts par les pronostics IA.",
 };
 

@@ -11,7 +11,7 @@ import { getOwnTopup } from "@/lib/payments/queries";
 import { topupIdSchema } from "@/lib/payments/schemas";
 import { formatCredits, formatXof } from "@/lib/utils/format";
 
-export const metadata: Metadata = { title: "Paiement simulé · Pronostics IA", robots: { index: false } };
+export const metadata: Metadata = { title: "Paiement simulé · PRONEX", robots: { index: false } };
 
 export default async function MockPaymentPage({ params, searchParams }: PageProps<"/recharger/paiement-simule/[topupId]">) {
   const user = await requireUser();
@@ -43,12 +43,6 @@ export default async function MockPaymentPage({ params, searchParams }: PageProp
             <dd className="text-right font-semibold tabular-nums">{formatXof(topup.amount_xof)}</dd>
             <dt>Crédits</dt>
             <dd className="text-right tabular-nums">{formatCredits(topup.credits)}</dd>
-            {topup.bonus_credits > 0 ? (
-              <>
-                <dt>Bonus</dt>
-                <dd className="text-right tabular-nums">{formatCredits(topup.bonus_credits)}</dd>
-              </>
-            ) : null}
           </dl>
           <div className="grid gap-2">
             <form action={simulate.bind(null, "succeeded", back)}>
