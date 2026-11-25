@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ReceiptIcon } from "lucide-react";
 import { EmptyState } from "@/components/layout/empty-state";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { requireUser } from "@/lib/auth/session";
 import { receiptNumber } from "@/lib/credits/filters";
 import { listReceipts } from "@/lib/credits/queries";
@@ -21,41 +21,33 @@ export default async function RecusPage() {
     <main className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-8">
       <PageHeader title="Mes reçus de paiement" description="Un reçu pour chaque recharge réussie." />
       <p className="text-sm">
-        <Link href="/portefeuille" className="underline underline-offset-4">
+        <Link href="/portefeuille" className="text-muted-foreground transition-colors hover:text-foreground">
           ← Retour au portefeuille
         </Link>
       </p>
       <Card>
-        <CardContent className="overflow-x-auto">
+        <CardContent>
           {receipts.length === 0 ? (
             <EmptyState title="Aucun reçu pour le moment." />
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Numéro</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Pack</TableHead>
-                  <TableHead className="text-right">Montant</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {receipts.map((r) => (
-                  <TableRow key={r.id}>
-                    <TableCell>
-                      <Link href={`/portefeuille/recus/${r.id}`} className="font-medium underline underline-offset-4">
-                        {receiptNumber(r.id, r.completed_at ?? r.created_at)}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap text-muted-foreground">
-                      {formatDateTime(r.completed_at ?? r.created_at, timezone)}
-                    </TableCell>
-                    <TableCell>{r.pack_name ?? "—"}</TableCell>
-                    <TableCell className="text-right tabular-nums">{formatXof(r.amount_xof)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <ul className="divide-y divide-white/5">
+              {receipts.map((r) => (
+                <li key={r.id}>
+                  <Link href={`/portefeuille/recus/${r.id}`} className="flex items-center gap-3 py-3 transition-colors hover:text-pronex-pink">
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-400/15 text-emerald-300">
+                      <ReceiptIcon className="size-4" aria-hidden />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-medium">{receiptNumber(r.id, r.completed_at ?? r.created_at)}</span>
+                      <span className="block text-xs text-muted-foreground">
+                        {formatDateTime(r.completed_at ?? r.created_at, timezone)} · Pack {r.pack_name ?? "—"}
+                      </span>
+                    </span>
+                    <span className="shrink-0 font-semibold tabular-nums">{formatXof(r.amount_xof)}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           )}
         </CardContent>
       </Card>

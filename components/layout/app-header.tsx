@@ -21,7 +21,7 @@ export function AppHeader({
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-pronex-night/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-3 px-4">
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4 xl:gap-6">
           <Brand href="/tableau-de-bord" compact />
           <AppNav />
         </div>
@@ -33,7 +33,7 @@ export function AppHeader({
           >
             <CoinsIcon className="size-4 text-pronex-pink" aria-hidden />
             {balance === null ? "—" : balance}
-            <span className="hidden font-normal text-muted-foreground sm:inline">{balance !== null && Math.abs(balance) <= 1 ? "crédit" : "crédits"}</span>
+            <span className="hidden font-normal text-muted-foreground sm:inline lg:hidden xl:inline">{balance !== null && Math.abs(balance) <= 1 ? "crédit" : "crédits"}</span>
           </Link>
           <Link
             href="/notifications"

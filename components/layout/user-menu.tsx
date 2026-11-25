@@ -20,7 +20,7 @@ export function UserMenu({ displayName, isAdmin }: { displayName: string; isAdmi
     <DropdownMenu>
       <DropdownMenuTrigger className={buttonVariants({ variant: "ghost", size: "sm" })}>
         <UserIcon />
-        <span className="max-w-28 truncate">{displayName}</span>
+        <span className="max-w-28 truncate lg:hidden xl:inline">{displayName}</span>
         <ChevronDownIcon />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">

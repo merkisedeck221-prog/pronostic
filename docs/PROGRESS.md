@@ -737,3 +737,12 @@ Statut : **fait et vérifié sur la base de test** ; production après accord du
 - Tableau de bord : bandeau d'accueil avec solde et « Acheter des crédits ».
 - Aucun changement de logique (prix, déblocage, résolution, remboursements).
 - Vérifié : lint, types, 329 tests, build ; tableau de bord, matchs, fiche match et compétitions sur mobile et ordinateur, sans erreur ni débordement ; fenêtre de confirmation du déblocage.
+
+## Refonte PRONEX — phase D : compte (26/11/2026)
+
+- Portefeuille : bandeau solde, filtres en pastilles, **historique en cartes** (icône par type, montant coloré, solde après, lien vers le reçu) : plus aucune colonne coupée sur mobile.
+- Reçus : liste en cartes, reçu avec logo ; **style d'impression clair** (`@media print` dans `app/globals.css` : fond blanc, sans en-tête, navigation ni pied de page).
+- Mes pronostics : taux de réussite en grand, filtres en pastilles, cartes avec la sélection mise en avant.
+- Notifications : pastille rose pour les non lues ; profil avec en-tête de page ; résultat de recharge avec icône d'état ; bandeau « Paiement de test » harmonisé.
+- En-tête : menu horizontal à partir de 1024 px (barre du bas en dessous), nom et mot « crédits » masqués entre 1024 et 1280 px ; vérifié sans chevauchement de 320 à 1280 px.
+- Vérifié : lint, types, 329 tests, build ; 6 pages sur mobile et ordinateur sans erreur ni débordement ; aperçu d'impression du reçu.

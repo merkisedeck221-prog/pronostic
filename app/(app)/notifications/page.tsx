@@ -37,11 +37,14 @@ export default async function NotificationsPage() {
           {notifications.length === 0 ? (
             <EmptyState title="Aucune notification pour le moment." />
           ) : (
-            <ul className="divide-y">
+            <ul className="divide-y divide-white/5">
               {notifications.map((n) => {
                 const href = safeNotificationLink(n.link);
                 return (
-                  <li key={n.id} className={cn("py-3", !n.read_at && "font-medium")}>
+                  <li key={n.id} className={cn("relative py-3 pl-5", !n.read_at && "font-medium")}>
+                    {!n.read_at ? (
+                      <span aria-hidden className="absolute top-[1.15rem] left-0 size-2 rounded-full bg-pronex-pink shadow-[0_0_8px] shadow-pronex-pink" />
+                    ) : null}
                     <div className="flex items-start justify-between gap-3">
                       <p>
                         {!n.read_at ? <span className="sr-only">Non lue : </span> : null}
@@ -53,7 +56,7 @@ export default async function NotificationsPage() {
                     </div>
                     <p className="text-sm font-normal text-muted-foreground">{n.body}</p>
                     {href ? (
-                      <Link href={href} className="text-sm font-normal underline underline-offset-4">
+                      <Link href={href} className="text-sm font-semibold text-pronex-pink hover:underline">
                         Voir
                       </Link>
                     ) : null}

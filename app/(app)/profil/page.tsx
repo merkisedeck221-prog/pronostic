@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ChangePasswordForm } from "@/components/auth/password-forms";
+import { PageHeader } from "@/components/layout/page-header";
 import { ProfileForm } from "@/components/auth/profile-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,7 +15,7 @@ export default async function ProfilePage() {
 
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-4 py-8">
-      <h1 className="text-2xl font-semibold tracking-tight">Mon profil</h1>
+      <PageHeader title="Mon profil" description="Vos informations, votre mot de passe et votre compte." />
 
       <Card>
         <CardHeader>

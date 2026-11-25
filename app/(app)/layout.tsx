@@ -58,7 +58,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
       />
       <div className="flex flex-1 flex-col">{children}</div>
       {/* Espace réservé à la barre de navigation mobile (fixe en bas). */}
-      <div className="pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">
+      <div className="pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0">
         <SiteFooter />
       </div>
       <BottomNav />

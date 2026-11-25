@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PrintButton } from "@/components/payments/print-button";
@@ -48,20 +49,23 @@ export default async function RecuPage({ params }: PageProps<"/portefeuille/recu
   return (
     <main className="mx-auto w-full max-w-xl flex-1 space-y-4 px-4 py-8">
       <p className="text-sm print:hidden">
-        <Link href="/portefeuille/recus" className="underline underline-offset-4">
+        <Link href="/portefeuille/recus" className="text-muted-foreground transition-colors hover:text-foreground">
           ← Mes reçus
         </Link>
       </p>
       {receipt.provider === "mock" ? <TestPaymentBanner /> : null}
       <Card>
-        <CardHeader>
-          <CardDescription>PRONEX</CardDescription>
-          <CardTitle>
-            <h1 className="text-xl font-semibold">Reçu de paiement</h1>
-          </CardTitle>
+        <CardHeader className="flex flex-row items-center gap-3">
+          <Image src="/brand/pronex-icon.png" alt="" width={44} height={44} className="size-11 print:hidden" />
+          <div>
+            <CardDescription className="font-heading font-bold tracking-widest">PRONEX</CardDescription>
+            <CardTitle>
+              <h1 className="text-xl font-bold">Reçu de paiement</h1>
+            </CardTitle>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          <dl className="divide-y text-sm">
+          <dl className="divide-y divide-border text-sm">
             {lines.map(([label, value]) => (
               <div key={label} className="flex justify-between gap-4 py-2">
                 <dt className="text-muted-foreground">{label}</dt>
@@ -71,7 +75,7 @@ export default async function RecuPage({ params }: PageProps<"/portefeuille/recu
           </dl>
           <div className="flex items-baseline justify-between border-t pt-3">
             <span className="font-medium">Montant payé</span>
-            <span className="text-xl font-semibold tabular-nums">{formatXof(receipt.amount_xof)}</span>
+            <span className="font-heading text-2xl font-extrabold tabular-nums">{formatXof(receipt.amount_xof)}</span>
           </div>
           <p className="text-xs text-muted-foreground">
             Les crédits sont valables sans limite de durée et ne sont pas remboursables en argent.

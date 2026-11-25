@@ -32,7 +32,7 @@ export default async function RechargerPage({ searchParams }: PageProps<"/rechar
   const timezone = resolveTimezone(user.profile.timezone);
 
   return (
-    <main className="w-full flex-1 bg-pronex-night text-white">
+    <main className="w-full flex-1">
       <div className="mx-auto w-full max-w-5xl space-y-8 px-4 py-10">
         <header className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-2">
@@ -48,11 +48,7 @@ export default async function RechargerPage({ searchParams }: PageProps<"/rechar
           </div>
         </header>
 
-        {provider?.isTest ? (
-          <div className="[&_.text-muted-foreground]:text-pronex-gray">
-            <TestPaymentBanner />
-          </div>
-        ) : null}
+        {provider?.isTest ? <TestPaymentBanner /> : null}
 
         {maintenance ? (
           <p className="rounded-lg border border-pronex-pink/40 bg-pronex-pink/10 p-3 text-sm" role="alert">

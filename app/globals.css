@@ -117,3 +117,28 @@
     @apply font-sans;
   }
 }
+/*
+ * Impression (reçus) : thème clair sur papier, sans en-tête, navigation ni
+ * pied de page (les navigateurs n'impriment pas les fonds sombres).
+ */
+@media print {
+  :root,
+  .dark {
+    color-scheme: light;
+    --background: #ffffff;
+    --foreground: #0b0b14;
+    --card: #ffffff;
+    --card-foreground: #0b0b14;
+    --muted-foreground: #4b5563;
+    --border: #d1d5db;
+  }
+  body {
+    background-image: none;
+  }
+  body > header,
+  body header.sticky,
+  footer,
+  nav[aria-label="Navigation principale"] {
+    display: none !important;
+  }
+}

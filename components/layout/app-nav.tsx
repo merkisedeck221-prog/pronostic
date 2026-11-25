@@ -21,7 +21,7 @@ function isActive(pathname: string, href: string): boolean {
 export function AppNav({ className }: { className?: string }) {
   const pathname = usePathname();
   return (
-    <nav aria-label="Navigation principale" className={cn("hidden items-center gap-1 md:flex", className)}>
+    <nav aria-label="Navigation principale" className={cn("hidden items-center gap-1 lg:flex", className)}>
       {APP_NAV_ITEMS.map((item) => {
         const active = isActive(pathname, item.href);
         return (
@@ -30,7 +30,7 @@ export function AppNav({ className }: { className?: string }) {
             href={item.href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "relative rounded-lg px-3 py-2 text-sm whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground",
+              "relative rounded-lg px-2.5 py-2 text-sm whitespace-nowrap xl:px-3 text-muted-foreground transition-colors hover:text-foreground",
               active && "text-foreground after:absolute after:inset-x-3 after:-bottom-px after:h-0.5 after:rounded-full after:bg-linear-to-r after:from-pronex-pink after:to-pronex-violet",
             )}
           >
@@ -48,7 +48,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Navigation principale"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-pronex-night/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-pronex-night/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md lg:hidden"
     >
       <ul className="mx-auto grid max-w-md grid-cols-5">
         {APP_NAV_ITEMS.map((item) => {
