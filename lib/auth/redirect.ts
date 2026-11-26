@@ -17,7 +17,11 @@ export function safeNextPath(next: unknown, fallback: string = DEFAULT_AFTER_LOG
 }
 
 /** URL de la page de connexion avec le paramètre next encodé. */
-export function loginUrl(next?: string | null): string {
+export function loginUrl(next?: string | null, options: { expired?: boolean } = {}): string {
   const target = safeNextPath(next ?? undefined, "");
-  return target ? `/connexion?next=${encodeURIComponent(target)}` : "/connexion";
+  const params = new URLSearchParams();
+  if (target) params.set("next", target);
+  if (options.expired) params.set("info", "session-expiree");
+  const query = params.toString();
+  return query ? `/connexion?${query}` : "/connexion";
 }

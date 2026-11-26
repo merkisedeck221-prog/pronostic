@@ -16,9 +16,11 @@ const exo2 = Exo_2({
   style: ["normal", "italic"],
 });
 
+// Utilisée seulement dans quelques tableaux admin : pas de préchargement sur chaque page.
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -47,7 +49,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Aller au contenu
         </a>
         {children}
-        <Toaster />
+        <Toaster position="bottom-center" mobileOffset={{ bottom: "5.5rem" }} />
       </body>
     </html>
   );

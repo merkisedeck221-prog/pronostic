@@ -71,7 +71,7 @@ export default async function NotificationsPage({ searchParams }: PageProps<"/no
                     </div>
                     <p className="text-sm font-normal text-muted-foreground">{n.body}</p>
                     {href ? (
-                      <Link href={href} className="text-sm font-semibold text-pronex-pink hover:underline">
+                      <Link href={href} className="tap-target text-sm font-semibold text-pronex-pink hover:underline">
                         Voir
                       </Link>
                     ) : null}

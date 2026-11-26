@@ -17,7 +17,7 @@ export default async function SignUpPage() {
       footer={
         <p className="text-muted-foreground">
           Déjà inscrit ?{" "}
-          <Link href="/connexion" className="font-medium text-foreground underline underline-offset-4">
+          <Link href="/connexion" className="tap-target font-medium text-foreground underline underline-offset-4">
             Se connecter
           </Link>
         </p>

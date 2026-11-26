@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { connection } from "next/server";
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
-import { PATHNAME_HEADER } from "@/lib/auth/constants";
+import { HAD_SESSION_HEADER, PATHNAME_HEADER } from "@/lib/auth/constants";
 import { loginUrl } from "@/lib/auth/redirect";
 import { createClient } from "@/lib/supabase/server";
 import type { Tables } from "@/types/database";
@@ -49,11 +49,16 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
     return null;
   }
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-  if (error || !user) return null;
+  let user;
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) return null;
+    user = data.user;
+  } catch (error) {
+    // Cookie de session illisible ou corrompu : traité comme une session absente.
+    console.error("[auth] Session illisible :", (error as Error).message);
+    return null;
+  }
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
@@ -78,9 +83,15 @@ export async function getRequestedPath(): Promise<string | null> {
  * Compte suspendu (RG-F1-2) : lève BannedAccountError, sauf si allowBanned
  * (utilisé par la mise en page pour afficher le message de suspension).
  */
+/** Un cookie de session Supabase existe mais n'est plus valide : session expirée (message dédié à la connexion). */
+async function hadSession(): Promise<boolean> {
+  // Posé par proxy.ts avant le rafraîchissement de session (cookie expiré ou corrompu effacé ensuite).
+  return (await headers()).get(HAD_SESSION_HEADER) === "1";
+}
+
 export async function requireUser(options: { allowBanned?: boolean } = {}): Promise<CurrentUser> {
   const user = await getCurrentUser();
-  if (!user) redirect(loginUrl(await getRequestedPath()));
+  if (!user) redirect(loginUrl(await getRequestedPath(), { expired: await hadSession() }));
   if (user.profile.is_banned && !options.allowBanned) throw new BannedAccountError();
   return user;
 }

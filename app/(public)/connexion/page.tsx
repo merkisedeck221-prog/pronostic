@@ -16,6 +16,7 @@ const ERRORS: Record<string, string> = {
 
 const INFOS: Record<string, string> = {
   "deconnexion-globale": "Vous êtes déconnecté de tous vos appareils.",
+  "session-expiree": "Votre session a expiré. Reconnectez-vous pour continuer : vous reviendrez sur la page demandée.",
 };
 
 export default async function SignInPage({ searchParams }: PageProps<"/connexion">) {
@@ -37,7 +38,7 @@ export default async function SignInPage({ searchParams }: PageProps<"/connexion
       footer={
         <p className="text-muted-foreground">
           Pas encore de compte ?{" "}
-          <Link href="/inscription" className="font-medium text-foreground underline underline-offset-4">
+          <Link href="/inscription" className="tap-target font-medium text-foreground underline underline-offset-4">
             S&apos;inscrire
           </Link>
         </p>

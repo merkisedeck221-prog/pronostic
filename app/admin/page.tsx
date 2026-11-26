@@ -80,7 +80,7 @@ function SystemCard({
       </div>
       <p className="text-xs text-muted-foreground">{summary}</p>
       <div className="flex-1">{children}</div>
-      <Link href={link.href} className="text-xs font-semibold text-pronex-pink underline-offset-4 hover:underline">
+      <Link href={link.href} className="tap-target text-xs font-semibold text-pronex-pink underline-offset-4 hover:underline">
         {link.label}
       </Link>
     </div>
@@ -296,7 +296,7 @@ function WatchCard({
       </h3>
       {children}
       {link ? (
-        <Link href={link.href} className="inline-block text-xs font-semibold text-pronex-pink underline-offset-4 hover:underline">
+        <Link href={link.href} className="tap-target text-xs font-semibold text-pronex-pink underline-offset-4 hover:underline">
           {link.label}
         </Link>
       ) : null}

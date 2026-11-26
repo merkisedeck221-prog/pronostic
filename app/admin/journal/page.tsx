@@ -112,7 +112,7 @@ export default async function AdminAuditPage({ searchParams }: PageProps<"/admin
                 <TableCell className="max-w-56 whitespace-normal text-xs">{e.reason ?? ""}</TableCell>
                 <TableCell className="max-w-96">
                   <details>
-                    <summary className="cursor-pointer text-xs">Voir</summary>
+                    <summary className="tap-target cursor-pointer text-xs">Voir</summary>
                     <pre className="mt-1 max-h-48 overflow-auto rounded bg-muted p-2 text-xs">{JSON.stringify({ avant: e.before, apres: e.after }, null, 2)}</pre>
                   </details>
                 </TableCell>

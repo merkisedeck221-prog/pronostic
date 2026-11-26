@@ -34,7 +34,7 @@ function PredictionCard({ p, timezone }: { p: MyPrediction; timezone: string }) 
     <li>
       <Link
         href={`/matchs/${p.fixture_id}`}
-        className="block space-y-3 rounded-2xl border border-white/8 bg-card p-4 transition-colors hover:border-pronex-violet/40 sm:p-5"
+        className="pronex-lift block space-y-3 rounded-2xl border border-white/8 bg-card p-4 sm:p-5"
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
@@ -140,7 +140,7 @@ export default async function MesPronosticsPage({ searchParams }: PageProps<"/me
           </Link>
         </EmptyState>
       ) : (
-        <ul className="space-y-3">
+        <ul className="pronex-stagger space-y-3">
           {rows.map((p) => (
             <PredictionCard key={p.prediction_id} p={p} timezone={timezone} />
           ))}
