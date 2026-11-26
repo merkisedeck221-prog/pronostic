@@ -275,7 +275,7 @@ Corrections :
 ## 9 quaterdecies. Compteurs publics de la landing (26/11/2026)
 
 - `get_public_counters()` est appelable sans compte, mais ne renvoie que trois totaux agrégés : aucune donnée personnelle, aucun contenu de pronostic. Sous son seuil d'affichage, une valeur est renvoyée à `null`, donc le chiffre réel reste privé tant qu'il est faible. Toute erreur renvoie `null`.
-- Aucun chiffre n'est fabriqué : ni valeur d'exemple, ni compteur artificiel. Tant que l'activité réelle n'atteint pas les seuils, la landing anime des chiffres exacts du produit : types de pronostics actifs, championnats actifs (lus en base) et étapes du moteur.
+- Aucun chiffre d'activité n'est fabriqué : il n'y a pas de compteur artificiel. Tant que l'activité réelle n'atteint pas les seuils, la landing affiche les OBJECTIFS du porteur (25 000 / 12 500 / 50 000). Ils sont présentés comme tels : titre « Nos objectifs », chaque libellé commence par « Objectif : » (test `components/landing/counters.test.ts`). Ils ne sont jamais présentés comme des résultats atteints.
 
 ## 10. Points ouverts et risques acceptés
 

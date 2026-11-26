@@ -1,4 +1,4 @@
-import { BrainCircuitIcon, ListChecksIcon, TrophyIcon, UsersIcon, WorkflowIcon, type LucideIcon } from "lucide-react";
+import { BrainCircuitIcon, TrophyIcon, UsersIcon, type LucideIcon } from "lucide-react";
 import { CountUp } from "@/components/landing/count-up";
 import type { PublicCounters } from "@/lib/catalog/counters";
 
@@ -18,28 +18,34 @@ export function activityItems(counters: PublicCounters): CounterItem[] {
 }
 
 /**
- * Chiffres RÉELS du produit, affichés tant que les indicateurs d'activité ne
- * sont pas disponibles : valeurs exactes lues en base ou dans le code (pas de
- * « + », ce ne sont pas des minimums). Aucune valeur d'exemple.
+ * OBJECTIFS de PRONEX (décision du porteur, 26/11/2026), affichés tant que
+ * l'activité réelle n'atteint pas les seuils : chiffres visés, présentés
+ * explicitement comme des objectifs (titre « Nos objectifs », libellés
+ * « Objectif : … »), jamais comme des résultats déjà atteints.
  */
-export function productItems({ markets, competitions, steps }: { markets: number; competitions: number; steps: number }): CounterItem[] {
-  const items: CounterItem[] = [];
-  if (markets > 0) items.push({ key: "markets", icon: ListChecksIcon, label: "Types de pronostics par match", value: markets });
-  if (competitions > 0) items.push({ key: "competitions", icon: TrophyIcon, label: competitions > 1 ? "Grands championnats couverts" : "Championnat couvert", value: competitions });
-  if (steps > 0) items.push({ key: "steps", icon: WorkflowIcon, label: "Étapes d'analyse par PRONEX AI", value: steps });
-  return items;
+export const GOALS = { users: 25000, won: 12500, analyses: 50000 } as const;
+
+export function goalItems(): CounterItem[] {
+  return [
+    { key: "goal-users", icon: UsersIcon, label: "Objectif : utilisateurs inscrits", value: GOALS.users, prefix: "+" },
+    { key: "goal-won", icon: TrophyIcon, label: "Objectif : pronostics gagnants validés par PRONEX AI", value: GOALS.won, prefix: "+" },
+    { key: "goal-analyses", icon: BrainCircuitIcon, label: "Objectif : analyses réalisées par PRONEX AI", value: GOALS.analyses, prefix: "+" },
+  ];
 }
 
-/** Compteurs animés (brief, partie 5) : uniquement des chiffres vrais. */
-export function LandingCounters({ items }: { items: CounterItem[] }) {
+/** Compteurs animés (brief, partie 5) : chiffres réels, ou objectifs présentés comme tels. */
+export function LandingCounters({ items, goals = false }: { items: CounterItem[]; goals?: boolean }) {
   if (items.length === 0) return null;
 
   return (
     <section aria-labelledby="chiffres-titre" className="relative border-y border-white/5 bg-white/[0.015]">
       <div className="mx-auto w-full max-w-6xl px-4 py-14 sm:py-16">
         <h2 id="chiffres-titre" className="text-xs font-semibold tracking-[0.2em] text-pronex-pink uppercase">
-          PRONEX en chiffres
+          {goals ? "Nos objectifs" : "PRONEX en chiffres"}
         </h2>
+        {goals ? (
+          <p className="mt-2 font-heading text-2xl font-bold sm:text-3xl">L&apos;ambition de PRONEX pour sa communauté</p>
+        ) : null}
 
         <dl className={items.length === 1 ? "mt-8 grid" : items.length === 2 ? "mt-8 grid gap-4 sm:grid-cols-2" : "mt-8 grid gap-4 md:grid-cols-3"}>
           {items.map(({ key, icon: Icon, label, value, prefix }) => (

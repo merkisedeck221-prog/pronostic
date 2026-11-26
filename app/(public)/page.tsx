@@ -11,7 +11,7 @@ import {
   SmartphoneIcon,
   TagIcon,
 } from "lucide-react";
-import { activityItems, LandingCounters, productItems } from "@/components/landing/counters";
+import { activityItems, goalItems, LandingCounters } from "@/components/landing/counters";
 import { LandingHero } from "@/components/landing/hero";
 import { LandingPresentation } from "@/components/landing/presentation";
 import { SectionHeading } from "@/components/layout/section-heading";
@@ -20,7 +20,6 @@ import { buttonVariants } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getPublicCounters } from "@/lib/catalog/counters";
 import { getLandingData } from "@/lib/catalog/landing";
-import { VISUAL_STEPS } from "@/lib/generation/stages";
 import { getPublicFlags } from "@/lib/catalog/settings";
 import { formatRate } from "@/lib/settle/labels";
 import { cn } from "@/lib/utils";
@@ -83,16 +82,16 @@ function faqItems({ refundOnCancel, revealAfterMatch }: { refundOnCancel: boolea
 export default async function HomePage() {
   // Un utilisateur connecté va directement à son tableau de bord.
   if (await getCurrentUser()) redirect("/tableau-de-bord");
-  const [{ markets, packs, performance, fixtures, competitionCount }, flags, realCounters] = await Promise.all([
+  const [{ markets, packs, performance, fixtures }, flags, realCounters] = await Promise.all([
     getLandingData(),
     getPublicFlags(),
     getPublicCounters(),
   ]);
-  // Compteurs animés : uniquement des chiffres vrais. Activité réelle (utilisateurs, gains,
-  // analyses) dès qu'elle atteint son seuil ; d'ici là, chiffres réels du produit.
+  // Compteurs animés : activité réelle (utilisateurs, gains, analyses) dès qu'elle atteint
+  // son seuil ; d'ici là, les OBJECTIFS de PRONEX, présentés comme tels (« Nos objectifs »).
   const activity = activityItems(realCounters);
-  const counterItems =
-    activity.length > 0 ? activity : productItems({ markets: markets.length, competitions: competitionCount, steps: VISUAL_STEPS.length });
+  const showGoals = activity.length === 0;
+  const counterItems = showGoals ? goalItems() : activity;
   const timezone = resolveTimezone(null);
   const resolved = performance ? performance.global.won + performance.global.lost : 0;
   const resolved30 = performance ? performance.last30.won + performance.last30.lost : 0;
@@ -100,7 +99,7 @@ export default async function HomePage() {
   return (
     <main className="flex-1">
       <LandingHero marketCount={markets.length} />
-      <LandingCounters items={counterItems} />
+      <LandingCounters items={counterItems} goals={showGoals} />
       <LandingPresentation marketCount={markets.length} />
 
       {/* Avantages */}

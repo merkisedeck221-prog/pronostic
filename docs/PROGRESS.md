@@ -972,3 +972,9 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
     - étapes d'analyse PRONEX AI : 7.
   - Les compteurs d'activité réels (utilisateurs, gains, analyses, avec « + ») les remplacent automatiquement dès qu'ils atteignent leur seuil.
   - L'aperçu de démonstration est supprimé.
+- **Décision finale (26/11/2026)** : le porteur veut garder +25 000 / +12 500 / +50 000, sans mention jaune. Mise en conformité : ces chiffres sont présentés comme ses **objectifs**.
+  - Section « Nos objectifs · L'ambition de PRONEX pour sa communauté ».
+  - Libellés « Objectif : utilisateurs inscrits », « Objectif : pronostics gagnants validés par PRONEX AI », « Objectif : analyses réalisées par PRONEX AI », avec le « + ».
+  - Même animation néon, aucune étiquette jaune.
+  - Dès qu'un vrai chiffre atteint son seuil, la section bascule sur « PRONEX en chiffres » avec les chiffres réels, avec le « + ».
+  - Valeurs dans `GOALS` (`components/landing/counters.tsx`).

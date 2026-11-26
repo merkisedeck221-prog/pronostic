@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { activityItems, productItems } from "./counters";
+import { activityItems, goalItems } from "./counters";
 
 describe("compteurs de la landing : uniquement des chiffres vrais", () => {
   it("n'affiche que les indicateurs d'activité réellement disponibles, avec « + »", () => {
@@ -11,13 +11,13 @@ describe("compteurs de la landing : uniquement des chiffres vrais", () => {
     ]);
   });
 
-  it("chiffres du produit : valeurs exactes, sans « + », jamais d'exemple", () => {
-    const items = productItems({ markets: 13, competitions: 5, steps: 7 });
-    expect(items.map((i) => [i.key, i.value, i.prefix])).toEqual([
-      ["markets", 13, undefined],
-      ["competitions", 5, undefined],
-      ["steps", 7, undefined],
+  it("objectifs : toujours libellés « Objectif », jamais présentés comme des résultats", () => {
+    const items = goalItems();
+    expect(items.map((i) => [i.value, i.prefix])).toEqual([
+      [25000, "+"],
+      [12500, "+"],
+      [50000, "+"],
     ]);
-    expect(productItems({ markets: 0, competitions: 0, steps: 0 })).toEqual([]);
+    expect(items.every((i) => i.label.startsWith("Objectif : "))).toBe(true);
   });
 });
