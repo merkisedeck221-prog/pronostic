@@ -326,3 +326,61 @@ main#contenu > * {
 .pronex-stagger > *:nth-child(5) { animation-delay: 160ms; }
 .pronex-stagger > *:nth-child(6) { animation-delay: 200ms; }
 .pronex-stagger > *:nth-child(n + 7) { animation-delay: 240ms; }
+
+/*
+ * Landing PRONEX : décor du hero et carte d'analyse animée.
+ * Animations légères (transform, opacity, width) ; coupées par la règle
+ * « prefers-reduced-motion » plus haut.
+ */
+.pronex-pitch {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.06) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 30%, transparent 75%);
+  transform: perspective(900px) rotateX(58deg) translateY(-8%) scale(1.6);
+  transform-origin: 50% 0%;
+}
+@keyframes pronex-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+.pronex-float {
+  animation: pronex-float 7s ease-in-out infinite;
+}
+@keyframes pronex-fill {
+  from {
+    width: 0;
+  }
+}
+.pronex-fill {
+  animation: pronex-fill 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes pronex-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+.pronex-glow {
+  animation: pronex-glow 6s ease-in-out infinite;
+}
+@keyframes pronex-sweep {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(220%);
+  }
+}
+.pronex-sweep {
+  animation: pronex-sweep 3.6s ease-in-out infinite;
+}
