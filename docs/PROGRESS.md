@@ -1043,3 +1043,22 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
   - `RateBars` : classement numéroté, barre segmentée gagnés / perdus / annulés, taux en grand.
   - Les perdus restent toujours affichés.
   - Le tableau accessible est désormais enveloppé dans un bloc `sr-only` (un `<table>` ne se réduit pas seul et créait un débordement sur mobile).
+
+## Landing — partie 10 du brief : « Pourquoi PRONEX ? » (26/11/2026)
+
+- `components/landing/advantages.tsx` (section `#avantages`) remplace l'ancienne section en 4 cartes de texte. Grille « bento » de 6 avantages en 3 rangées équilibrées :
+  - analyse assistée par IA ;
+  - plusieurs marchés (nombre réel de marchés actifs) ;
+  - probabilités et confiance ;
+  - transparence des performances ;
+  - interface moderne ;
+  - historique personnel.
+- Chaque avantage a un titre, une phrase et une mini-illustration d'interface :
+  - sources du dossier → analyse ;
+  - pastilles de marchés ;
+  - jauge de probabilité marquée « exemple » ;
+  - barres gagnés / perdus abstraites, sans chiffre ;
+  - écran et téléphone ;
+  - lignes d'historique.
+- Aucun chiffre de résultat n'est affiché ; apparition au défilement, survol.
+- Correctif : `grid-cols-1` explicite sur mobile (une puce non sécable élargissait la colonne sur l'iPhone SE).
