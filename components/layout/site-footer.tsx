@@ -90,7 +90,7 @@ export function SiteFooter({
           <Link
             href="/"
             aria-label="PRONEX, accueil"
-            className="inline-flex items-center gap-3"
+            className="inline-flex min-h-11 items-center gap-3"
           >
             <Image
               src="/brand/pronex-symbol.webp"

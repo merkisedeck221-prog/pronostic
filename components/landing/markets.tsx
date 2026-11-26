@@ -71,7 +71,7 @@ export function LandingMarkets({ activeCodes }: { activeCodes: string[] }) {
           description="Chaque match est analysé sur tous ces marchés. Débloquez-les un par un, ou tous ensemble avec le match complet. Tous se jouent au temps réglementaire."
         />
 
-        <ul className="pronex-stagger grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="pronex-stagger grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {cards.map(({ code, icon: Icon, name, text, category }, index) => {
             const combo = code === "COMBO";
             return (
@@ -99,7 +99,7 @@ export function LandingMarkets({ activeCodes }: { activeCodes: string[] }) {
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="font-heading text-base font-bold">{name}</h3>
                     {combo ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-pronex-pink/15 px-2 py-0.5 text-[11px] font-semibold text-pronex-pink">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-pronex-pink/15 px-2 py-0.5 text-[11px] font-semibold text-pink-200">
                         <BadgeCheckIcon className="size-3" aria-hidden />
                         Même match
                       </span>

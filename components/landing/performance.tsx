@@ -133,7 +133,7 @@ export function LandingPerformance({
                 aria-hidden
                 className="pointer-events-none absolute -top-24 -left-16 size-72 rounded-full bg-pronex-pink/15 blur-[90px]"
               />
-              <div className="relative grid items-center gap-8 lg:grid-cols-[auto_1fr] lg:gap-12">
+              <div className="relative grid grid-cols-1 items-center gap-8 lg:grid-cols-[auto_1fr] lg:gap-12">
                 <div className="flex flex-col items-center">
                   <RateRing won={shown.won} lost={shown.lost} size={196} />
                   <p className="mt-4 text-center text-xs text-muted-foreground">

@@ -97,7 +97,7 @@ function PackCard({ pack }: { pack: Pack }) {
       )}
     >
       {featured ? (
-        <span className="absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 rounded-full bg-pronex-pink px-3 py-1 text-[11px] font-bold tracking-wide text-white uppercase shadow-[0_0_18px_rgb(255_20_147_/_0.55)]">
+        <span className="absolute -top-3 left-1/2 inline-flex -translate-x-1/2 items-center gap-1 rounded-full bg-pronex-pink px-3 py-1 text-[11px] font-bold tracking-wide text-pronex-night uppercase shadow-[0_0_18px_rgb(255_20_147_/_0.55)]">
           <CrownIcon className="size-3" aria-hidden />
           Recommandé
         </span>

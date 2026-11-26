@@ -45,7 +45,7 @@ export function LandingHowItWorks() {
           description="Quatre étapes simples, du choix du match au suivi des résultats."
         />
 
-        <ol className="relative grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ol className="relative grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {/* Ligne de progression entre les étapes (ordinateur) */}
           <span aria-hidden className="pointer-events-none absolute top-[3.25rem] right-[12.5%] left-[12.5%] hidden h-px bg-linear-to-r from-pronex-pink/50 via-pronex-violet/50 to-pronex-violet/10 lg:block" />
           {STEPS.map(({ icon: Icon, title, text, detail }, index) => (

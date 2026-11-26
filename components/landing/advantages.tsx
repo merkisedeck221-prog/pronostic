@@ -46,11 +46,11 @@ export function LandingAdvantages({ marketCount }: { marketCount: number }) {
           <Card index={1} icon={LayoutGridIcon} title="Plusieurs marchés football" text={`${markets} types de pronostics sont disponibles sur chaque match.`}>
             <div className="grid grid-cols-3 gap-1.5 text-center text-[11px] font-semibold">
               {["1N2", "BTTS", "Score exact", "Corners", "Mi-temps"].map((m) => (
-                <span key={m} className="truncate rounded-lg border border-white/8 bg-white/[0.03] px-1.5 py-1.5 text-muted-foreground">
+                <span key={m} className="flex items-center justify-center rounded-lg border border-white/8 bg-white/[0.03] px-1 py-1.5 leading-tight text-muted-foreground">
                   {m}
                 </span>
               ))}
-              <span className="rounded-lg bg-pronex-violet/20 px-1.5 py-1.5 text-violet-100">+{Math.max(0, markets - 5)}</span>
+              <span className="flex items-center justify-center rounded-lg bg-pronex-violet/20 px-1 py-1.5 text-violet-100">+{Math.max(0, markets - 5)}</span>
             </div>
           </Card>
 
@@ -63,7 +63,7 @@ export function LandingAdvantages({ marketCount }: { marketCount: number }) {
               <div className="h-1.5 overflow-hidden rounded-full bg-white/8">
                 <div className="h-full w-[52%] rounded-full bg-pronex-pink" />
               </div>
-              <div className="flex gap-1.5 pt-1 text-[10px] font-semibold">
+              <div className="flex gap-1.5 pt-1 text-[11px] font-semibold">
                 <span className="rounded-full border border-white/10 px-2 py-0.5 text-muted-foreground">Faible</span>
                 <span className="rounded-full bg-pronex-violet/25 px-2 py-0.5 text-violet-100">Moyen</span>
                 <span className="rounded-full border border-white/10 px-2 py-0.5 text-muted-foreground">Élevé</span>
@@ -81,7 +81,7 @@ export function LandingAdvantages({ marketCount }: { marketCount: number }) {
                   </div>
                 ))}
               </div>
-              <div className="space-y-1 text-[10px] text-muted-foreground">
+              <div className="space-y-1 text-[11px] text-muted-foreground">
                 <p className="flex items-center gap-1.5">
                   <span className="size-2 rounded-full bg-[#4ade80]" /> Gagnés
                 </p>
@@ -120,10 +120,10 @@ export function LandingAdvantages({ marketCount }: { marketCount: number }) {
                 { market: "Les deux équipes marquent", status: "En attente", tone: "pending" as const },
               ].map((row) => (
                 <li key={row.market} className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2 text-xs">
-                  <span className="truncate">{row.market}</span>
+                  <span className="min-w-0 leading-snug">{row.market}</span>
                   <span
                     className={cn(
-                      "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                      "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold",
                       row.tone === "won" ? "bg-success/15 text-success" : "bg-white/8 text-muted-foreground",
                     )}
                   >

@@ -22,12 +22,12 @@ export function LandingHero({ marketCount }: { marketCount: number }) {
         <div className="absolute inset-x-0 bottom-0 h-40 bg-linear-to-b from-transparent to-pronex-night" />
       </div>
 
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-14 px-4 pt-12 pb-20 lg:grid-cols-[1fr_1.05fr] lg:gap-10 lg:pt-20 lg:pb-28">
+      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-14 px-4 pt-12 pb-20 lg:grid-cols-[1fr_1.05fr] lg:gap-10 lg:pt-20 lg:pb-28">
         <div className="space-y-7">
           <p className="font-heading text-sm font-bold tracking-[0.2em] text-muted-foreground uppercase italic">
             Prédisez. <span className="text-pronex-pink">Analysez.</span> Dominez.
           </p>
-          <h1 id="hero-title" className="font-heading text-4xl leading-[1.02] font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+          <h1 id="hero-title" className="font-heading text-[2rem] leading-[1.05] font-extrabold tracking-tight min-[375px]:text-4xl sm:text-5xl lg:text-6xl">
             Le football analysé par <span className="text-pronex-pink">l&apos;intelligence artificielle</span>.
           </h1>
           <p className="max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
@@ -112,7 +112,7 @@ function HeroVisual({ marketCount }: { marketCount: number }) {
             <ul className="divide-y divide-white/5 rounded-2xl border border-white/8">
               {LOCKED_MARKETS.map((market) => (
                 <li key={market} className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
-                  <span className="truncate">{market}</span>
+                  <span className="min-w-0 leading-snug">{market}</span>
                   <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-semibold text-pronex-pink">
                     <LockIcon className="size-3.5" aria-hidden />À débloquer
                   </span>

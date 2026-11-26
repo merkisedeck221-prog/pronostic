@@ -43,7 +43,7 @@ export function PublicHeader() {
           <ul className="flex items-center gap-1 text-sm">
             {NAV.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} className="rounded-lg px-3 py-2 text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground">
+                <Link href={item.href} className="tap-target rounded-lg px-3 py-2 text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground">
                   {item.label}
                 </Link>
               </li>
@@ -52,15 +52,15 @@ export function PublicHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Link href="/connexion" className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "hidden sm:inline-flex")}>
+          <Link href="/connexion" className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "hidden sm:inline-flex pointer-coarse:h-11")}>
             Se connecter
           </Link>
-          <Link href="/inscription" className={buttonVariants({ size: "sm" })}>
+          <Link href="/inscription" className={cn(buttonVariants({ size: "sm" }), "pointer-coarse:h-11 pointer-coarse:px-4")}>
             Commencer<span className="hidden sm:inline">&nbsp;gratuitement</span>
           </Link>
           <button
             type="button"
-            className="flex size-10 items-center justify-center rounded-xl border border-white/10 text-foreground lg:hidden"
+            className="flex size-11 items-center justify-center rounded-xl border border-white/10 text-foreground lg:hidden"
             aria-expanded={open}
             aria-controls={panelId}
             aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}

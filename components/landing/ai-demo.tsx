@@ -70,7 +70,7 @@ export function AiDemo({ marketCount }: { marketCount: number }) {
   const progress = phase === "done" ? 100 : phase === "running" ? Math.round((step / VISUAL_STEPS.length) * 100) : 0;
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1.05fr_1fr] lg:items-start">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.05fr_1fr] lg:items-start">
       {/* Fiche de match de démonstration */}
       <article aria-label="Fiche de match de démonstration" className="overflow-hidden rounded-3xl border border-white/10 bg-card">
         <header className="flex items-center justify-between gap-3 border-b border-white/8 px-5 py-3.5">
@@ -137,7 +137,7 @@ export function AiDemo({ marketCount }: { marketCount: number }) {
                 <span
                   aria-hidden
                   className={cn(
-                    "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border text-[10px] font-semibold",
+                    "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold",
                     state === "done" && "border-success/50 bg-success/15 text-success",
                     state === "active" && "border-pronex-pink/60 bg-pronex-pink/15 text-pronex-pink",
                     state === "pending" && "border-white/10 text-muted-foreground",
