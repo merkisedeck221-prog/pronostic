@@ -978,3 +978,4 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
   - Même animation néon, aucune étiquette jaune.
   - Dès qu'un vrai chiffre atteint son seuil, la section bascule sur « PRONEX en chiffres » avec les chiffres réels, avec le « + ».
   - Valeurs dans `GOALS` (`components/landing/counters.tsx`).
+- **Section retirée (26/11/2026)** : à la demande du porteur, la section des compteurs n'est plus affichée sur la page d'accueil, en attente de sa décision. Le code est conservé : `components/landing/counters.tsx`, `count-up.tsx`, `lib/catalog/counters.ts`, la fonction SQL `get_public_counters()` et ses seuils.
