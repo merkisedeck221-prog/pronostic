@@ -916,3 +916,27 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
     - un terrain discret ;
     - le remplissage des barres de probabilité, seule animation, car elle montre une donnée ;
     - le dégradé du bouton principal unique (règle du design system).
+
+## Landing — partie 4 du brief : le hero (26/11/2026)
+
+- **En-tête public** (`components/layout/public-header.tsx`, toutes les pages publiques) :
+  - logo à gauche ;
+  - navigation Accueil / Fonctionnement / Analyses IA / Performances / Tarifs / FAQ (ancres `/#…`, défilement fluide sauf si l'appareil demande moins d'animations) ;
+  - boutons « Se connecter » et « Commencer gratuitement » ;
+  - menu compact sur mobile : panneau en 2 colonnes, fermeture par Échap ou au clic, cibles de 44 px.
+- **Hero** :
+  - titre « Le football analysé par l'intelligence artificielle. » ;
+  - sous-titre du brief ;
+  - boutons « Créer mon compte » (principal) et « Découvrir PRONEX » ;
+  - mention « L'analyse intelligente du football commence ici. » ;
+  - slogan en surtitre.
+- **Visuel** : il reprend des éléments RÉELS de l'application :
+  - forme récente (composant `FormBadges` de la fiche match, nouvelle taille `sm`) ;
+  - probabilités 1N2 et niveau de confiance ;
+  - marchés verrouillés, dont le Combiné IA « même match » ;
+  - nombre réel de types de pronostics ;
+  - pied « Moteur PRONEX AI » avec les 7 étapes réelles (`VISUAL_STEPS`).
+
+  Il est marqué « Exemple » (équipes A / B). Une première version avec une carte « moteur » superposée cachait des données sur ordinateur : remplacée par ce pied intégré.
+- **Correctif** : `buttonVariants({ className: "hidden …" })` n'écrase pas `inline-flex` ; il faut utiliser `cn(buttonVariants(…), "hidden …")`.
+- **Vérifié** sans débordement sur iPhone SE, iPhone 14, iPad Mini, 1280 et 1440 px. Ancres de section ajoutées : `#fonctionnement`, `#analyses`, `#performances`, `#tarifs`, `#faq`.
