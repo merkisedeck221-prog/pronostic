@@ -21,7 +21,7 @@ export function AppHeader({
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-pronex-night/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-3 px-4">
-        <div className="flex items-center gap-4 xl:gap-6">
+        <div className="flex min-w-0 shrink-0 items-center gap-4 xl:gap-6">
           <Brand href="/tableau-de-bord" compact />
           <AppNav />
         </div>

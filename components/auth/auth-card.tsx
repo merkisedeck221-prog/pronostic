@@ -26,7 +26,7 @@ export function AuthCard({
   return (
     <main className="mx-auto grid w-full max-w-5xl flex-1 items-center gap-10 px-4 py-10 lg:grid-cols-2">
       <section aria-hidden className="hidden space-y-8 lg:block">
-        <Image src="/brand/pronex-logo.webp" alt="" width={720} height={432} className="w-full max-w-md" />
+        <Image src="/brand/pronex-logo.webp" alt="" width={720} height={339} className="w-full max-w-md" />
         <ul className="space-y-4">
           {POINTS.map(({ icon: Icon, text }) => (
             <li key={text} className="flex items-center gap-3 text-sm text-muted-foreground">

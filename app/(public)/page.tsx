@@ -61,7 +61,7 @@ export default async function HomePage() {
         </div>
         <div className="relative mx-auto w-full max-w-md lg:max-w-none">
           <div aria-hidden className="absolute inset-0 -z-10 rounded-full bg-pronex-violet/20 blur-3xl" />
-          <Image src="/brand/pronex-logo.webp" alt="Logo PRONEX" width={720} height={432} priority className="w-full" />
+          <Image src="/brand/pronex-logo.webp" alt="Logo PRONEX" width={720} height={339} priority className="w-full" />
         </div>
       </section>
 

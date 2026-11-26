@@ -8,13 +8,13 @@ import { cn } from "@/lib/utils";
  */
 export function Brand({ href = "/", className, compact = false }: { href?: string; className?: string; compact?: boolean }) {
   return (
-    <Link href={href} className={cn("flex shrink-0 items-center gap-1.5", className)} aria-label="PRONEX, accueil">
-      <Image src="/brand/pronex-icon.webp" alt="" width={36} height={36} priority className="size-9" />
+    <Link href={href} className={cn("flex shrink-0 items-center gap-2", className)} aria-label="PRONEX, accueil">
+      <Image src="/brand/pronex-symbol.webp" alt="" width={240} height={113} priority className="h-6 w-auto sm:h-7" />
       <Image
         src="/brand/pronex-wordmark.webp"
         alt="PRONEX"
         width={600}
-        height={90}
+        height={96}
         priority
         className={cn("h-5 w-auto", compact && "hidden sm:block")}
       />
