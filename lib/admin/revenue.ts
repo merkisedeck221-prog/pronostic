@@ -42,6 +42,7 @@ export const revenueSchema = z.object({
   credits_consumed: z.number(),
   credits_refunded: z.number(),
   failed_topups: z.number(),
+  stats_since: z.string().nullish(),
   by_day: z.array(row.extend({ day: z.string() })),
   by_pack: z.array(row.extend({ pack_name: z.string(), credits: z.number() })),
   by_provider: z.array(row.extend({ provider: z.string() })),

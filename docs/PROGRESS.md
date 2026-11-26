@@ -875,3 +875,14 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
 - Performance : logo de l'accueil allégé (89 → 52 Ko), police à chasse fixe non préchargée.
 - Rapport complet : [RAPPORT-FINAL.md](RAPPORT-FINAL.md). Verdict : **pas prêt pour un lancement payant**. Il manque les données de la saison (offre API-Football), le domaine et le SMTP, puis le paiement réel.
 - À surveiller : `sync-fixtures` du 26/11 à 05:07 a subi une coupure réseau sans trace dans le journal ; relancée à la main, elle fonctionne.
+
+## Remise à zéro des statistiques après les essais (26/11/2026)
+
+- Demande du porteur : les revenus et crédits affichés (39 500 FCFA, 455 crédits) venaient des essais. Choix validé : **date de lancement**, sans suppression (règle « aucune donnée financière supprimée », grand livre immuable).
+- Migration `20261126160000_stats_since.sql` : appliquée à la base de test, essayée en production dans une transaction annulée, puis appliquée.
+- Effets de la date :
+  - le centre de contrôle et la page Revenus comptent les ventes à partir de la date ;
+  - les totaux du portefeuille aussi ;
+  - les mouvements antérieurs restent consultables dans l'onglet « Avant le lancement » du portefeuille et dans Transactions (admin).
+- Réglage modifiable dans Paramètres → « Date de lancement des statistiques » (heure de Porto-Novo ; vide = tout compter).
+- Production : date fixée au 26/11/2026 à 16:19 (Porto-Novo), action journalisée. Résultat : chiffre d'affaires 0, crédits vendus 0, totaux du portefeuille 0. Les 8 mouvements et les 6 recharges sont conservés.

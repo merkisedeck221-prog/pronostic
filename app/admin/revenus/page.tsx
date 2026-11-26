@@ -6,6 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { adminRpc } from "@/lib/admin/queries";
 import { parseRevenuePeriod, revenueSchema } from "@/lib/admin/revenue";
 import { requireAdmin } from "@/lib/auth/session";
+import { formatDateTime, resolveTimezone } from "@/lib/utils/dates";
 import { formatXof } from "@/lib/utils/format";
 
 export const metadata: Metadata = { title: "Revenus · Administration" };
@@ -41,7 +42,8 @@ function SimpleTable({ head, rows }: { head: string[]; rows: (string | number)[]
 }
 
 export default async function AdminRevenusPage({ searchParams }: PageProps<"/admin/revenus">) {
-  await requireAdmin();
+  const admin = await requireAdmin();
+  const tz = resolveTimezone(admin.profile.timezone);
   const { from, to } = parseRevenuePeriod(await searchParams);
   const revenue = revenueSchema.parse(await adminRpc("admin_revenue", { p_from: from, p_to: to }));
 
@@ -58,6 +60,12 @@ export default async function AdminRevenusPage({ searchParams }: PageProps<"/adm
           Afficher
         </Button>
       </form>
+
+      {revenue.stats_since ? (
+        <p className="text-xs text-muted-foreground">
+          Ventes comptées à partir du {formatDateTime(revenue.stats_since, tz)} (date de lancement, modifiable dans Paramètres) : une période antérieure ne compte rien.
+        </p>
+      ) : null}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Stat label="Chiffre d'affaires" value={formatXof(revenue.revenue_xof)} hint={`${revenue.topups} recharge(s), ${revenue.buyers} acheteur(s)`} />

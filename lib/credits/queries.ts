@@ -52,6 +52,10 @@ const walletSummarySchema = z.object({
   consumed: z.number().int(),
   refunded: z.number().int(),
   count: z.number().int(),
+  /** Mouvements antérieurs à la date de lancement (stats_since), hors totaux. */
+  before_count: z.number().int().default(0),
+  /** Date de lancement des statistiques, null = tout est compté. */
+  since: z.string().nullish(),
 });
 export type WalletSummary = z.infer<typeof walletSummarySchema>;
 
@@ -114,6 +118,7 @@ export async function listTransactions(
   userId: string,
   page: number,
   filter: TransactionFilter = "tous",
+  period: { since?: string | null; before?: boolean } = {},
 ): Promise<{ rows: TransactionRow[]; total: number; pageCount: number }> {
   const supabase = await createClient();
   const from = (page - 1) * TRANSACTIONS_PAGE_SIZE;
@@ -123,6 +128,8 @@ export async function listTransactions(
       count: "exact",
     })
     .eq("user_id", userId);
+  // Date de lancement : mouvements depuis (par défaut) ou d'avant (section « Avant le lancement »).
+  if (period.since) query = period.before ? query.lt("created_at", period.since) : query.gte("created_at", period.since);
   // Même règle que matchesTransactionFilter (lib/credits/filters.ts).
   if (filter === "achats") query = query.eq("type", "topup");
   else if (filter === "deblocages") query = query.eq("type", "unlock");

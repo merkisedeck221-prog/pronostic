@@ -4,7 +4,7 @@ import { AdminPage, inputClass } from "@/components/admin/table-tools";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { saveSettingAction, setMarketActiveAction } from "@/lib/admin/actions/settings";
-import { isRetiredSetting, SETTING_GROUPS, settingDefinition, settingGroup } from "@/lib/admin/settings";
+import { isoToPortoNovoInput, isRetiredSetting, SETTING_GROUPS, settingDefinition, settingGroup } from "@/lib/admin/settings";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
@@ -77,6 +77,8 @@ export default async function AdminSettingsPage() {
                         </option>
                       ))}
                     </select>
+                  ) : def.kind === "datetime" ? (
+                    <input name="value" type="datetime-local" defaultValue={isoToPortoNovoInput(s.value)} className={inputClass} aria-label={def.label} />
                   ) : def.kind === "list" ? (
                     <input name="value" defaultValue={Array.isArray(s.value) ? s.value.join(", ") : ""} className={`${inputClass} w-64`} aria-label={def.label} />
                   ) : (
