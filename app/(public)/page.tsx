@@ -2,13 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
-  BarChart3Icon,
   CalendarClockIcon,
-  CoinsIcon,
   ShieldCheckIcon,
-  SmartphoneIcon,
-  TagIcon,
 } from "lucide-react";
+import { LandingAdvantages } from "@/components/landing/advantages";
 import { LandingDemo } from "@/components/landing/demo-section";
 import { LandingHero } from "@/components/landing/hero";
 import { LandingHowItWorks } from "@/components/landing/how-it-works";
@@ -29,13 +26,6 @@ export const metadata: Metadata = {
   title: "PRONEX — Prédisez. Analysez. Dominez.",
   description: "Analyses et pronostics football par PRONEX AI : probabilités, niveau de confiance et explication pour chaque match.",
 };
-
-const ADVANTAGES = [
-  { icon: CoinsIcon, title: "Vous payez à l'unité", text: "Un pronostic ou le match complet : vous débloquez seulement ce qui vous intéresse. Aucun abonnement." },
-  { icon: BarChart3Icon, title: "Transparence totale", text: "Le taux de réussite est public et calculé sur tous les pronostics terminés, y compris les perdus." },
-  { icon: TagIcon, title: "Prix connu à l'avance", text: "Le prix en crédits est affiché avant chaque déblocage, avec votre solde avant et après." },
-  { icon: SmartphoneIcon, title: "Pensé pour le mobile", text: "Une interface rapide et lisible, conçue d'abord pour le téléphone." },
-] as const;
 
 function faqItems({ refundOnCancel, revealAfterMatch }: { refundOnCancel: boolean; revealAfterMatch: boolean }) {
   return [
@@ -87,22 +77,9 @@ export default async function HomePage() {
       <LandingDemo marketCount={markets.length} />
       <LandingHowItWorks />
 
-      {/* Avantages */}
-      <section aria-labelledby="avantages" className="mx-auto w-full max-w-6xl space-y-8 px-4 py-14">
-        <SectionHeading id="avantages" eyebrow="Pourquoi PRONEX" title="Les avantages de la plateforme" />
-        <ul className="pronex-stagger grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {ADVANTAGES.map(({ icon: Icon, title, text }) => (
-            <li key={title} className="pronex-lift space-y-2 rounded-2xl border border-white/8 bg-card p-5">
-              <Icon className="size-5 text-pronex-pink" aria-hidden />
-              <h3 className="font-semibold">{title}</h3>
-              <p className="text-sm text-muted-foreground">{text}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
-
       <LandingMarkets activeCodes={markets.map((m) => m.code)} />
       <LandingPerformance stats={performance} />
+      <LandingAdvantages marketCount={markets.length} />
 
       {/* Aperçu des matchs : uniquement si des matchs analysés existent */}
       {fixtures.length > 0 ? (
