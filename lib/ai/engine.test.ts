@@ -5,6 +5,7 @@ import { estimateCostUsd, modelPricing } from "./pricing";
 import { PROMPT_VERSION, SYSTEM_PROMPT_V1 } from "./prompts/v1";
 import { PROMPT_VERSION as PROMPT_VERSION_V2, SYSTEM_PROMPT_V2 } from "./prompts/v2";
 import { PROMPT_VERSION as PROMPT_VERSION_V3, SYSTEM_PROMPT_V3 } from "./prompts/v3";
+import { PROMPT_VERSION as PROMPT_VERSION_V4, SYSTEM_PROMPT_V4 } from "./prompts/v4";
 import { MARKET_CODES, toOpenAiJsonSchema } from "./schema";
 import { solidSummary, validOutput } from "./test-helpers";
 
@@ -35,6 +36,16 @@ describe("JSON Schema strict dérivé du schéma Zod", () => {
     const markets = (schema.properties as Record<string, { properties: Record<string, unknown> }>).markets;
     expect(Object.keys(markets.properties)).toEqual([...MARKET_CODES]);
     expect(MARKET_CODES).toHaveLength(13);
+  });
+});
+
+describe("prompt v4", () => {
+  it("prolonge le v3 sans le modifier et couvre la qualité des données", () => {
+    expect(PROMPT_VERSION_V4).toBe("v4");
+    expect(SYSTEM_PROMPT_V4.startsWith(SYSTEM_PROMPT_V3)).toBe(true);
+    for (const key of ["availability", "insufficient_data", "reliable", "partial", "unavailable", "injuries"]) {
+      expect(SYSTEM_PROMPT_V4).toContain(key);
+    }
   });
 });
 
@@ -127,7 +138,7 @@ describe("generatePrediction (OpenAI simulé)", () => {
     const { client, create } = fakeClient(JSON.stringify(validOutput()));
     const result = await generatePrediction(solidSummary, { apiKey: "k", model: "gpt-4o-mini", client });
     expect(result.ok).toBe(true);
-    expect(result.metrics).toMatchObject({ inputTokens: 1500, outputTokens: 500, attempts: 1, promptVersion: "v3" });
+    expect(result.metrics).toMatchObject({ inputTokens: 1500, outputTokens: 500, attempts: 1, promptVersion: "v4" });
     expect(result.metrics.costEstimateUsd).toBe(0.000525);
     const body = create.mock.calls[0][0];
     expect(body.temperature).toBe(0.3);

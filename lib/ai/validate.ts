@@ -1,4 +1,4 @@
-import { isThinHistory, isThinMatchStats, type MatchSummary } from "./context/summarize";
+import { isInsufficientData, isThinHistory, isThinMatchStats, type MatchSummary } from "./context/summarize";
 import { MARKET_CODES, predictionOutputSchema, type PredictionOutput } from "./schema";
 
 /**
@@ -7,15 +7,59 @@ import { MARKET_CODES, predictionOutputSchema, type PredictionOutput } from "./s
  * des erreurs, formulées pour être renvoyées telles quelles à l'IA.
  */
 
-export type ValidationResult = { ok: true; data: PredictionOutput } | { ok: false; errors: string[] };
+/**
+ * `adjustments` : corrections automatiques sans nouvel appel à l'IA (confiance
+ * abaissée pour rester cohérente avec la probabilité ou la qualité des données).
+ * Elles ne rendent jamais un pronostic plus affirmatif.
+ */
+export type ValidationResult = { ok: true; data: PredictionOutput; adjustments: string[] } | { ok: false; errors: string[] };
+
+type Confidence = "low" | "medium" | "high";
+const CONFIDENCE_RANK: Record<Confidence, number> = { low: 0, medium: 1, high: 2 };
+
+/**
+ * Probabilité minimale (en %) de la sélection pour chaque niveau de confiance.
+ * En dessous, la confiance est abaissée : une estimation faible ne peut pas être
+ * présentée comme fiable. Seuils adaptés à la nature du marché (un score exact à
+ * 20 % est déjà une estimation forte ; une double chance à 70 % ne l'est pas).
+ */
+export const CONFIDENCE_FLOORS: Record<(typeof MARKET_CODES)[number], { high: number; medium: number }> = {
+  MATCH_RESULT: { high: 60, medium: 45 },
+  HT_RESULT: { high: 55, medium: 40 },
+  DOUBLE_CHANCE: { high: 80, medium: 65 },
+  OVER_UNDER_1_5: { high: 70, medium: 57 },
+  OVER_UNDER_2_5: { high: 70, medium: 57 },
+  OVER_UNDER_3_5: { high: 70, medium: 57 },
+  BTTS: { high: 70, medium: 57 },
+  HANDICAP: { high: 70, medium: 57 },
+  CORNERS_OVER_UNDER_9_5: { high: 70, medium: 57 },
+  CARDS_OVER_UNDER_4_5: { high: 70, medium: 57 },
+  EXACT_SCORE: { high: 25, medium: 14 },
+  HT_FT: { high: 40, medium: 25 },
+  COMBO: { high: 55, medium: 40 },
+};
+
+/** Confiance maximale autorisée pour une probabilité donnée sur un marché. */
+export function maxConfidenceFor(code: (typeof MARKET_CODES)[number], probability: number): Confidence {
+  const floor = CONFIDENCE_FLOORS[code];
+  return probability >= floor.high ? "high" : probability >= floor.medium ? "medium" : "low";
+}
+
+/** Longueurs attendues des textes : une explication doit expliquer, sans devenir un roman. */
+export const REASONING_MIN = 40;
+export const REASONING_MAX = 1000;
 
 /** Mots interdits (et variantes), en mots entiers, insensible à la casse et aux lettres accentuées voisines. */
-const FORBIDDEN = /(?<!\p{L})(s[uû]r(?:e|s|es)?|s[uû]rement|garanti(?:e|s|es)?|garantir|certain(?:e|s|es)?|certainement|certitude|assur[ée]ment)(?!\p{L})/iu;
+const FORBIDDEN = /(?<!\p{L})(s[uû]r(?:e|s|es)?|s[uû]rement|garanti(?:e|s|es)?|garantir|certain(?:e|s|es)?|certainement|certitude|assur[ée]ment|infaillible(?:s)?|imparable(?:s)?|immanquable(?:s)?)(?!\p{L})/iu;
+
+/** Expressions de promesse ou de certitude (en plus des mots interdits). */
+const FORBIDDEN_PHRASES = /(100\s?%|sans (?:aucun )?risque|gain(?:s)? assur[ée]s?|argent facile|à tous les coups|les yeux fermés)/giu;
 
 export function findForbiddenWords(text: string): string[] {
   const found = new Set<string>();
   const global = new RegExp(FORBIDDEN.source, "giu");
   for (const match of text.matchAll(global)) found.add(match[1].toLowerCase());
+  for (const match of text.matchAll(FORBIDDEN_PHRASES)) found.add(match[1].toLowerCase());
   return [...found];
 }
 
@@ -179,6 +223,30 @@ export function validatePrediction(raw: unknown, summary: MatchSummary): Validat
     }
   }
 
+  // « Les deux équipes marquent » implique au moins 2 buts : P(BTTS oui) ≤ P(plus de 1,5 but).
+  const pBttsYes = m.BTTS.selection === "YES" ? m.BTTS.probability : 100 - m.BTTS.probability;
+  if (pBttsYes > o15) {
+    errors.push(`Incohérence : la probabilité que les deux équipes marquent (${pBttsYes} %) ne peut pas dépasser celle de plus de 1,5 but (${o15} %).`);
+  }
+
+  // Aucune certitude : chaque probabilité reste strictement entre 0 et 100 %.
+  const certainty: string[] = [];
+  for (const code of MARKET_CODES) {
+    const market = m[code] as { probability?: number; probabilities?: { home: number; draw: number; away: number } };
+    const values = market.probabilities ? Object.values(market.probabilities) : [market.probability ?? 50];
+    if (values.some((v) => v <= 0 || v >= 100)) certainty.push(code);
+  }
+  if (certainty.length) {
+    errors.push(`${certainty.join(", ")} : une probabilité de 0 % ou de 100 % présente une estimation comme une certitude ; donne une valeur entre 1 et 99.`);
+  }
+
+  // Explications : ni vides de sens, ni démesurées.
+  for (const code of MARKET_CODES) {
+    const length = m[code].reasoning.trim().length;
+    if (length < REASONING_MIN) errors.push(`${code}.reasoning : explication trop courte (${length} caractères, ${REASONING_MIN} au moins). Explique avec les données du dossier.`);
+    if (length > REASONING_MAX) errors.push(`${code}.reasoning : explication trop longue (${length} caractères, ${REASONING_MAX} au plus).`);
+  }
+
   // Confiance « high » interdite pour un amical ou un historique mince.
   const highForbidden = summary.data_quality.is_friendly || isThinHistory(summary);
   if (highForbidden) {
@@ -194,6 +262,31 @@ export function validatePrediction(raw: unknown, summary: MatchSummary): Validat
     m.CARDS_OVER_UNDER_4_5.confidence = "low";
   }
 
+  // Confiance cohérente avec la probabilité (v4) : abaissée si la probabilité est trop faible.
+  const adjustments: string[] = [];
+  const selectedProbability = (code: (typeof MARKET_CODES)[number]): number => {
+    if (code === "MATCH_RESULT") return bySelection[m.MATCH_RESULT.selection];
+    if (code === "HT_RESULT") return htBySelection[m.HT_RESULT.selection];
+    return (m[code] as { probability: number }).probability;
+  };
+  for (const code of MARKET_CODES) {
+    const allowed = maxConfidenceFor(code, selectedProbability(code));
+    if (CONFIDENCE_RANK[m[code].confidence] > CONFIDENCE_RANK[allowed]) {
+      adjustments.push(`${code} : confiance « ${m[code].confidence} » abaissée à « ${allowed} » (probabilité ${selectedProbability(code)} %).`);
+      m[code].confidence = allowed;
+    }
+  }
+
+  // Données insuffisantes (ni forme, ni classement, ni confrontation) : confiance « low » partout.
+  if (isInsufficientData(summary)) {
+    for (const code of MARKET_CODES) {
+      if (m[code].confidence !== "low") {
+        adjustments.push(`${code} : confiance abaissée à « low » (données insuffisantes).`);
+        m[code].confidence = "low";
+      }
+    }
+  }
+
   // Mots interdits dans tous les textes.
   const texts: [string, string][] = [
     ["summary", out.summary],
@@ -205,5 +298,5 @@ export function validatePrediction(raw: unknown, summary: MatchSummary): Validat
     if (words.length) errors.push(`${field} : mots interdits (${words.join(", ")}). Reformule sans promesse ni certitude.`);
   }
 
-  return errors.length ? { ok: false, errors } : { ok: true, data: out };
+  return errors.length ? { ok: false, errors } : { ok: true, data: out, adjustments };
 }

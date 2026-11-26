@@ -2,7 +2,16 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { injuryItemSchema, predictionsItemSchema } from "./schemas";
-import { isThinHistory, isThinMatchStats, lastFive, summarizeMatchContext, teamMatchStats, type SummaryInput } from "./summarize";
+import {
+  isInsufficientData,
+  isThinHistory,
+  isThinMatchStats,
+  lastFive,
+  summarizeMatchContext,
+  teamMatchStats,
+  type MatchSummary,
+  type SummaryInput,
+} from "./summarize";
 
 const recorded = <S extends z.ZodType>(file: string, schema: S): z.infer<S> =>
   schema.parse(JSON.parse(readFileSync(`tests/fixtures/api-football/${file}`, "utf8")).response);
@@ -93,7 +102,8 @@ describe("summarizeMatchContext — championnat", () => {
       percent: { home: "45%", draw: "30%", away: "25%" },
       under_over: "-3.5",
     });
-    expect(summary.data_quality).toEqual({ has_standings: true, h2h_count: 3, is_friendly: false });
+    expect(summary.data_quality).toMatchObject({ has_standings: true, h2h_count: 3, is_friendly: false, insufficient_data: false });
+    expect(summary.data_quality.availability).toMatchObject({ standings: "reliable", head_to_head: "reliable", injuries: "reliable", provider_prediction: "reliable" });
     expect(isThinHistory(summary)).toBe(false);
   });
 });
@@ -118,7 +128,8 @@ describe("summarizeMatchContext — match amical international", () => {
   it("marque le match comme amical, sans classement ni terrain neutre supposé", () => {
     expect(summary.match.competition_type).toBe("friendly");
     expect(summary.match.is_neutral_venue).toBe(false);
-    expect(summary.data_quality).toEqual({ has_standings: false, h2h_count: 0, is_friendly: true });
+    expect(summary.data_quality).toMatchObject({ has_standings: false, h2h_count: 0, is_friendly: true });
+    expect(summary.data_quality.availability).toMatchObject({ standings: "unavailable", head_to_head: "unavailable", injuries: "unavailable" });
   });
 
   it("utilise la forme et les moyennes de /predictions, sans inventer de classement", () => {
@@ -181,5 +192,50 @@ describe("statistiques corners / cartons (lot B)", () => {
     expect(isThinMatchStats(withStats)).toBe(true);
     expect(summarizeMatchContext(leagueInput).home.match_stats).toBeUndefined();
     expect(isThinMatchStats(summarizeMatchContext(leagueInput))).toBe(true);
+  });
+});
+
+describe("qualité du dossier : données fiables, incomplètes ou indisponibles", () => {
+  const bare: SummaryInput = {
+    ...leagueInput,
+    standings: { home: null, away: null },
+    recent: { home: [], away: [] },
+    h2hFromDb: [],
+    predictions: null,
+    injuries: [],
+  };
+
+  it("déclare le dossier insuffisant sans forme, classement ni confrontation, et l'explique", () => {
+    const summary = summarizeMatchContext(bare);
+    expect(summary.data_quality.insufficient_data).toBe(true);
+    expect(isInsufficientData(summary)).toBe(true);
+    expect(summary.data_quality.availability).toEqual({
+      form: "unavailable",
+      standings: "unavailable",
+      head_to_head: "unavailable",
+      goal_averages: "unavailable",
+      corners_cards: "unavailable",
+      injuries: "unavailable",
+      provider_prediction: "unavailable",
+    });
+    expect(summary.data_quality.notes).toContain("forme récente : indisponible");
+  });
+
+  it("distingue « aucune absence signalée » (interrogé) de « information indisponible »", () => {
+    expect(summarizeMatchContext({ ...bare, injuriesChecked: true }).data_quality.availability?.injuries).toBe("reliable");
+    expect(summarizeMatchContext({ ...bare, injuriesChecked: false }).data_quality.availability?.injuries).toBe("unavailable");
+  });
+
+  it("classe une source présente pour une seule équipe comme incomplète", () => {
+    const summary = summarizeMatchContext({ ...bare, standings: { home: leagueInput.standings.home, away: null } });
+    expect(summary.data_quality.availability?.standings).toBe("partial");
+    expect(summary.data_quality.notes).toContain("classement : données incomplètes");
+    expect(summary.data_quality.insufficient_data).toBe(false);
+  });
+
+  it("recalcule l'insuffisance pour un dossier antérieur au prompt v4 (sans champ)", () => {
+    const old = summarizeMatchContext(bare) as MatchSummary;
+    const legacy = { ...old, data_quality: { has_standings: false, h2h_count: 0, is_friendly: false } };
+    expect(isInsufficientData(legacy)).toBe(true);
   });
 });

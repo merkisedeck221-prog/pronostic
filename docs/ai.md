@@ -63,6 +63,18 @@ Règles v3 ajoutées : corners et cartons ≥ 50 % ; **confiance « low » impos
 6. Confiance `high` interdite si `is_friendly` ou historique mince (forme inconnue d'une équipe, ou < 2 confrontations sans classement).
 7. Mots interdits dans tous les textes : sûr, garanti, certain et leurs variantes (sûrement, certitude, assurément…).
 
+Règles v4 ajoutées (étape 5, `lib/ai/prompts/v4.ts`, prompt v3 inchangé + bloc « qualité des données et rigueur ») :
+
+- **Dossier** : `data_quality.availability` classe chaque source `reliable` / `partial` / `unavailable` (forme, classement, confrontations, moyennes de buts, corners / cartons, absences, prédiction du fournisseur) ; `insufficient_data` = ni forme, ni classement, ni confrontation ; `notes` en clair. Absences : `reliable` seulement si `/injuries` a réellement été interrogé (`injuriesChecked`), une liste vide signifie alors « aucune absence signalée ».
+- **Confiance cohérente avec la probabilité** (`CONFIDENCE_FLOORS`, `maxConfidenceFor`) : une confiance trop élevée est **abaissée** automatiquement (jamais relevée), sans nouvel appel ; seuils par marché (ex. 1N2 : high ≥ 60, medium ≥ 45 ; OVER/UNDER, BTTS, handicap, corners, cartons : 70 / 57 ; double chance : 80 / 65 ; score exact : 25 / 14 ; mi-temps/fin : 40 / 25 ; combiné : 55 / 40 ; mi-temps : 55 / 40).
+- **Données insuffisantes** : toutes les confidences abaissées à `low`.
+- **Contradiction** : P(les deux équipes marquent) ≤ P(plus de 1,5 but) (toujours vrai mathématiquement). La décision v2 est conservée : pas de cohérence imposée entre le score exact (issue la plus probable) et les lignes 1,5 / 3,5.
+- **Aucune certitude** : chaque probabilité (y compris chaque issue du 1N2 et de la mi-temps) entre 1 et 99 %.
+- **Explications** : 40 à 1 000 caractères ; le prompt exige un élément chiffré du dossier quand il existe et interdit d'évoquer une source `unavailable` comme connue.
+- **Expressions interdites** ajoutées : « 100 % », « sans risque », « gain assuré », « argent facile », « à tous les coups », « les yeux fermés », « imparable », « infaillible », « immanquable ».
+- Les corrections automatiques sont renvoyées dans `ValidationResult.adjustments` et journalisées (`[ai] corrections de confiance`).
+- Limite assumée : la compatibilité fine entre le texte d'une explication et les chiffres du dossier n'est pas vérifiable automatiquement de façon fiable ; elle repose sur le prompt, le schéma strict et les contrôles ci-dessus.
+
 ### Régénération (admin)
 
 `regeneratePredictions(fixtureId, reason?)` : refusée s'il existe au moins un déblocage ou un pronostic figé (RG-F5-6) ; sinon reconstruit le dossier, régénère, archive l'ancienne version (pronostic + analyse) dans `prediction_revisions`, incrémente `version`, journalise dans `admin_audit_log`.

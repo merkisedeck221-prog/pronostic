@@ -252,6 +252,12 @@ Corrections :
 - Déconnexion de tous les appareils (`signOutEverywhereAction`, `signOut({ scope: "global" })`) depuis le profil.
 - Aucune nouvelle écriture, aucun changement de prix ni de règle de résolution ; l'achat, le déblocage et le remboursement passent par les mêmes fonctions SQL.
 
+## 9 undecies. PRONEX AI, étape 5 (26/11/2026)
+
+- Masquage revérifié (clé publique seule) : lecture directe de `predictions`, `prediction_analyses`, `match_contexts` → 0 ligne (anonyme et connecté, base de test) ; `get_fixture_predictions` ne révèle que les marchés débloqués (0 fuite) ; production, anonyme : 28 tentatives sur 28 refusées. Routes HTTP : seulement `/api/cron/*` (Bearer) et le webhook de paiement (signature) ; la seule lecture de `predictions` côté utilisateur (génération à la demande) est un comptage sans contenu.
+- Un seul jeu par match : contrainte `predictions_fixture_market_unique (fixture_id, market_code)` et `prediction_analyses (fixture_id)` unique ; contenu figé après achat : déclencheur `predictions_protect_locked` (UPDATE / DELETE).
+- Tarifs vérifiés en production : 2 crédits (3 pour score exact, mi-temps/fin, combiné), match complet 7, déduction de ce qui a déjà été payé (`get_unlock_price`). Aucun changement.
+
 ## 10. Points ouverts et risques acceptés
 
 1. ⚠️ **`picomatch`** (outils de développement uniquement) : voir § 8.
