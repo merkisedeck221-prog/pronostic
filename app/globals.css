@@ -386,3 +386,20 @@ main#contenu > * {
     inset 0 1px 0 rgb(255 255 255 / 0.06),
     0 24px 60px -30px rgb(160 0 255 / 0.45);
 }
+
+/* FAQ : ouverture fluide des accordéons <details> (navigateurs compatibles), coupée par « réduire les animations ». */
+@supports selector(::details-content) {
+  :root {
+    interpolate-size: allow-keywords;
+  }
+  .pronex-faq::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition:
+      block-size 0.3s ease,
+      content-visibility 0.3s allow-discrete;
+  }
+  .pronex-faq[open]::details-content {
+    block-size: auto;
+  }
+}
