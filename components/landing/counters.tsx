@@ -16,8 +16,9 @@ export const DEMO_COUNTERS: PublicCounters = { users: 25000, won: 12500, analyse
 
 /**
  * Compteurs animés (brief, partie 5). Chiffres RÉELS (get_public_counters) ;
- * un indicateur sans valeur réelle suffisante est masqué, et la section entière
- * disparaît si aucun ne l'est. Le mode démonstration est signalé clairement.
+ * un indicateur sans valeur réelle suffisante est masqué. Tant qu'aucun chiffre
+ * réel n'est disponible, la page montre l'aperçu de DÉMONSTRATION (décision du
+ * porteur, 26/11/2026), signalé par un bandeau et une mention « Exemple » par carte.
  */
 export function LandingCounters({ counters, demo = false }: { counters: PublicCounters; demo?: boolean }) {
   const shown = INDICATORS.filter((indicator) => counters[indicator.key] !== null);
@@ -49,6 +50,9 @@ export function LandingCounters({ counters, demo = false }: { counters: PublicCo
               <dd className="order-1 font-heading text-5xl font-extrabold tracking-tight sm:text-6xl">
                 <CountUp value={counters[key] ?? 0} />
               </dd>
+              {demo ? (
+                <dd className="order-3 mt-3 rounded-full border border-warning/40 px-2.5 py-0.5 text-[11px] font-semibold text-warning">Exemple</dd>
+              ) : null}
             </div>
           ))}
         </dl>

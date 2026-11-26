@@ -87,8 +87,11 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
     getPublicFlags(),
     getPublicCounters(),
   ]);
-  // Aperçu de l'animation pendant le développement : valeurs d'exemple, signalées « Démonstration ».
-  const demoCounters = (await searchParams).apercu === "compteurs";
+  // Aperçu de l'animation tant qu'aucun chiffre réel n'atteint son seuil (ou ?apercu=compteurs) :
+  // valeurs d'exemple, toujours signalées « Démonstration ». Dès qu'un chiffre réel est
+  // disponible, seuls les chiffres réels sont affichés.
+  const hasRealCounters = Object.values(realCounters).some((value) => value !== null);
+  const demoCounters = (await searchParams).apercu === "compteurs" || !hasRealCounters;
   const timezone = resolveTimezone(null);
   const resolved = performance ? performance.global.won + performance.global.lost : 0;
   const resolved30 = performance ? performance.last30.won + performance.last30.lost : 0;
