@@ -47,7 +47,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Aller au contenu
         </a>
         {children}
-        <Toaster />
+        <Toaster position="bottom-center" mobileOffset={{ bottom: "5.5rem" }} />
       </body>
     </html>
   );

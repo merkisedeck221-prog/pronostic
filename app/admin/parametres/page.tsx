@@ -42,7 +42,7 @@ export default async function AdminSettingsPage() {
                 {link ? (
                   <>
                     {" "}
-                    <Link href={link.href} className="font-medium text-pronex-pink underline-offset-4 hover:underline">
+                    <Link href={link.href} className="tap-target font-medium text-pronex-pink underline-offset-4 hover:underline">
                       {link.label}
                     </Link>
                   </>

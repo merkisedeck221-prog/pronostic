@@ -145,7 +145,7 @@ export default async function HomePage() {
       <section aria-labelledby="ia" className="border-y border-white/5 bg-white/[0.02]">
         <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-14">
           <SectionHeading id="ia" eyebrow="PRONEX AI" title="Une IA qui explique ses choix" description="Pas une simple prédiction : une analyse que vous pouvez lire et comprendre." />
-          <ul className="grid gap-4 md:grid-cols-3">
+          <ul className="pronex-stagger grid gap-4 md:grid-cols-3">
             {AI_POINTS.map(({ icon: Icon, title, text }) => (
               <li key={title} className="space-y-3 rounded-2xl border border-white/8 bg-card p-6">
                 <span className="flex size-10 items-center justify-center rounded-xl bg-pronex-violet/15 text-violet-200">
@@ -162,9 +162,9 @@ export default async function HomePage() {
       {/* Avantages */}
       <section aria-labelledby="avantages" className="mx-auto w-full max-w-6xl space-y-8 px-4 py-14">
         <SectionHeading id="avantages" eyebrow="Pourquoi PRONEX" title="Les avantages de la plateforme" />
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="pronex-stagger grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {ADVANTAGES.map(({ icon: Icon, title, text }) => (
-            <li key={title} className="space-y-2 rounded-2xl border border-white/8 bg-card p-5">
+            <li key={title} className="pronex-lift space-y-2 rounded-2xl border border-white/8 bg-card p-5">
               <Icon className="size-5 text-pronex-pink" aria-hidden />
               <h3 className="font-semibold">{title}</h3>
               <p className="text-sm text-muted-foreground">{text}</p>
@@ -202,7 +202,7 @@ export default async function HomePage() {
               <li key={f.id}>
                 <Link
                   href={`/connexion?next=${encodeURIComponent(`/matchs/${f.id}`)}`}
-                  className="flex items-center gap-4 rounded-2xl border border-white/8 bg-card p-4 transition-colors hover:border-pronex-violet/40"
+                  className="pronex-lift flex items-center gap-4 rounded-2xl border border-white/8 bg-card p-4"
                 >
                   <div className="min-w-0 flex-1 space-y-1.5">
                     <p className="flex items-center gap-1.5 text-xs text-muted-foreground">

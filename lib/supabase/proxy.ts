@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { PATHNAME_HEADER } from "@/lib/auth/constants";
+import { HAD_SESSION_HEADER, PATHNAME_HEADER } from "@/lib/auth/constants";
 import type { Database } from "@/types/database";
 
 /**
@@ -8,6 +8,7 @@ import type { Database } from "@/types/database";
  *
  * - Les cookies de session renouvelés sont écrits à la fois sur la requête
  *   (pour les composants serveur de cette requête) et sur la réponse (navigateur).
+ * - Ajoute l'en-tête x-had-session (cookie de session présent avant rafraîchissement).
  * - Ajoute l'en-tête x-pathname (chemin demandé) pour le paramètre ?next=.
  *   Toute valeur envoyée par le client est écrasée.
  * - Aucune redirection ici : la protection des pages est faite par les mises en
@@ -15,10 +16,16 @@ import type { Database } from "@/types/database";
  */
 export async function updateSession(request: NextRequest): Promise<NextResponse> {
   const requestedPath = request.nextUrl.pathname + request.nextUrl.search;
+  // Lu avant le rafraîchissement : un cookie expiré ou corrompu sera effacé ensuite.
+  const hadSession = request.cookies
+    .getAll()
+    .some((c) => c.name.startsWith("sb-") && c.name.includes("-auth-token") && (c.value ?? "").length > 0);
 
   const forwardedHeaders = () => {
     const h = new Headers(request.headers);
     h.set(PATHNAME_HEADER, requestedPath);
+    // Toujours recalculé ici : une valeur envoyée par le client est écrasée.
+    h.set(HAD_SESSION_HEADER, hadSession ? "1" : "0");
     return h;
   };
 

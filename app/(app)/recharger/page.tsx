@@ -66,12 +66,12 @@ export default async function RechargerPage({ searchParams }: PageProps<"/rechar
             Aucun pack n&apos;est disponible pour le moment.
           </p>
         ) : (
-          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="pronex-stagger grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {packs.map((pack) => (
               <li
                 key={pack.id}
                 className={cn(
-                  "relative rounded-2xl p-px",
+                  "pronex-lift relative rounded-2xl p-px",
                   pack.is_featured ? "bg-linear-to-br from-pronex-pink/85 to-pronex-violet shadow-[0_0_32px_-8px] shadow-pronex-pink/60" : "bg-white/10",
                 )}
               >

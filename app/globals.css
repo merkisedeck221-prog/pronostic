@@ -278,3 +278,51 @@ main#contenu > * {
 .pronex-scan {
   animation: pronex-scan 1.4s ease-in-out infinite;
 }
+
+/*
+ * Cibles tactiles (étape 7) : sur écran tactile, les liens courts (« Voir »,
+ * « Tout voir », liens des tableaux admin, logo) gardent au moins 44 px de haut.
+ */
+.tap-target {
+  display: inline-flex;
+  align-items: center;
+}
+@media (pointer: coarse) {
+  .tap-target {
+    min-height: 2.75rem;
+  }
+  [data-admin-content] td a,
+  [data-admin-content] th a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+  }
+}
+
+/*
+ * Micro-interactions (étape 7) : cartes cliquables légèrement soulevées au
+ * survol (souris uniquement), apparition en cascade des listes. Coupées par
+ * la règle « prefers-reduced-motion » plus haut.
+ */
+@media (hover: hover) and (pointer: fine) {
+  .pronex-lift {
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .pronex-lift:hover {
+    transform: translateY(-2px);
+    border-color: rgb(160 0 255 / 0.4);
+    box-shadow: 0 14px 32px -20px rgb(160 0 255 / 0.7);
+  }
+}
+.pronex-stagger > * {
+  animation: pronex-enter 0.35s ease-out both;
+}
+.pronex-stagger > *:nth-child(2) { animation-delay: 40ms; }
+.pronex-stagger > *:nth-child(3) { animation-delay: 80ms; }
+.pronex-stagger > *:nth-child(4) { animation-delay: 120ms; }
+.pronex-stagger > *:nth-child(5) { animation-delay: 160ms; }
+.pronex-stagger > *:nth-child(6) { animation-delay: 200ms; }
+.pronex-stagger > *:nth-child(n + 7) { animation-delay: 240ms; }

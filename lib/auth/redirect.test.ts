@@ -24,5 +24,7 @@ describe("loginUrl", () => {
   it("encode la page demandée", () => {
     expect(loginUrl("/profil")).toBe("/connexion?next=%2Fprofil");
     expect(loginUrl("https://evil.example")).toBe("/connexion");
+    expect(loginUrl("/portefeuille", { expired: true })).toBe("/connexion?next=%2Fportefeuille&info=session-expiree");
+    expect(loginUrl(null, { expired: true })).toBe("/connexion?info=session-expiree");
   });
 });

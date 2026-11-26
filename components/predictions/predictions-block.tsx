@@ -151,7 +151,7 @@ export function PredictionsBlock({ fixtureId, homeName, awayName, data, balance,
         </div>
       ) : null}
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="pronex-stagger grid gap-3 sm:grid-cols-2">
         {data.markets.map((market) => (
           <article
             key={market.code}

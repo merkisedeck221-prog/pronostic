@@ -58,7 +58,7 @@ function Panel({ title, icon: Icon, href, linkLabel, children, className }: {
           {title}
         </h2>
         {href ? (
-          <Link href={href} className="text-sm font-medium text-pronex-pink hover:underline">
+          <Link href={href} className="tap-target text-sm font-medium text-pronex-pink hover:underline">
             {linkLabel ?? "Tout voir"}
           </Link>
         ) : null}
@@ -135,7 +135,7 @@ export default async function DashboardPage() {
               <Link
                 key={href}
                 href={href}
-                className="flex flex-col items-center gap-1.5 rounded-xl border border-white/8 bg-card px-2 py-3 text-center text-xs font-medium text-muted-foreground transition-colors hover:border-pronex-violet/40 hover:text-foreground"
+                className="pronex-lift flex flex-col items-center gap-1.5 rounded-xl border border-white/8 bg-card px-2 py-3 text-center text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 <Icon className="size-5 text-pronex-pink" aria-hidden />
                 {label}

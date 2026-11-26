@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
  */
 export function Brand({ href = "/", className, compact = false }: { href?: string; className?: string; compact?: boolean }) {
   return (
-    <Link href={href} className={cn("flex shrink-0 items-center gap-2", className)} aria-label="PRONEX, accueil">
+    <Link href={href} className={cn("flex min-h-11 shrink-0 items-center gap-2", className)} aria-label="PRONEX, accueil">
       <Image src="/brand/pronex-symbol.webp" alt="" width={240} height={113} priority className="h-6 w-auto sm:h-7" />
       <Image
         src="/brand/pronex-wordmark.webp"
