@@ -2,11 +2,22 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowRightIcon, BarChart3Icon, InfoIcon } from "lucide-react";
-import { StatCard } from "@/components/layout/stat-card";
-import { RateBars, WeeklyChart } from "@/components/performance/charts";
+import {
+  ArrowRightIcon,
+  BarChart3Icon,
+  CircleCheckIcon,
+  CircleMinusIcon,
+  CircleXIcon,
+  InfoIcon,
+  type LucideIcon,
+} from "lucide-react";
+import {
+  RateBars,
+  RateRing,
+  WeeklyChart,
+} from "@/components/performance/charts";
 import { buttonVariants } from "@/components/ui/button";
-import { formatRate, isSmallSample } from "@/lib/settle/labels";
+import { isSmallSample } from "@/lib/settle/labels";
 import type { PerformanceStats } from "@/lib/settle/schemas";
 import { cn } from "@/lib/utils";
 
@@ -27,29 +38,52 @@ const VIEWS: { id: View; label: string }[] = [
   { id: "competitions", label: "Par compétition" },
 ];
 
-export function LandingPerformance({ stats }: { stats: PerformanceStats | null }) {
+export function LandingPerformance({
+  stats,
+}: {
+  stats: PerformanceStats | null;
+}) {
   const [period, setPeriod] = useState<Period>("tout");
   const [view, setView] = useState<View>("semaines");
 
   const global = stats?.global ?? { won: 0, lost: 0, void: 0 };
   const resolved = global.won + global.lost;
-  const shown = period === "30-jours" ? (stats?.last_30_days ?? { won: 0, lost: 0, void: 0 }) : global;
+  const shown =
+    period === "30-jours"
+      ? (stats?.last_30_days ?? { won: 0, lost: 0, void: 0 })
+      : global;
   const shownResolved = shown.won + shown.lost;
 
   return (
-    <section id="performances" aria-labelledby="performances-titre" className="scroll-mt-16 border-y border-white/5 bg-white/[0.015]">
+    <section
+      id="performances"
+      aria-labelledby="performances-titre"
+      className="scroll-mt-16 border-y border-white/5 bg-white/[0.015]"
+    >
       <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-16 sm:py-20">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="max-w-2xl space-y-2">
-            <p className="text-xs font-semibold tracking-[0.2em] text-pronex-pink uppercase">Performances</p>
-            <h2 id="performances-titre" className="font-heading text-2xl font-bold sm:text-3xl">
+            <p className="text-xs font-semibold tracking-[0.2em] text-pronex-pink uppercase">
+              Performances
+            </p>
+            <h2
+              id="performances-titre"
+              className="font-heading text-2xl font-bold sm:text-3xl"
+            >
               Les performances de PRONEX AI en toute transparence
             </h2>
             <p className="text-sm text-muted-foreground sm:text-base">
-              Chaque pronostic publié est vérifié automatiquement après le match. Les pronostics perdus sont comptés, toujours.
+              Chaque pronostic publié est vérifié automatiquement après le
+              match. Les pronostics perdus sont comptés, toujours.
             </p>
           </div>
-          <Link href="/performances" className={buttonVariants({ variant: "outline", className: "shrink-0" })}>
+          <Link
+            href="/performances"
+            className={buttonVariants({
+              variant: "outline",
+              className: "shrink-0",
+            })}
+          >
             Voir toutes les performances
             <ArrowRightIcon aria-hidden />
           </Link>
@@ -61,7 +95,9 @@ export function LandingPerformance({ stats }: { stats: PerformanceStats | null }
               <BarChart3Icon className="size-6" aria-hidden />
             </span>
             <div className="space-y-1.5">
-              <p className="font-heading text-lg font-bold">Les premiers résultats arrivent bientôt</p>
+              <p className="font-heading text-lg font-bold">
+                Les premiers résultats arrivent bientôt
+              </p>
               <p className="text-sm leading-relaxed text-muted-foreground">
                 {stats === null
                   ? "Les performances sont momentanément indisponibles. Elles restent consultables sur la page dédiée."
@@ -84,44 +120,168 @@ export function LandingPerformance({ stats }: { stats: PerformanceStats | null }
               {isSmallSample(global.won, global.lost) ? (
                 <p className="flex items-center gap-1.5 text-xs text-warning">
                   <InfoIcon className="size-3.5" aria-hidden />
-                  Échantillon encore réduit ({resolved} pronostic{resolved > 1 ? "s" : ""} terminé{resolved > 1 ? "s" : ""}) : à interpréter avec prudence.
+                  Échantillon encore réduit ({resolved} pronostic
+                  {resolved > 1 ? "s" : ""} terminé{resolved > 1 ? "s" : ""}) :
+                  à interpréter avec prudence.
                 </p>
               ) : null}
             </div>
 
-            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-              <StatCard
-                label="Taux de réussite"
-                value={formatRate(shown.won, shown.lost)}
-                hint={shownResolved === 0 ? "Aucun pronostic terminé sur la période" : `Sur ${shownResolved} pronostic${shownResolved > 1 ? "s" : ""}, hors annulés`}
+            {/* Panneau des résultats : anneau du taux + gagnés / perdus / annulés */}
+            <div className="pronex-panel relative overflow-hidden rounded-[2rem] p-6 sm:p-8">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute -top-24 -left-16 size-72 rounded-full bg-pronex-pink/15 blur-[90px]"
               />
-              <StatCard label="Gagnés" value={shown.won} tone="success" />
-              <StatCard label="Perdus" value={shown.lost} tone="danger" />
-              <StatCard label="Annulés" value={shown.void} hint="Exclus du taux de réussite" />
+              <div className="relative grid items-center gap-8 lg:grid-cols-[auto_1fr] lg:gap-12">
+                <div className="flex flex-col items-center">
+                  <RateRing won={shown.won} lost={shown.lost} size={196} />
+                  <p className="mt-4 text-center text-xs text-muted-foreground">
+                    {shownResolved === 0
+                      ? "Aucun pronostic terminé sur la période"
+                      : `Sur ${shownResolved} pronostic${shownResolved > 1 ? "s" : ""} terminé${shownResolved > 1 ? "s" : ""}, hors annulés`}
+                  </p>
+                </div>
+                <dl className="grid grid-cols-3 divide-x divide-white/[0.08]">
+                  <ResultStat
+                    icon={CircleCheckIcon}
+                    label="Gagnés"
+                    value={shown.won}
+                    total={shown.won + shown.lost + shown.void}
+                    tone="won"
+                  />
+                  <ResultStat
+                    icon={CircleXIcon}
+                    label="Perdus"
+                    value={shown.lost}
+                    total={shown.won + shown.lost + shown.void}
+                    tone="lost"
+                  />
+                  <ResultStat
+                    icon={CircleMinusIcon}
+                    label="Annulés"
+                    value={shown.void}
+                    total={shown.won + shown.lost + shown.void}
+                    tone="void"
+                    hint="hors taux"
+                  />
+                </dl>
+              </div>
             </div>
 
-            <div className="space-y-4 rounded-3xl border border-white/8 bg-card p-5 sm:p-6">
+            <div className="pronex-panel space-y-5 rounded-[2rem] p-5 sm:p-7">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <p className="font-heading font-bold">
-                  {view === "semaines" ? "Résultats des 12 dernières semaines" : view === "types" ? "Réussite par type de pronostic" : "Réussite par compétition"}
+                  {view === "semaines"
+                    ? "Résultats des 12 dernières semaines"
+                    : view === "types"
+                      ? "Réussite par type de pronostic"
+                      : "Réussite par compétition"}
                 </p>
-                <Segmented label="Graphique" value={view} onChange={setView} options={VIEWS} />
+                <Segmented
+                  label="Graphique"
+                  value={view}
+                  onChange={setView}
+                  options={VIEWS}
+                />
               </div>
               {view === "semaines" ? (
                 <WeeklyChart weeks={stats.by_week} />
               ) : view === "types" ? (
-                <RateBars emptyLabel="Aucun type de pronostic résolu." rows={stats.by_market.map((m) => ({ ...m, key: m.code, name: m.label }))} />
+                <RateBars
+                  emptyLabel="Aucun type de pronostic résolu."
+                  rows={stats.by_market.map((m) => ({
+                    ...m,
+                    key: m.code,
+                    name: m.label,
+                  }))}
+                />
               ) : (
-                <RateBars emptyLabel="Aucune compétition résolue." rows={stats.by_competition.map((c) => ({ ...c, key: String(c.id), name: c.name }))} />
+                <RateBars
+                  emptyLabel="Aucune compétition résolue."
+                  rows={stats.by_competition.map((c) => ({
+                    ...c,
+                    key: String(c.id),
+                    name: c.name,
+                  }))}
+                />
               )}
               <p className="text-xs text-muted-foreground">
-                Taux = gagnés ÷ (gagnés + perdus). Les graphiques par type et par compétition portent sur toute la période.
+                Taux = gagnés ÷ (gagnés + perdus). Les graphiques par type et
+                par compétition portent sur toute la période.
               </p>
             </div>
           </>
         )}
       </div>
     </section>
+  );
+}
+
+const TONES = {
+  won: {
+    icon: "text-success",
+    bar: "bg-linear-to-r from-success to-[#4ade80]",
+    value: "text-foreground",
+  },
+  lost: {
+    icon: "text-[#f87171]",
+    bar: "bg-[#f87171]/80",
+    value: "text-foreground",
+  },
+  void: {
+    icon: "text-muted-foreground",
+    bar: "bg-white/30",
+    value: "text-foreground",
+  },
+} as const;
+
+/** Résultat (gagnés, perdus, annulés) : nombre, part du total ; toujours affiché, même à zéro. */
+function ResultStat({
+  icon: Icon,
+  label,
+  value,
+  total,
+  tone,
+  hint,
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: number;
+  total: number;
+  tone: keyof typeof TONES;
+  hint?: string;
+}) {
+  const share = total > 0 ? Math.round((value / total) * 100) : 0;
+  return (
+    <div className="flex flex-col items-center px-2 text-center sm:px-6 lg:items-start lg:text-left">
+      <dt className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground sm:text-sm">
+        <Icon className={cn("size-4", TONES[tone].icon)} aria-hidden />
+        {label}
+      </dt>
+      <dd
+        className={cn(
+          "mt-2 font-heading text-3xl font-black italic tabular-nums sm:text-5xl",
+          TONES[tone].value,
+        )}
+      >
+        {value}
+      </dd>
+      <dd className="mt-3 w-full max-w-40">
+        <div
+          className="h-1 overflow-hidden rounded-full bg-white/[0.07]"
+          role="presentation"
+        >
+          <div
+            className={cn("h-full rounded-full", TONES[tone].bar)}
+            style={{ width: `${share}%` }}
+          />
+        </div>
+        <p className="mt-1.5 text-[11px] text-muted-foreground tabular-nums">
+          {share} %{hint ? ` · ${hint}` : " du total"}
+        </p>
+      </dd>
+    </div>
   );
 }
 
@@ -137,7 +297,11 @@ function Segmented<T extends string>({
   options: { id: T; label: string }[];
 }) {
   return (
-    <div role="group" aria-label={label} className="inline-flex flex-wrap gap-1 rounded-xl border border-white/8 bg-pronex-night p-1">
+    <div
+      role="group"
+      aria-label={label}
+      className="inline-flex flex-wrap gap-1 rounded-xl border border-white/8 bg-pronex-night p-1"
+    >
       {options.map((option) => (
         <button
           key={option.id}
@@ -146,7 +310,9 @@ function Segmented<T extends string>({
           onClick={() => onChange(option.id)}
           className={cn(
             "tap-target rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
-            value === option.id ? "bg-pronex-violet text-white" : "text-muted-foreground hover:bg-white/5 hover:text-foreground",
+            value === option.id
+              ? "bg-pronex-violet text-white"
+              : "text-muted-foreground hover:bg-white/5 hover:text-foreground",
           )}
         >
           {option.label}

@@ -1031,3 +1031,15 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
 - Sans pronostic résolu (situation actuelle) : état explicatif « Les premiers résultats arrivent bientôt », jamais de faux taux. Données indisponibles : message.
 - Tests de rendu (`performance.test.tsx`) : état vide sans aucun %, taux identique à la page publique (75 % pour 30/10/2), perdus et annulés affichés. Version avec données vérifiée visuellement à l'aide d'un rendu de contrôle (non publié).
 - L'ancienne carte « Performances » est retirée ; la carte « Crédits » (`#tarifs`) reste, en attente de la partie Tarifs.
+- **Design premium des graphiques (demande du porteur)** : la page `/performances` et la landing en profitent toutes les deux (mêmes composants, mêmes données).
+  - Anneau du taux de réussite (`RateRing`) en dégradé rose → violet, avec halo.
+  - Panneau unique (`.pronex-panel` : fond verre léger, liseré dégradé, ombre violette) qui regroupe gagnés, perdus et annulés côte à côte, avec leur part du total.
+  - Graphique hebdomadaire :
+    - barres segmentées arrondies aux couleurs adoucies ;
+    - courbe du taux lumineuse avec aire dégradée ;
+    - info-bulle au survol (alignée sur les bords pour ne pas déborder) ;
+    - axe et grille discrets ;
+    - dates jj/mm lisibles (une sur quatre sur mobile).
+  - `RateBars` : classement numéroté, barre segmentée gagnés / perdus / annulés, taux en grand.
+  - Les perdus restent toujours affichés.
+  - Le tableau accessible est désormais enveloppé dans un bloc `sr-only` (un `<table>` ne se réduit pas seul et créait un débordement sur mobile).
