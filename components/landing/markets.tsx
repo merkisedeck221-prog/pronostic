@@ -1,4 +1,5 @@
 import {
+  BarChart3Icon,
   ArrowLeftRightIcon,
   BadgeCheckIcon,
   ClockIcon,
@@ -14,8 +15,10 @@ import {
   UsersIcon,
   type LucideIcon,
 } from "lucide-react";
+import Link from "next/link";
 import { Reveal } from "@/components/landing/reveal";
 import { SectionHeading } from "@/components/layout/section-heading";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type Category = "Résultat" | "Buts" | "Statistiques" | "Combiné";
@@ -228,6 +231,26 @@ export function LandingMarkets({ activeCodes }: { activeCodes: string[] }) {
           Pour chaque marché : la sélection de PRONEX AI, sa probabilité, son
           niveau de confiance et l&apos;explication.
         </p>
+
+        <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <Link
+            href="#performances"
+            className={buttonVariants({
+              variant: "outline",
+              size: "lg",
+              className: "px-6",
+            })}
+          >
+            <BarChart3Icon aria-hidden />
+            Voir les performances réelles
+          </Link>
+          <Link
+            href="#tarifs"
+            className="tap-target text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          >
+            Combien coûte un pronostic ?
+          </Link>
+        </div>
       </div>
     </section>
   );

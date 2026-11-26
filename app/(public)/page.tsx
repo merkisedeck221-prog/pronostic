@@ -6,6 +6,7 @@ import { LandingAdvantages } from "@/components/landing/advantages";
 import { LandingDemo } from "@/components/landing/demo-section";
 import { LandingFaq } from "@/components/landing/faq";
 import { LandingFinalCta } from "@/components/landing/final-cta";
+import { MobileCta } from "@/components/landing/mobile-cta";
 import { LandingHero } from "@/components/landing/hero";
 import { LandingHowItWorks } from "@/components/landing/how-it-works";
 import { LandingMarkets } from "@/components/landing/markets";
@@ -21,7 +22,8 @@ import { formatKickoff, resolveTimezone } from "@/lib/utils/dates";
 
 export const metadata: Metadata = {
   title: "PRONEX — Prédisez. Analysez. Dominez.",
-  description: "Analyses et pronostics football par PRONEX AI : probabilités, niveau de confiance et explication pour chaque match.",
+  description:
+    "Analyses et pronostics football par PRONEX AI : probabilités, niveau de confiance et explication pour chaque match.",
 };
 
 export default async function HomePage() {
@@ -29,25 +31,33 @@ export default async function HomePage() {
   if (await getCurrentUser()) redirect("/tableau-de-bord");
   // Section des compteurs animés (components/landing/counters.tsx) retirée de la page
   // le 26/11/2026 à la demande du porteur, en attente de décision ; code conservé.
-  const [{ markets, packs, performance, fixtures, pricing }, flags] = await Promise.all([getLandingData(), getPublicFlags()]);
+  const [{ markets, packs, performance, fixtures, pricing }, flags] =
+    await Promise.all([getLandingData(), getPublicFlags()]);
   const timezone = resolveTimezone(null);
 
   return (
     <main className="flex-1">
       <LandingHero marketCount={markets.length} />
+      {/* Parcours (brief, partie 17) : 1 comprendre → 2 valeur de l'IA → 3 démonstration →
+          4 marchés → 5 performances réelles → 6 crédits → 7 inscription. */}
       <LandingPresentation marketCount={markets.length} />
+      <LandingAdvantages marketCount={markets.length} />
       <LandingDemo marketCount={markets.length} />
       <LandingHowItWorks />
-
       <LandingMarkets activeCodes={markets.map((m) => m.code)} />
-      <LandingPerformance stats={performance} />
-      <LandingAdvantages marketCount={markets.length} />
-      <LandingPricing packs={packs} pricing={pricing} />
 
       {/* Aperçu des matchs : uniquement si des matchs analysés existent */}
       {fixtures.length > 0 ? (
-        <section aria-labelledby="apercu" className="mx-auto w-full max-w-6xl space-y-6 px-4 pb-14">
-          <SectionHeading id="apercu" eyebrow="À venir" title="Prochains matchs analysés" description="Connectez-vous pour consulter la fiche et débloquer les pronostics." />
+        <section
+          aria-labelledby="apercu"
+          className="mx-auto w-full max-w-6xl space-y-6 px-4 pb-16"
+        >
+          <SectionHeading
+            id="apercu"
+            eyebrow="À venir"
+            title="Prochains matchs analysés"
+            description="Connectez-vous pour consulter la fiche et débloquer les pronostics."
+          />
           <ul className="grid gap-3 sm:grid-cols-2">
             {fixtures.map((f) => (
               <li key={f.id}>
@@ -61,19 +71,31 @@ export default async function HomePage() {
                       {formatKickoff(f.kickoff_at, timezone)} · {f.competition}
                     </p>
                     {[f.home, f.away].map((team) => (
-                      <p key={team.name} className="flex items-center gap-2 text-sm font-medium">
-                        <TeamLogo name={team.name} src={team.logo_url} size={20} />
+                      <p
+                        key={team.name}
+                        className="flex items-center gap-2 text-sm font-medium"
+                      >
+                        <TeamLogo
+                          name={team.name}
+                          src={team.logo_url}
+                          size={20}
+                        />
                         <span className="truncate">{team.name}</span>
                       </p>
                     ))}
                   </div>
-                  <span className="shrink-0 rounded-full bg-pronex-violet/20 px-2.5 py-1 text-xs font-semibold text-violet-200">Analyse IA</span>
+                  <span className="shrink-0 rounded-full bg-pronex-violet/20 px-2.5 py-1 text-xs font-semibold text-violet-200">
+                    Analyse IA
+                  </span>
                 </Link>
               </li>
             ))}
           </ul>
         </section>
       ) : null}
+
+      <LandingPerformance stats={performance} />
+      <LandingPricing packs={packs} pricing={pricing} />
 
       <LandingFaq
         marketLabels={markets.map((m) => m.label)}
@@ -84,6 +106,7 @@ export default async function HomePage() {
       />
 
       <LandingFinalCta />
+      <MobileCta />
     </main>
   );
 }
