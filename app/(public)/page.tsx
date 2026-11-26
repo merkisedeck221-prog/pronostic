@@ -11,6 +11,7 @@ import {
   SmartphoneIcon,
   TagIcon,
 } from "lucide-react";
+import { LandingDemo } from "@/components/landing/demo-section";
 import { LandingHero } from "@/components/landing/hero";
 import { LandingPresentation } from "@/components/landing/presentation";
 import { SectionHeading } from "@/components/layout/section-heading";
@@ -91,6 +92,7 @@ export default async function HomePage() {
     <main className="flex-1">
       <LandingHero marketCount={markets.length} />
       <LandingPresentation marketCount={markets.length} />
+      <LandingDemo marketCount={markets.length} />
 
       {/* Avantages */}
       <section aria-labelledby="avantages" className="mx-auto w-full max-w-6xl space-y-8 px-4 py-14">
@@ -108,7 +110,7 @@ export default async function HomePage() {
 
       {/* Types d'analyses (lus en base) */}
       {markets.length > 0 ? (
-        <section id="analyses" aria-labelledby="analyses-titre" className="mx-auto w-full max-w-6xl scroll-mt-20 space-y-8 px-4 pb-14">
+        <section id="types-pronostics" aria-labelledby="analyses-titre" className="mx-auto w-full max-w-6xl scroll-mt-20 space-y-8 px-4 pb-14">
           <SectionHeading
             id="analyses-titre"
             eyebrow="Analyses"

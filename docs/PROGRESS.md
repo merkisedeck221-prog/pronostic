@@ -979,3 +979,13 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
   - Dès qu'un vrai chiffre atteint son seuil, la section bascule sur « PRONEX en chiffres » avec les chiffres réels, avec le « + ».
   - Valeurs dans `GOALS` (`components/landing/counters.tsx`).
 - **Section retirée (26/11/2026)** : à la demande du porteur, la section des compteurs n'est plus affichée sur la page d'accueil, en attente de sa décision. Le code est conservé : `components/landing/counters.tsx`, `count-up.tsx`, `lib/catalog/counters.ts`, la fonction SQL `get_public_counters()` et ses seuils.
+
+## Landing — partie 6 du brief : démonstration PRONEX AI (26/11/2026)
+
+- Section `#analyses` (lien « Analyses IA » du menu ; l'ancienne liste des types de pronostics devient `#types-pronostics`) : « Découvrez la puissance de PRONEX AI », avec la description du brief.
+- `components/landing/ai-demo.tsx` (client) :
+  - fiche de match marquée « Démonstration » : compétition, date, équipes A / B, forme (composant réel `FormBadges`), 3 statistiques, marchés analysés ;
+  - bouton « Voir une démonstration » qui lance les 7 étapes RÉELLES du moteur (`VISUAL_STEPS`) au rythme simulé de 0,85 s par étape (0,12 s si l'appareil demande moins d'animations), avec barre de progression et annonce pour les lecteurs d'écran ;
+  - à la fin : sélection, probabilité, confiance et explication fictives, puis « Rejouer » et « Accéder aux vraies analyses » ;
+  - sur mobile, défilement automatique jusqu'au résultat.
+- Garanties, vérifiées : **aucune requête réseau** pendant la démonstration (ni OpenAI, ni crédits, ni serveur), aucun vrai contenu payant. La mention « aucune analyse réelle n'est lancée, aucun crédit n'est utilisé, rythme simulé » est affichée.
