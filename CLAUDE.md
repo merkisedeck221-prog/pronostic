@@ -46,7 +46,7 @@
 
 ## Authentification (phase 3)
 
-- `proxy.ts` (ancien middleware) rafraîchit la session Supabase à chaque requête et pose l'en-tête `x-pathname` ; il ne protège rien lui-même.
+- `proxy.ts` (ancien middleware) rafraîchit la session Supabase à chaque requête et pose les en-têtes internes `x-pathname` et `x-had-session` (message « session expirée ») ; il ne protège rien lui-même. Une session illisible est traitée comme absente (jamais de 500).
 - Protection CÔTÉ SERVEUR dans `lib/auth/session.ts` : `getCurrentUser()`, `requireUser()` (redirection `/connexion?next=…`, `BannedAccountError` si suspendu), `requireAdmin()` (`is_admin()` en SQL, sinon `notFound()`). Toute page privée, Server Action ou route handler doit appeler l'un d'eux, même si la mise en page le fait déjà.
 - Formulaires : schéma Zod partagé (`lib/auth/schemas.ts`) validé dans le navigateur (`useZodForm`) **et** dans la Server Action (`validateForm`). Messages en français.
 - `next` après connexion : toujours passer par `safeNextPath()` (pas de redirection ouverte).
@@ -99,7 +99,7 @@
 
 ## Recette et sécurité (phase 11)
 
-- Rapports : [docs/RECETTE.md](docs/RECETTE.md) (conformité) et [docs/SECURITE.md](docs/SECURITE.md) (audit) : les tenir à jour à chaque nouvelle règle ou correction.
+- Rapports : [docs/RECETTE.md](docs/RECETTE.md) (conformité) et [docs/SECURITE.md](docs/SECURITE.md) (audit), [docs/RAPPORT-FINAL.md](docs/RAPPORT-FINAL.md) (bilan de la refonte, étapes 1 à 8) : les tenir à jour à chaque nouvelle règle ou correction.
 - Attaques rejouées en CI : `tests/security/audit.test.ts` (clé publique seule). Parcours Playwright : `tests/e2e/` (`npm run test:e2e`, application compilée + Supabase DEV).
 - En-têtes HTTP de sécurité dans `next.config.ts`. Pages `app/not-found.tsx`, `app/error.tsx`, `app/global-error.tsx` en français.
 - `loading.tsx` uniquement sur des segments dont la page n'appelle pas `notFound()` (sinon le 404 devient un 200).

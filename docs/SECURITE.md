@@ -263,6 +263,15 @@ Corrections :
 - Nouvelle route de lecture `GET /api/generation/[id]` : session obligatoire (401 sinon), identifiant UUID validé, lecture par la RLS **et** filtre `user_id` (une demande d'un autre compte → 404), réponse limitée à `status`, `stage`, `marketCode` (schéma Zod), `Cache-Control: no-store`. Aucun contenu de pronostic.
 - `set_generation_stage` : exécution réservée à `service_role` (vérifié : anon et authenticated exclus) ; écrit seulement la phase d'une demande `reserved` / `running`, jamais les crédits ni le statut. Un échec d'écriture de la phase n'interrompt jamais la génération (testé).
 
+## 9 terdecies. Étapes 7 et 8 : états d'interface et contrôle final (26/11/2026)
+
+- **Cookie de session corrompu ou expiré** : provoquait une erreur 500 (lecture de `value` absente). Corrigé : `getCurrentUser()` traite toute session illisible comme absente, et `proxy.ts` pose l'en-tête interne `x-had-session` (toujours recalculé, une valeur envoyée par le navigateur est écrasée) pour afficher « Votre session a expiré » sur `/connexion`. Vérifié : cookie falsifié → 307 vers `/connexion?next=…&info=session-expiree` ; en-tête `x-had-session: 1` envoyé par le client → ignoré.
+- Attaques rejouées : 28/28 refusées en anonyme (test), 28/28 connecté « Intrus » (test), 28/28 anonyme (production).
+- Routes : `/api/cron/*` sans jeton ou mauvais jeton → 401 ; tâche inconnue → 404 (après authentification seulement) ; webhook mock sans signature ou signature fausse → 401 ; fournisseur inconnu → 404 ; `/api/generation/<id d'un autre>` → 404, id non UUID → 400 ; pages et export admin pour un non-admin → 404 ; reçu d'un autre utilisateur → 404.
+- Doubles débits (transaction annulée, base de test) : second `unlock_prediction` → `ALREADY_UNLOCKED`, solde inchangé ; match complet après un marché à 2 crédits → 5 (7 − 2) ; rejeu d'`apply_topup` → `already_processed`, aucun second crédit ; marché, pack ou match inexistant → erreur métier propre.
+- Paquet navigateur (`.next/static`) : aucune clé secrète (`sb_secret`, `SERVICE_ROLE`, `OPENAI_API_KEY`, `API_FOOTBALL_KEY`, `CRON_SECRET`, `sk-proj`).
+- Production : 0 écart entre soldes et grand livre, 0 solde négatif, packs conformes sans bonus, 10 tâches Cron actives.
+
 ## 10. Points ouverts et risques acceptés
 
 1. ⚠️ **`picomatch`** (outils de développement uniquement) : voir § 8.

@@ -856,3 +856,22 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
 - **Interface** (`components/predictions/ai-generation-progress.tsx`) : noyau IA animé, barre rose → violet, coches vertes, étape active (anneau, halo, balayage), temps écoulé réel, carte finale « Analyse validée » puis cartes de pronostics (débloqués : sélection, probabilité, confiance, explication ; autres : masqués avec leur prix). Animations coupées si l'appareil réduit les animations.
 - Vérifié : 371 tests, lint, typecheck, build ; tous les états affichés avec des réponses serveur simulées dans le navigateur de test (page de démonstration temporaire, non publiée).
 - Limite : sans offre Pro d'API-Football ni génération réelle en production, l'animation n'a pas encore été vue sur une vraie analyse de bout en bout.
+
+## Étapes 7 et 8 — responsive, états, tests et validation finale (26/11/2026)
+
+- Étape 7 :
+  - audit responsive sur 6 à 8 profils d'appareils (0 débordement) ;
+  - cibles tactiles de 44 px ;
+  - micro-interactions (survol, apparition échelonnée, appui) qui respectent la réduction des animations ;
+  - erreurs par zone, squelettes de chargement, message « session expirée ».
+- Correctif : un cookie de session corrompu provoquait une erreur 500. Désormais, il redirige vers la reconnexion grâce à l'en-tête interne `x-had-session` posé par `proxy.ts`.
+- Étape 8 :
+  - parcours fonctionnel 36/36 ;
+  - axe sans violation ;
+  - attaques 84/84 refusées ;
+  - doubles débits impossibles ;
+  - production cohérente (soldes, packs, tâches Cron) ;
+  - moteur de règlement inchangé.
+- Performance : logo de l'accueil allégé (89 → 52 Ko), police à chasse fixe non préchargée.
+- Rapport complet : [RAPPORT-FINAL.md](RAPPORT-FINAL.md). Verdict : **pas prêt pour un lancement payant**. Il manque les données de la saison (offre API-Football), le domaine et le SMTP, puis le paiement réel.
+- À surveiller : `sync-fixtures` du 26/11 à 05:07 a subi une coupure réseau sans trace dans le journal ; relancée à la main, elle fonctionne.

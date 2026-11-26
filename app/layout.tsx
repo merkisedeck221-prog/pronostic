@@ -16,9 +16,11 @@ const exo2 = Exo_2({
   style: ["normal", "italic"],
 });
 
+// Utilisée seulement dans quelques tableaux admin : pas de préchargement sur chaque page.
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  preload: false,
 });
 
 export const metadata: Metadata = {
