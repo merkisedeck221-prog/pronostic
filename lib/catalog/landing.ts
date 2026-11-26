@@ -26,6 +26,8 @@ export type LandingData = {
   fixtures: LandingFixture[];
   /** Nombre réel de compétitions actives (couverture). */
   competitionCount: number;
+  /** Prix réels en crédits (pricing_rules actives, règles générales) ; null si illisibles. */
+  pricing: { marketMin: number; marketMax: number; bundle: number | null } | null;
 };
 
 const PREVIEW_HOURS = 72;
@@ -56,18 +58,25 @@ async function upcomingAnalysedFixtures(): Promise<LandingFixture[]> {
 
 export async function getLandingData(): Promise<LandingData> {
   const supabase = await createClient();
-  const [markets, packs, performance, fixtures, competitions] = await Promise.all([
+  const [markets, packs, performance, fixtures, competitions, rules] = await Promise.all([
     supabase.from("markets").select("code, label, description").eq("is_active", true).order("sort_order"),
     supabase.from("credit_packs").select("id, name, credits, price_xof, is_featured").eq("is_active", true).order("sort_order"),
     getPerformanceStats().catch(() => null),
     upcomingAnalysedFixtures().catch(() => []),
     supabase.from("competitions").select("id", { count: "exact", head: true }).eq("is_active", true),
+    supabase.from("pricing_rules").select("scope, credits").eq("is_active", true).is("competition_id", null),
   ]);
+  const marketPrices = (rules.data ?? []).filter((r) => r.scope === "market").map((r) => r.credits);
+  const bundle = (rules.data ?? []).find((r) => r.scope === "match_bundle")?.credits ?? null;
   return {
     markets: markets.data ?? [],
     packs: packs.data ?? [],
     performance: performance ?? null,
     fixtures,
     competitionCount: competitions.error ? 0 : (competitions.count ?? 0),
+    pricing:
+      rules.error || marketPrices.length === 0
+        ? null
+        : { marketMin: Math.min(...marketPrices), marketMax: Math.max(...marketPrices), bundle },
   };
 }

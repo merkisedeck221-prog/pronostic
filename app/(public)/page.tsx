@@ -11,6 +11,7 @@ import { LandingHero } from "@/components/landing/hero";
 import { LandingHowItWorks } from "@/components/landing/how-it-works";
 import { LandingMarkets } from "@/components/landing/markets";
 import { LandingPerformance } from "@/components/landing/performance";
+import { LandingPricing } from "@/components/landing/pricing";
 import { LandingPresentation } from "@/components/landing/presentation";
 import { SectionHeading } from "@/components/layout/section-heading";
 import { TeamLogo } from "@/components/matches/team-logo";
@@ -18,9 +19,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getLandingData } from "@/lib/catalog/landing";
 import { getPublicFlags } from "@/lib/catalog/settings";
-import { cn } from "@/lib/utils";
 import { formatKickoff, resolveTimezone } from "@/lib/utils/dates";
-import { formatXof } from "@/lib/utils/format";
 
 export const metadata: Metadata = {
   title: "PRONEX — Prédisez. Analysez. Dominez.",
@@ -67,7 +66,7 @@ export default async function HomePage() {
   if (await getCurrentUser()) redirect("/tableau-de-bord");
   // Section des compteurs animés (components/landing/counters.tsx) retirée de la page
   // le 26/11/2026 à la demande du porteur, en attente de décision ; code conservé.
-  const [{ markets, packs, performance, fixtures }, flags] = await Promise.all([getLandingData(), getPublicFlags()]);
+  const [{ markets, packs, performance, fixtures, pricing }, flags] = await Promise.all([getLandingData(), getPublicFlags()]);
   const timezone = resolveTimezone(null);
 
   return (
@@ -80,6 +79,7 @@ export default async function HomePage() {
       <LandingMarkets activeCodes={markets.map((m) => m.code)} />
       <LandingPerformance stats={performance} />
       <LandingAdvantages marketCount={markets.length} />
+      <LandingPricing packs={packs} pricing={pricing} />
 
       {/* Aperçu des matchs : uniquement si des matchs analysés existent */}
       {fixtures.length > 0 ? (
@@ -111,37 +111,6 @@ export default async function HomePage() {
           </ul>
         </section>
       ) : null}
-
-      {/* Crédits (refonte à venir dans la partie « Tarifs » du brief) */}
-      <section className="mx-auto grid w-full max-w-3xl gap-4 px-4 py-14">
-        <div id="tarifs" aria-labelledby="credits" className="scroll-mt-20 space-y-4 rounded-2xl border border-white/8 bg-card p-6">
-          <p className="text-xs font-semibold tracking-[0.2em] text-pronex-pink uppercase">Crédits</p>
-          <h2 id="credits" className="text-xl font-bold">
-            Des crédits, sans abonnement
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            Chaque pack donne exactement les crédits annoncés. Le prix de chaque déblocage est affiché avant confirmation. Les
-            crédits n&apos;expirent pas.
-          </p>
-          {packs.length > 0 ? (
-            <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {packs.map((pack) => (
-                <li
-                  key={pack.id}
-                  className={cn(
-                    "rounded-xl border p-3",
-                    pack.is_featured ? "border-pronex-pink/50 bg-pronex-pink/5" : "border-white/8 bg-white/[0.02]",
-                  )}
-                >
-                  <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">{pack.name}</p>
-                  <p className="font-heading text-lg font-bold tabular-nums">{pack.credits} crédits</p>
-                  <p className="text-xs text-muted-foreground tabular-nums">{formatXof(pack.price_xof)}</p>
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </div>
-      </section>
 
       {/* FAQ */}
       <section id="faq" aria-labelledby="faq-titre" className="mx-auto w-full max-w-3xl scroll-mt-16 space-y-6 px-4 py-14">
