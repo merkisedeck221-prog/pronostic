@@ -89,7 +89,7 @@ export function LandingFaq(context: FaqContext) {
 
   return (
     <section id="faq" aria-labelledby="faq-titre" className="scroll-mt-16">
-      <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-16 sm:py-20 lg:grid-cols-[1fr_1.6fr] lg:gap-14">
+      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-10 px-4 py-16 sm:py-20 lg:grid-cols-[1fr_1.6fr] lg:gap-14">
         <div className="space-y-5 lg:sticky lg:top-24 lg:self-start">
           <p className="text-xs font-semibold tracking-[0.2em] text-pronex-pink uppercase">FAQ</p>
           <h2 id="faq-titre" className="font-heading text-2xl font-bold sm:text-3xl">

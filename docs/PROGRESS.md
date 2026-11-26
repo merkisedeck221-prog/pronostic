@@ -1124,3 +1124,25 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
   Les ancres de la landing ne sont pas proposées aux utilisateurs connectés : la landing les renvoie au tableau de bord.
 - **Rien n'est inventé** : pas de politique de confidentialité (aucune page), pas de contact (aucune adresse officielle), pas de réseaux sociaux (aucun lien fourni). Tous les liens ont été vérifiés (statut 200).
 - À prévoir par le porteur avant le lancement public : une **politique de confidentialité** (obligation légale : données des comptes, paiements) et une **adresse de contact officielle**, après l'achat du domaine. Le pied de page les accueillera dès qu'elles existeront.
+
+## Landing — partie 15 du brief : expérience mobile et responsive (26/11/2026)
+
+- Audit automatisé sur 8 appareils : Galaxy S9+ (360 px), Pixel 7, iPhone SE (320 px), iPhone 14, iPhone 14 Pro Max, iPad Mini, iPad Pro 11 en paysage, ordinateur 1366. Points contrôlés :
+  - débordement horizontal ;
+  - textes coupés, y compris par un parent `overflow: hidden` ;
+  - textes de moins de 11 px ;
+  - cibles tactiles de moins de 44 px ;
+  - taille des titres ;
+  - axe-core (WCAG A/AA).
+- **Corrigé :**
+  - **haut de page coupé sur 320–360 px**, invisible au contrôle de débordement car masqué par `overflow: hidden`. Cause : grilles sans colonne explicite sur mobile, qui s'élargissaient au mot le plus long. `grid-cols-1` ajouté aux 7 grilles de la landing ; titre à 32 px sous 375 px.
+  - pastilles de forme : 5e pastille coupée à 320–360 px, désormais `size-5` avec retour à la ligne en taille `sm` ;
+  - textes à 10 px passés à 11 px (pastilles, mini-illustrations, graphiques) ;
+  - marchés tronqués (« Les deux équipes marquent… ») : retour à la ligne au lieu de la troncature ;
+  - cibles tactiles : boutons de l'en-tête à 44 px sur écran tactile (`pointer-coarse:h-11`), bouton du menu `size-11`, liens de navigation et logo du pied de page à 44 px ;
+  - contraste : badge « Recommandé » (texte noir nuit sur rose), pastille « Même match » (rose clair).
+- **Résultat :**
+  - 0 débordement, 0 texte coupé ou trop petit, 0 cible trop petite sur les 8 appareils ;
+  - axe : seuls restent les grands numéros décoratifs (01, 02…), volontairement très pâles, masqués aux lecteurs d'écran et exemptés par le WCAG (texte purement décoratif).
+- **Performances** (Pixel 7, 4G lente simulée, processeur ralenti ×4) : LCP 1,7 s, chargement 3,0 s, CLS 0, environ 500 Ko transférés.
+- Les compteurs animés (partie 5) ne sont pas sur la page, à la demande du porteur.

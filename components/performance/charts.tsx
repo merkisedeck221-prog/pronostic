@@ -126,7 +126,7 @@ export function WeeklyChart({
       <div className="flex gap-3">
         {/* Axe des volumes */}
         <div
-          className="flex h-56 flex-col justify-between text-right text-[10px] leading-none text-muted-foreground tabular-nums"
+          className="flex h-56 flex-col justify-between text-right text-[11px] leading-none text-muted-foreground tabular-nums"
           aria-hidden
         >
           {ticks.map((tick, i) => (
@@ -281,7 +281,7 @@ export function WeeklyChart({
 
       {/* Dates : une sur deux sur ordinateur, une sur quatre sur mobile */}
       <div
-        className="flex gap-1 pl-7 text-[10px] text-muted-foreground tabular-nums sm:gap-2"
+        className="flex gap-1 pl-7 text-[11px] text-muted-foreground tabular-nums sm:gap-2"
         aria-hidden
       >
         {weeks.map((w, i) => (
@@ -437,7 +437,7 @@ export function RateBars({
               >
                 {formatRate(row.won, row.lost)}
               </p>
-              <p className="text-[10px] tracking-wider text-muted-foreground uppercase">
+              <p className="text-[11px] tracking-wider text-muted-foreground uppercase">
                 réussite
               </p>
             </div>

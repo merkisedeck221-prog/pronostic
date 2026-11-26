@@ -75,7 +75,7 @@ export function LandingPresentation({ marketCount }: { marketCount: number }) {
           description="PRONEX réunit les données du match, l'analyse de l'intelligence artificielle et le suivi des résultats, au même endroit."
         />
 
-        <ul className="pronex-stagger grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="pronex-stagger grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {features(marketCount).map(({ icon: Icon, title, text, wide, accent }) => (
             <li
               key={title}
