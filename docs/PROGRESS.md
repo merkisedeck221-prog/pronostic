@@ -989,3 +989,19 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
   - à la fin : sélection, probabilité, confiance et explication fictives, puis « Rejouer » et « Accéder aux vraies analyses » ;
   - sur mobile, défilement automatique jusqu'au résultat.
 - Garanties, vérifiées : **aucune requête réseau** pendant la démonstration (ni OpenAI, ni crédits, ni serveur), aucun vrai contenu payant. La mention « aucune analyse réelle n'est lancée, aucun crédit n'est utilisé, rythme simulé » est affichée.
+
+## Landing — partie 7 du brief : « Comment ça marche ? » (26/11/2026)
+
+- `components/landing/how-it-works.tsx` (section `#fonctionnement`) remplace l'ancienne section en 3 étapes. Quatre cartes premium :
+  1. Découvrez les matchs ;
+  2. PRONEX AI analyse ;
+  3. Débloquez les pronostics ;
+  4. Suivez les résultats.
+- Chaque carte comporte une icône, un numéro, une courte explication et un détail fidèle à l'application. Une ligne de progression relie les cartes sur ordinateur, et un bouton « Commencer maintenant » suit.
+- Animation discrète (`components/landing/reveal.tsx`) :
+  - apparition en fondu échelonné au défilement, une seule fois ;
+  - le contenu reste visible sans JavaScript ;
+  - les cartes dépassées par un saut d'ancre s'affichent aussi ;
+  - coupée si l'appareil demande moins d'animations.
+- Vérifié sur ordinateur, iPhone 14, iPhone SE et en mode « moins d'animations ».
+- Partie 6 vérifiée en production : démonstration complète, 0 requête réseau.

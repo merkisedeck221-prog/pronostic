@@ -5,14 +5,13 @@ import {
   BarChart3Icon,
   CalendarClockIcon,
   CoinsIcon,
-  LockOpenIcon,
-  SearchIcon,
   ShieldCheckIcon,
   SmartphoneIcon,
   TagIcon,
 } from "lucide-react";
 import { LandingDemo } from "@/components/landing/demo-section";
 import { LandingHero } from "@/components/landing/hero";
+import { LandingHowItWorks } from "@/components/landing/how-it-works";
 import { LandingPresentation } from "@/components/landing/presentation";
 import { SectionHeading } from "@/components/layout/section-heading";
 import { TeamLogo } from "@/components/matches/team-logo";
@@ -35,12 +34,6 @@ const ADVANTAGES = [
   { icon: BarChart3Icon, title: "Transparence totale", text: "Le taux de réussite est public et calculé sur tous les pronostics terminés, y compris les perdus." },
   { icon: TagIcon, title: "Prix connu à l'avance", text: "Le prix en crédits est affiché avant chaque déblocage, avec votre solde avant et après." },
   { icon: SmartphoneIcon, title: "Pensé pour le mobile", text: "Une interface rapide et lisible, conçue d'abord pour le téléphone." },
-] as const;
-
-const STEPS = [
-  { icon: SearchIcon, title: "Choisissez un match", text: "Forme, classement et confrontations sont en accès libre sur chaque fiche match." },
-  { icon: LockOpenIcon, title: "Débloquez l'analyse", text: "Un pronostic à l'unité ou le match complet, payé avec vos crédits." },
-  { icon: BarChart3Icon, title: "Suivez les résultats", text: "Vos pronostics sont vérifiés après le match et rassemblés dans votre historique." },
 ] as const;
 
 function faqItems({ refundOnCancel, revealAfterMatch }: { refundOnCancel: boolean; revealAfterMatch: boolean }) {
@@ -93,6 +86,7 @@ export default async function HomePage() {
       <LandingHero marketCount={markets.length} />
       <LandingPresentation marketCount={markets.length} />
       <LandingDemo marketCount={markets.length} />
+      <LandingHowItWorks />
 
       {/* Avantages */}
       <section aria-labelledby="avantages" className="mx-auto w-full max-w-6xl space-y-8 px-4 py-14">
@@ -224,27 +218,6 @@ export default async function HomePage() {
               ))}
             </ul>
           ) : null}
-        </div>
-      </section>
-
-      {/* Comment ça marche */}
-      <section id="fonctionnement" aria-labelledby="etapes" className="scroll-mt-16 border-y border-white/5 bg-white/[0.02]">
-        <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-14">
-          <SectionHeading id="etapes" eyebrow="Fonctionnement" title="Comment ça marche" />
-          <ol className="grid gap-4 md:grid-cols-3">
-            {STEPS.map(({ icon: Icon, title, text }, i) => (
-              <li key={title} className="space-y-3 rounded-2xl border border-white/8 bg-card p-6">
-                <div className="flex items-center gap-3">
-                  <span className="flex size-10 items-center justify-center rounded-xl bg-pronex-pink/15 text-pronex-pink">
-                    <Icon className="size-5" aria-hidden />
-                  </span>
-                  <span className="font-heading text-sm font-bold text-muted-foreground">0{i + 1}</span>
-                </div>
-                <h3 className="text-lg font-semibold">{title}</h3>
-                <p className="text-sm text-muted-foreground">{text}</p>
-              </li>
-            ))}
-          </ol>
         </div>
       </section>
 
