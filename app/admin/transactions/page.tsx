@@ -10,6 +10,7 @@ import { pageCount, pageRange, parsePageParam, withParams } from "@/lib/admin/pa
 import { adminRpc } from "@/lib/admin/queries";
 import { parseTransactionFilters, queryTopups, queryTransactions } from "@/lib/admin/transactions";
 import { requireAdmin } from "@/lib/auth/session";
+import { receiptNumber } from "@/lib/credits/filters";
 import { formatSignedAmount, transactionTypeLabel } from "@/lib/credits/labels";
 import { formatDateTime, resolveTimezone } from "@/lib/utils/dates";
 import { formatXof } from "@/lib/utils/format";
@@ -207,12 +208,13 @@ export default async function AdminTransactionsPage({ searchParams }: PageProps<
                 <TableHead className="text-right">Montant</TableHead>
                 <TableHead>Fournisseur</TableHead>
                 <TableHead>Statut</TableHead>
+                <TableHead>Reçu</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {(topups?.rows ?? []).length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center text-muted-foreground">
                     Aucune recharge.
                   </TableCell>
                 </TableRow>
@@ -232,6 +234,9 @@ export default async function AdminTransactionsPage({ searchParams }: PageProps<
                   <TableCell className="text-right tabular-nums">{formatXof(t.amount_xof)}</TableCell>
                   <TableCell>{t.provider}</TableCell>
                   <TableCell>{TOPUP_STATUS[t.status as keyof typeof TOPUP_STATUS] ?? t.status}</TableCell>
+                  <TableCell className="font-mono text-xs whitespace-nowrap">
+                    {t.status === "succeeded" && t.completed_at ? receiptNumber(t.id, t.completed_at) : "—"}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

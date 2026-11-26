@@ -47,7 +47,7 @@ export default async function AdminPredictionsPage({ searchParams }: PageProps<"
 
   const { from, to } = pageRange(page);
   let listQuery = filtered(
-    `id, market_code, selection_label, probability, confidence, status, result, is_locked, created_at, fixture_id, ${competition ? "fixture:fixtures!inner" : "fixture:fixtures"}(kickoff_at, competition_id, competition:competitions(name), home:teams!fixtures_home_team_id_fkey(name), away:teams!fixtures_away_team_id_fkey(name))`,
+    `id, market_code, selection_label, probability, confidence, reasoning, status, result, is_locked, version, prompt_version, created_at, fixture_id, ${competition ? "fixture:fixtures!inner" : "fixture:fixtures"}(kickoff_at, competition_id, competition:competitions(name), home:teams!fixtures_home_team_id_fkey(name), away:teams!fixtures_away_team_id_fkey(name))`,
     { count: "exact" },
   );
   if (result !== "tous") listQuery = listQuery.eq("result", result);
@@ -66,6 +66,10 @@ export default async function AdminPredictionsPage({ searchParams }: PageProps<"
     status: "published" | "hidden";
     result: "pending" | "won" | "lost" | "void";
     is_locked: boolean;
+    reasoning: string | null;
+    version: number;
+    prompt_version: string;
+    created_at: string;
     fixture_id: number;
     fixture: { kickoff_at: string; competition: { name: string } | null; home: { name: string }; away: { name: string } } | null;
   };
@@ -75,8 +79,19 @@ export default async function AdminPredictionsPage({ searchParams }: PageProps<"
   const lostCount = lost.count ?? 0;
   const marketLabel = new Map((markets ?? []).map((m) => [m.code, m.label]));
 
+  // Déblocages par pronostic : achat du marché + achats « match complet » du même match (jeu partagé).
+  const fixtureIds = [...new Set(rows.map((r) => r.fixture_id))];
+  const { data: pageUnlocks } = fixtureIds.length
+    ? await supabase.from("unlocks").select("fixture_id, market_code, refunded_at").in("fixture_id", fixtureIds)
+    : { data: [] };
+  const unlocksFor = (p: Row) =>
+    (pageUnlocks ?? []).filter((u) => u.fixture_id === p.fixture_id && (u.market_code === p.market_code || u.market_code === null)).length;
+
   return (
-    <AdminPage title="Pronostics" description="Tous les pronostics, publiés ou masqués.">
+    <AdminPage
+      title="Pronostics"
+      description="Tous les pronostics, publiés ou masqués. Un seul jeu de pronostics par match, généré une fois et partagé par tous les acheteurs."
+    >
       <FilterBar resetHref={PATH}>
         <FilterSelect name="marche" label="Marché" value={market} options={[{ value: "", label: "Tous" }, ...(markets ?? []).map((m) => ({ value: m.code, label: m.label }))]} />
         <FilterSelect
@@ -123,12 +138,14 @@ export default async function AdminPredictionsPage({ searchParams }: PageProps<"
               <TableHead>Confiance</TableHead>
               <TableHead>Statut</TableHead>
               <TableHead>Résultat</TableHead>
+              <TableHead className="text-right">Déblocages</TableHead>
+              <TableHead>Généré le</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground">
+                <TableCell colSpan={9} className="text-center text-muted-foreground">
                   Aucun pronostic pour ces filtres.
                 </TableCell>
               </TableRow>
@@ -146,7 +163,15 @@ export default async function AdminPredictionsPage({ searchParams }: PageProps<"
                   ) : null}
                 </TableCell>
                 <TableCell>{marketLabel.get(p.market_code) ?? p.market_code}</TableCell>
-                <TableCell className="whitespace-normal">{p.selection_label}</TableCell>
+                <TableCell className="max-w-72 whitespace-normal">
+                  <span className="font-medium">{p.selection_label}</span>
+                  {p.reasoning ? (
+                    <details className="mt-1">
+                      <summary className="cursor-pointer text-xs text-pronex-pink">Explication de l&apos;IA</summary>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{p.reasoning}</p>
+                    </details>
+                  ) : null}
+                </TableCell>
                 <TableCell className="text-right tabular-nums">{p.probability} %</TableCell>
                 <TableCell>{confidenceLabel(p.confidence)}</TableCell>
                 <TableCell>
@@ -155,6 +180,13 @@ export default async function AdminPredictionsPage({ searchParams }: PageProps<"
                 </TableCell>
                 <TableCell>
                   <PredictionResultBadge result={p.result} />
+                </TableCell>
+                <TableCell className="text-right tabular-nums">{unlocksFor(p)}</TableCell>
+                <TableCell className="text-xs whitespace-nowrap text-muted-foreground">
+                  {formatDateTime(p.created_at, tz)}
+                  <span className="block">
+                    {p.prompt_version} · v{p.version}
+                  </span>
                 </TableCell>
               </TableRow>
             ))}

@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { AdminActionForm } from "@/components/admin/action-form";
 import { AdminPage, Field, inputClass } from "@/components/admin/table-tools";
 import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { deletePackAction, savePackAction, setPackActiveAction } from "@/lib/admin/actions/packs";
 import { utcToLocalInput } from "@/lib/admin/datetime";
+import { checkPackGrid } from "@/lib/admin/pack-grid";
 import { requireAdmin } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { ADMIN_TIMEZONE } from "@/lib/admin/datetime";
@@ -76,11 +78,53 @@ export default async function AdminPacksPage() {
     }
   }
 
+  const grid = checkPackGrid(packs ?? []);
+  const gridOk = grid.every((c) => c.conform);
+
   return (
     <AdminPage
       title="Packs de recharge"
       description="Packs fixes : chaque achat crédite exactement les crédits du pack (aucun bonus). Un pack déjà acheté ne se supprime pas : il se désactive. Les dates limitent la période de vente ; les crédits achetés n'expirent jamais."
     >
+      <Card className={gridOk ? "border-success/30" : "border-warning/50"}>
+        <CardHeader>
+          <CardTitle>{gridOk ? "Grille officielle respectée" : "Écart avec la grille officielle"}</CardTitle>
+          <CardDescription>
+            Tarifs décidés par le porteur (aucun bonus). Contrôle automatique des packs en base ; toute modification reste journalisée.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Pack</TableHead>
+                <TableHead className="text-right">Prix officiel</TableHead>
+                <TableHead className="text-right">Crédits officiels</TableHead>
+                <TableHead className="text-right">En base</TableHead>
+                <TableHead>Contrôle</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {grid.map((c) => (
+                <TableRow key={c.name}>
+                  <TableCell className="font-medium">{c.name}</TableCell>
+                  <TableCell className="text-right tabular-nums">{formatXof(c.expected.price_xof)}</TableCell>
+                  <TableCell className="text-right tabular-nums">{c.expected.credits}</TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {c.actual ? `${formatXof(c.actual.price_xof)} · ${c.actual.credits} cr.${c.actual.bonus_credits ? ` + ${c.actual.bonus_credits} bonus` : ""}${c.actual.is_active ? "" : " · inactif"}` : "Absent"}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={c.conform ? "outline" : "destructive"} className={c.conform ? "border-success/40 text-success" : undefined}>
+                      {c.conform ? "Conforme" : "À corriger"}
+                    </Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
       <div className="space-y-3">
         {(packs ?? []).map((pack) => {
           const count = purchases.get(pack.id) ?? 0;

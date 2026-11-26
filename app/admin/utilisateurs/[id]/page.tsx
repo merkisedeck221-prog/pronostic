@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdminActionForm } from "@/components/admin/action-form";
 import { AdminPage, Field, Stat, inputClass } from "@/components/admin/table-tools";
+import { PredictionResultBadge } from "@/components/settle/result-badge";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -56,6 +57,22 @@ export default async function AdminUserPage({ params }: PageProps<"/admin/utilis
       .limit(50),
     supabase.from("topups").select("id, credits, amount_xof, provider, status, created_at, pack:credit_packs(name)").eq("user_id", id).order("created_at", { ascending: false }).limit(50),
   ]);
+  // Historique des pronostics : contenu du jeu partagé du match, tel qu'acheté (figé).
+  const unlockFixtureIds = [...new Set((unlocks ?? []).map((u) => u.fixture?.id).filter((v): v is number => typeof v === "number"))];
+  const [{ data: boughtPredictions }, { data: markets }] = await Promise.all([
+    unlockFixtureIds.length
+      ? supabase.from("predictions").select("fixture_id, market_code, selection_label, probability, result, status").in("fixture_id", unlockFixtureIds)
+      : Promise.resolve({ data: [] as { fixture_id: number; market_code: string; selection_label: string; probability: number; result: string; status: string }[] }),
+    supabase.from("markets").select("code, label"),
+  ]);
+  const marketLabel = new Map((markets ?? []).map((m) => [m.code, m.label]));
+  const predictionHistory = (unlocks ?? []).flatMap((u) =>
+    (boughtPredictions ?? [])
+      .filter((p) => p.fixture_id === u.fixture?.id && (u.market_code ? p.market_code === u.market_code : p.status === "published"))
+      .map((p) => ({ unlock: u, prediction: p })),
+  );
+  const paidTopups = (topups ?? []).filter((t) => t.status === "succeeded");
+  const spentCredits = (unlocks ?? []).filter((u) => !u.refunded_at).reduce((sum, u) => sum + u.credits_spent, 0);
 
   return (
     <AdminPage title={user.display_name} description={user.email}>
@@ -72,6 +89,17 @@ export default async function AdminUserPage({ params }: PageProps<"/admin/utilis
             </span>
           }
           hint={`${user.country ?? "—"} · ${user.phone ?? "pas de téléphone"} · ${user.timezone}`}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Stat label="Achats réussis" value={paidTopups.length} hint={formatXof(paidTopups.reduce((sum, t) => sum + t.amount_xof, 0)) + " (simulé)"} />
+        <Stat label="Déblocages" value={(unlocks ?? []).length} hint={`${spentCredits} crédit(s) dépensé(s), hors remboursés`} />
+        <Stat label="Pronostics obtenus" value={predictionHistory.length} />
+        <Stat
+          label="Résultats"
+          value={`${predictionHistory.filter((h) => h.prediction.result === "won").length} G · ${predictionHistory.filter((h) => h.prediction.result === "lost").length} P`}
+          hint="Gagnés · perdus"
         />
       </div>
 
@@ -174,24 +202,60 @@ export default async function AdminUserPage({ params }: PageProps<"/admin/utilis
         </CardContent>
       </Card>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Déblocages</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-1 text-sm">
-            {(unlocks ?? []).length === 0 ? <p className="text-muted-foreground">Aucun.</p> : null}
-            {(unlocks ?? []).map((u) => (
-              <p key={u.id}>
-                <Link href={`/admin/matchs/${u.fixture?.id}`} className="underline-offset-4 hover:underline">
-                  {u.fixture ? `${u.fixture.home.name} – ${u.fixture.away.name}` : "Match"}
-                </Link>{" "}
-                · {u.market_code ?? "match complet"} · {u.credits_spent} cr. · {formatDateTime(u.created_at, tz)}
-                {u.refunded_at ? " · remboursé" : ""}
-              </p>
-            ))}
-          </CardContent>
-        </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Historique des pronostics (50 derniers déblocages)</CardTitle>
+        </CardHeader>
+        <CardContent className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Match</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Sélection</TableHead>
+                <TableHead className="text-right">Crédits</TableHead>
+                <TableHead>Résultat</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {predictionHistory.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center text-muted-foreground">
+                    Aucun pronostic débloqué.
+                  </TableCell>
+                </TableRow>
+              ) : null}
+              {predictionHistory.map(({ unlock: u, prediction: p }) => (
+                <TableRow key={`${u.id}-${p.market_code}`}>
+                  <TableCell className="whitespace-nowrap text-xs text-muted-foreground">{formatDateTime(u.created_at, tz)}</TableCell>
+                  <TableCell>
+                    <Link href={`/admin/matchs/${u.fixture?.id}`} className="underline-offset-4 hover:underline">
+                      {u.fixture ? `${u.fixture.home.name} – ${u.fixture.away.name}` : "Match"}
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    {marketLabel.get(p.market_code) ?? p.market_code}
+                    {u.market_code ? null : <span className="block text-xs text-muted-foreground">match complet</span>}
+                  </TableCell>
+                  <TableCell className="whitespace-normal">
+                    {p.selection_label} <span className="text-xs text-muted-foreground">({p.probability} %)</span>
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {u.credits_spent}
+                    {u.refunded_at ? <span className="block text-xs text-muted-foreground">remboursé</span> : null}
+                  </TableCell>
+                  <TableCell>
+                    <PredictionResultBadge result={p.result as "pending" | "won" | "lost" | "void"} refunded={Boolean(u.refunded_at)} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-6">
         <Card>
           <CardHeader>
             <CardTitle>Recharges</CardTitle>

@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { pageCount, pageRange, parsePageParam } from "@/lib/admin/params";
 import { adminRpc } from "@/lib/admin/queries";
 import { requireAdmin } from "@/lib/auth/session";
+import { PROMPT_VERSION } from "@/lib/ai/prompts/v3";
 import { formatRate } from "@/lib/settle/labels";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateTime, resolveTimezone } from "@/lib/utils/dates";
@@ -16,6 +17,11 @@ const PATH = "/admin/ia";
 
 type Period = { period: string; runs: number; failed: number; input_tokens: number; output_tokens: number; cost_usd: number };
 type PromptStat = { prompt_version: string; runs: number; failed: number; won: number; lost: number };
+
+/** Date ISO d'il y a `days` jours (calculée à la requête, page dynamique). */
+function daysAgoIso(days: number): string {
+  return new Date(Date.now() - days * 24 * 3600 * 1000).toISOString();
+}
 
 const n = (v: number) => new Intl.NumberFormat("fr-FR").format(v);
 const usd = (v: number) => `${new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 4 }).format(v)} $`;
@@ -85,11 +91,33 @@ export default async function AdminAiPage({ searchParams }: PageProps<"/admin/ia
   const range = pageRange(page);
 
   const supabase = await createClient();
-  const [stats, onDemand, runs] = await Promise.all([
+  const since30 = daysAgoIso(30);
+  const [stats, onDemand, runs, failures, recentRuns, dossiers] = await Promise.all([
     adminRpc<{ by_day: Period[]; by_month: Period[]; by_prompt: PromptStat[] }>("admin_ai_stats"),
     adminRpc<{ rows: OnDemandRow[]; counts: Record<string, number> | null }>("admin_generation_requests", { p_limit: 50 }),
     supabase.from("ai_generation_runs").select("*", { count: "exact" }).order("created_at", { ascending: false }).range(range.from, range.to),
+    supabase.from("ai_generation_runs").select("error").eq("status", "failed").order("created_at", { ascending: false }).limit(200),
+    supabase.from("ai_generation_runs").select("status, duration_ms, created_at").order("created_at", { ascending: false }).limit(100),
+    // Qualité des données : dossiers des 30 derniers jours et erreurs de collecte (jamais le contenu du dossier).
+    supabase.from("match_contexts").select("fixture_id, fetched_at, errors:raw->errors").gte("fetched_at", since30).order("fetched_at", { ascending: false }).limit(500),
   ]);
+  // Moteur : configuration (sans aucune valeur secrète) et derniers résultats.
+  const keyConfigured = Boolean(process.env.OPENAI_API_KEY?.trim());
+  const model = process.env.OPENAI_MODEL?.trim() || null;
+  const last = recentRuns.data?.[0] ?? null;
+  const durations = (recentRuns.data ?? []).map((r) => r.duration_ms).filter((d): d is number => typeof d === "number").sort((a, b) => a - b);
+  const median = durations.length ? durations[Math.floor(durations.length / 2)] : null;
+  const p90 = durations.length ? durations[Math.min(durations.length - 1, Math.floor(durations.length * 0.9))] : null;
+  const recentFailed = (recentRuns.data ?? []).filter((r) => r.status === "failed").length;
+  // Erreurs les plus fréquentes (validation de la réponse, API, budget…), regroupées par début de message.
+  const errorGroups = new Map<string, number>();
+  for (const f of failures.data ?? []) {
+    const key = (f.error ?? "Erreur sans message").replace(/\d+/g, "#").slice(0, 90);
+    errorGroups.set(key, (errorGroups.get(key) ?? 0) + 1);
+  }
+  const topErrors = [...errorGroups.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6);
+  const dossierRows = dossiers.data ?? [];
+  const dossierWithErrors = dossierRows.filter((d) => Array.isArray(d.errors) && d.errors.length > 0).length;
   if (runs.error) throw new Error(runs.error.message);
   const month = stats.by_month[0];
   const totalRuns = stats.by_prompt.reduce((s, p) => s + p.runs, 0);
@@ -97,6 +125,84 @@ export default async function AdminAiPage({ searchParams }: PageProps<"/admin/ia
 
   return (
     <AdminPage title="Suivi de l'IA" description="Générations, tokens, coût estimé (tarifs indicatifs de lib/ai/pricing.ts), échecs et versions de prompt.">
+      <Card className={!keyConfigured || recentFailed > 0 ? "border-warning/40" : "border-success/30"}>
+        <CardHeader>
+          <CardTitle>État du moteur IA</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-2 gap-4 text-sm lg:grid-cols-4">
+          <div>
+            <p className="text-xs text-muted-foreground">Configuration</p>
+            <p className={keyConfigured ? "font-semibold text-success" : "font-semibold text-warning"}>{keyConfigured ? "Clé OpenAI configurée" : "Clé OpenAI absente"}</p>
+            <p className="text-xs text-muted-foreground">
+              Modèle : {model ?? "—"} · prompt {PROMPT_VERSION}
+            </p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Dernière génération</p>
+            <p className="font-semibold">{last ? formatDateTime(last.created_at, tz) : "Aucune"}</p>
+            {last ? <p className="text-xs text-muted-foreground">Statut : {last.status}</p> : null}
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Temps de traitement (100 dernières)</p>
+            <p className="font-semibold tabular-nums">{median === null ? "—" : `${(median / 1000).toFixed(1)} s médian`}</p>
+            <p className="text-xs text-muted-foreground tabular-nums">{p90 === null ? "" : `90 % sous ${(p90 / 1000).toFixed(1)} s`}</p>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground">Échecs récents</p>
+            <p className="font-semibold tabular-nums">
+              {recentFailed} / {recentRuns.data?.length ?? 0}
+            </p>
+            <p className="text-xs text-muted-foreground">Sur les 100 dernières générations</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Erreurs les plus fréquentes</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm">
+            {topErrors.length === 0 ? (
+              <p className="text-muted-foreground">Aucune génération en échec.</p>
+            ) : (
+              <ul className="space-y-2">
+                {topErrors.map(([message, count]) => (
+                  <li key={message} className="flex items-start justify-between gap-3">
+                    <span className="min-w-0 break-words text-muted-foreground">{message}</span>
+                    <Badge variant="destructive" className="shrink-0">
+                      {count}
+                    </Badge>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="mt-3 text-xs text-muted-foreground">
+              Chaque réponse de l&apos;IA est validée (schéma strict) avant enregistrement : une réponse invalide est refusée, jamais publiée.
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Qualité des données (30 jours)</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            <p>
+              <span className="font-heading text-2xl font-bold tabular-nums">{dossierRows.length}</span>{" "}
+              <span className="text-muted-foreground">dossier(s) de match construit(s)</span>
+            </p>
+            <p className={dossierWithErrors > 0 ? "text-warning" : "text-success"}>
+              {dossierWithErrors > 0
+                ? `${dossierWithErrors} dossier(s) avec une donnée manquante (appel API-Football en échec ou non couvert).`
+                : "Aucune erreur de collecte."}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Le contenu détaillé d&apos;un dossier est visible sur la fiche du match (section « Dossier envoyé à l&apos;IA »).
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="Générations (total)" value={n(totalRuns)} />
         <Stat label="Taux d'échec (total)" value={pct(totalFailed, totalRuns)} />
