@@ -1062,3 +1062,15 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
   - lignes d'historique.
 - Aucun chiffre de résultat n'est affiché ; apparition au défilement, survol.
 - Correctif : `grid-cols-1` explicite sur mobile (une puce non sécable élargissait la colonne sur l'iPhone SE).
+
+## Landing — partie 11 du brief : tarifs et crédits (26/11/2026)
+
+- `components/landing/pricing.tsx` (section `#tarifs`) : « Choisissez votre pack et accédez aux analyses ». Elle remplace l'ancienne carte « Crédits ».
+- Packs lus en base (`credit_packs` actifs) : STARTER 1 000 F = 10, BASIC 2 500 F = 25, PREMIUM 5 000 F = 50, PRO 10 000 F = 110, VIP 20 000 F = 250.
+  - Prix inchangés, aucun bonus.
+  - PREMIUM mis en avant (`is_featured`) : panneau dégradé, badge « Recommandé ».
+  - Prix par crédit calculé à partir des prix réels (≈ 100 / 100 / 100 / 91 / 80 FCFA).
+- Prix des pronostics lus dans `pricing_rules`, ajoutés à `getLandingData().pricing` : « 2 ou 3 crédits selon le type » et « Match complet : 7 crédits, moins ce que vous avez déjà payé sur ce match ». Un changement fait dans l'admin se reflète automatiquement.
+- Le bouton « Découvrir les packs » mène à `/inscription` (parcours existant : la landing n'est vue que sans être connecté ; on recharge ensuite depuis `/recharger`).
+- Aucun prestataire réel ; mentions exactes (crédits ajoutés après confirmation du paiement, sans expiration, reçu) et rappel « sans garantie de résultat, 18+ ».
+- Tests `pricing.test.tsx` : prix et crédits exacts des 5 packs, un seul pack mis en avant, aucun bonus ni promesse de gain, prix des pronostics, lien vers l'inscription.
