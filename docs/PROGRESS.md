@@ -848,3 +848,11 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
 - Administration : nombre de dossiers « données insuffisantes » dans Suivi de l'IA.
 - Tests : 65 tests du moteur IA (dont 9 nouveaux) ; aucun appel réel à OpenAI.
 - Non vérifiable sans offre Pro d'API-Football ni clé OpenAI en production : génération réelle de bout en bout sur de vrais matchs (`npm run ai:sample` à lancer dès que possible).
+
+## Étape 6 — animation de génération PRONEX AI (26/11/2026)
+
+- **Phases réelles** : le serveur enregistre la phase en cours de chaque génération à la demande (migration `20261126140000_generation_stages.sql`, test puis production après essai annulé) : démarrage, vérification du match, dossier, appel à l'IA, validation (probabilités, confiance, cohérence), enregistrement (dont le combiné), ou attente d'une analyse mutualisée. Points d'accroche : `runGeneration` (`stage`), `generateForFixture` (`onStage`), `generatePrediction` (`onResponse`).
+- **7 étapes visuelles** (`lib/generation/stages.ts`, 7 tests) : une étape n'est « terminée » que lorsque le serveur est passé à la suivante ; la barre affiche les étapes terminées (jamais d'avance simulée) ; l'étape en cours a une animation sans pourcentage ; « Résultat final » seulement au statut `succeeded` ; échec : arrêt sur l'étape réelle et message (crédits rendus) ; délai dépassé : « toujours en cours », crédits réservés puis débités seulement en cas de succès ou rendus automatiquement ; analyse mutualisée : étapes 3 à 6 signalées comme non observables.
+- **Interface** (`components/predictions/ai-generation-progress.tsx`) : noyau IA animé, barre rose → violet, coches vertes, étape active (anneau, halo, balayage), temps écoulé réel, carte finale « Analyse validée » puis cartes de pronostics (débloqués : sélection, probabilité, confiance, explication ; autres : masqués avec leur prix). Animations coupées si l'appareil réduit les animations.
+- Vérifié : 371 tests, lint, typecheck, build ; tous les états affichés avec des réponses serveur simulées dans le navigateur de test (page de démonstration temporaire, non publiée).
+- Limite : sans offre Pro d'API-Football ni génération réelle en production, l'animation n'a pas encore été vue sur une vraie analyse de bout en bout.

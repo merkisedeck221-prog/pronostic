@@ -85,7 +85,14 @@ export async function runGenerationAction(requestId: string): Promise<Generation
     return data;
   };
 
+  // Phase réelle pour l'animation PRONEX AI (fonction SQL réservée au serveur, sans effet sur les crédits).
+  const setStage = async (stage: string) => {
+    const { error } = await db.rpc("set_generation_stage", { p_request_id: id.data, p_stage: stage });
+    if (error) console.error("[generation] set_generation_stage :", error.message);
+  };
+
   const deps: GenerationDeps = {
+    stage: (_reqId, stage) => setStage(stage),
     start: (reqId) => rpcJson("start_generation", reqId),
     complete: (reqId) => rpcJson("complete_generation", reqId),
     fail: async (reqId, error) => {
@@ -116,7 +123,10 @@ export async function runGenerationAction(requestId: string): Promise<Generation
         async (ctx) => {
           const { count } = await ctx.db.from("match_contexts").select("id", { count: "exact", head: true }).eq("fixture_id", fixtureId);
           if ((count ?? 0) === 0) await buildMatchContext(ctx.db, ctx.api, fixtureId);
-          const result = await generateForFixture(ctx.db, fixtureId, { mode: "initial" });
+          const result = await generateForFixture(ctx.db, fixtureId, {
+            mode: "initial",
+            onStage: (name) => setStage(name),
+          });
           if (result.ok) {
             outcome = { ok: true };
             ctx.processed(1);

@@ -25,6 +25,8 @@ export type PipelineOptions = {
   /** Délai OpenAI pour cet appel (≤ 60 s). */
   timeoutMs?: number;
   openai?: { apiKey: string; model: string };
+  /** Phases réelles (animation PRONEX AI) : appel à l'IA, validation, enregistrement. Ne doit jamais faire échouer la génération. */
+  onStage?: (stage: "ai" | "validating" | "saving") => void | Promise<void>;
 };
 
 export async function generateForFixture(db: DB, fixtureId: number, options: PipelineOptions): Promise<PipelineResult> {
@@ -44,7 +46,20 @@ export async function generateForFixture(db: DB, fixtureId: number, options: Pip
   const summary = contextRow?.summary as unknown as MatchSummary | undefined;
   if (!summary?.match) return { ok: false, fixtureId, error: "Dossier de match absent (build-contexts).", errors: [], raw: null };
 
-  const generation = await generatePrediction(summary, { apiKey: openai.apiKey, model: openai.model, timeoutMs: options.timeoutMs });
+  const stage = async (name: "ai" | "validating" | "saving") => {
+    try {
+      await options.onStage?.(name);
+    } catch {
+      /* suivi d'affichage seulement */
+    }
+  };
+  await stage("ai");
+  const generation = await generatePrediction(summary, {
+    apiKey: openai.apiKey,
+    model: openai.model,
+    timeoutMs: options.timeoutMs,
+    onResponse: () => stage("validating"),
+  });
 
   if (!generation.ok) {
     const errorText = [generation.error, ...generation.errors].join("\n").slice(0, 4000);
@@ -62,6 +77,7 @@ export async function generateForFixture(db: DB, fixtureId: number, options: Pip
     return { ok: false, fixtureId, error: generation.error, errors: generation.errors, raw: generation.raw, metrics: generation.metrics };
   }
 
+  await stage("saving");
   const rows = toPredictionRows(generation.output, { home: fixture.home.name, away: fixture.away.name });
   const { data: saved, error: saveError } = await db.rpc("save_ai_generation", {
     p_fixture_id: fixtureId,
