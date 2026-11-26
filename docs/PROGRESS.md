@@ -898,3 +898,21 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
   - aperçu animé de l'interface d'une analyse, présenté comme un **exemple** (équipes A / B, valeurs d'exemple, aucune statistique réelle inventée).
 - Présentation (`components/landing/presentation.tsx`) : les 7 fonctionnalités existantes, et le principe « une analyse par match » ; le Combiné IA porte sur 2 ou 3 sélections d'un même match, sans ticket multi-matchs.
 - Animations CSS légères (`pronex-float`, `pronex-fill`, `pronex-glow`, `pronex-sweep`), coupées si l'appareil demande moins d'animations.
+
+## Landing — partie 3 du brief : identité visuelle officielle (26/11/2026)
+
+- Palette vérifiée : les jetons de `app/globals.css` correspondent exactement à la palette officielle (#080B20, #FF1493, #A000FF, #FFFFFF, #9CA3AF, #22C55E, #F59E0B, #EF4444). Les deux couleurs hors palette du hero ont été retirées.
+- Logos : ceux fournis par le porteur, jamais redessinés, proportions d'origine (aucun halo ajouté au logotype).
+- Sobriété (« éviter dégradés excessifs, effets lumineux, animations inutiles ») :
+  - retirés :
+    - deux halos pulsants ;
+    - le reflet balayant et le flottement de la carte ;
+    - le halo dégradé autour de la carte ;
+    - le texte en dégradé (« Analysez. » est désormais en rose plein) ;
+    - les lueurs des cartes de présentation ;
+    - les fonds dégradés des encadrés ;
+  - conservés :
+    - un seul halo violet fixe, atténué sur mobile ;
+    - un terrain discret ;
+    - le remplissage des barres de probabilité, seule animation, car elle montre une donnée ;
+    - le dégradé du bouton principal unique (règle du design system).

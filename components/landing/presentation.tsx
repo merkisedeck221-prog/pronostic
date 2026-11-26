@@ -84,13 +84,6 @@ export function LandingPresentation({ marketCount }: { marketCount: number }) {
                 wide && "lg:col-span-2",
               )}
             >
-              <div
-                aria-hidden
-                className={cn(
-                  "pointer-events-none absolute -top-16 -right-16 size-40 rounded-full blur-3xl transition-opacity",
-                  accent === "pink" ? "bg-pronex-pink/15" : accent === "violet" ? "bg-pronex-violet/20" : "bg-white/[0.03]",
-                )}
-              />
               <span
                 className={cn(
                   "flex size-11 items-center justify-center rounded-2xl",
@@ -105,7 +98,7 @@ export function LandingPresentation({ marketCount }: { marketCount: number }) {
           ))}
         </ul>
 
-        <div className="flex flex-col gap-4 rounded-3xl border border-pronex-violet/25 bg-linear-to-r from-pronex-violet/10 via-card to-pronex-pink/10 p-6 sm:flex-row sm:items-center sm:p-7">
+        <div className="flex flex-col gap-4 rounded-3xl border border-pronex-violet/30 bg-card p-6 sm:flex-row sm:items-center sm:p-7">
           <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-pronex-violet/20 text-violet-100">
             <LayersIcon className="size-6" aria-hidden />
           </span>

@@ -264,7 +264,7 @@ export default async function HomePage() {
 
       {/* Appel à l'action final */}
       <section className="mx-auto w-full max-w-6xl px-4 pb-16">
-        <div className="flex flex-col items-start gap-6 rounded-3xl border border-pronex-violet/30 bg-linear-to-br from-pronex-violet/15 via-card to-pronex-pink/10 p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col items-start gap-6 rounded-3xl border border-pronex-violet/30 bg-card p-8 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-2">
             <h2 className="text-2xl font-bold">Prêt à analyser votre prochain match ?</h2>
             <p className="flex items-center gap-2 text-sm text-muted-foreground">

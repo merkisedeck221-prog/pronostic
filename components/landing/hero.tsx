@@ -13,9 +13,8 @@ export function LandingHero({ marketCount }: { marketCount: number }) {
     <section aria-labelledby="hero-title" className="relative isolate overflow-hidden">
       {/* Décor : terrain en perspective et halos de marque */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-        <div className="pronex-pitch absolute inset-x-0 top-0 h-[120%]" />
-        <div className="pronex-glow absolute -top-40 left-1/2 size-[42rem] -translate-x-1/2 rounded-full bg-pronex-violet/25 blur-[120px]" />
-        <div className="pronex-glow absolute top-1/3 -right-40 size-[28rem] rounded-full bg-pronex-pink/20 blur-[110px] [animation-delay:-3s]" />
+        <div className="pronex-pitch absolute inset-x-0 top-0 h-[120%] opacity-60" />
+        <div className="absolute -top-56 left-1/2 size-[28rem] -translate-x-1/2 rounded-full bg-pronex-violet/10 blur-[120px] sm:size-[40rem] sm:bg-pronex-violet/15 sm:blur-[140px]" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-linear-to-b from-transparent to-pronex-night" />
       </div>
 
@@ -27,7 +26,7 @@ export function LandingHero({ marketCount }: { marketCount: number }) {
             width={995}
             height={138}
             priority
-            className="h-auto w-56 drop-shadow-[0_0_24px_rgb(160_0_255_/_0.35)] sm:w-72"
+            className="h-auto w-56 sm:w-72"
           />
           <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-semibold tracking-wide text-violet-100 backdrop-blur">
             <SparklesIcon className="size-3.5 text-pronex-pink" aria-hidden />
@@ -36,9 +35,7 @@ export function LandingHero({ marketCount }: { marketCount: number }) {
           <h1 id="hero-title" className="font-heading text-5xl leading-[0.95] font-extrabold tracking-tight italic sm:text-6xl lg:text-7xl">
             Prédisez.
             <br />
-            <span className="bg-linear-to-r from-pronex-pink via-[#d62cff] to-pronex-violet bg-clip-text pr-2 text-transparent">
-              Analysez.
-            </span>
+            <span className="text-pronex-pink">Analysez.</span>
             <br />
             Dominez.
           </h1>
@@ -101,10 +98,8 @@ function ProbabilityRow({ label, value, highlight = false, delay }: { label: str
 function AnalysisPreview() {
   return (
     <figure className="relative mx-auto w-full max-w-md lg:max-w-none">
-      <div aria-hidden className="absolute -inset-6 -z-10 rounded-[2.5rem] bg-linear-to-br from-pronex-pink/25 via-transparent to-pronex-violet/30 blur-2xl" />
-      <div className="pronex-float space-y-4">
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0d1130]/90 p-5 shadow-2xl shadow-black/50 backdrop-blur sm:p-6">
-          <div aria-hidden className="pronex-sweep pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-linear-to-r from-transparent via-white/[0.06] to-transparent" />
+      <div>
+        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-card p-5 shadow-2xl shadow-black/50 sm:p-6">
           <div className="flex items-center justify-between gap-3">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-pronex-violet/20 px-2.5 py-1 text-[11px] font-semibold text-violet-100">
               <BrainCircuitIcon className="size-3.5" aria-hidden />
