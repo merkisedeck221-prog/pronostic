@@ -1018,3 +1018,16 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
 - Seuls les marchés actifs en base s'affichent (vérifié en production : exactement ces 13 codes).
 - Le Combiné IA est en pleine largeur, avec le badge « Même match » et la mention « Ce n'est pas un ticket multi-matchs ».
 - Test `components/landing/markets.test.ts` : exactement les 13 codes, dans l'ordre, et le libellé du Combiné « même match ».
+
+## Landing — partie 9 du brief : performances de PRONEX AI (26/11/2026)
+
+- `components/landing/performance.tsx` (section `#performances`) : « Les performances de PRONEX AI en toute transparence ».
+- **Une seule source** : la réponse complète de `get_performance_stats()` (`getLandingData().performance`), la même que la page `/performances`, avec les mêmes graphiques (`WeeklyChart`, `RateBars`) et la même formule (gagnés ÷ (gagnés + perdus), annulés exclus).
+- Contenu :
+  - filtres « Depuis le lancement » / « 30 derniers jours » pour le taux, les gagnés, les **perdus** et les annulés ;
+  - graphiques au choix : 12 semaines, par type, par compétition ;
+  - avertissement si l'échantillon est réduit (< 50, même seuil que la page publique) ;
+  - bouton « Voir toutes les performances » vers `/performances`.
+- Sans pronostic résolu (situation actuelle) : état explicatif « Les premiers résultats arrivent bientôt », jamais de faux taux. Données indisponibles : message.
+- Tests de rendu (`performance.test.tsx`) : état vide sans aucun %, taux identique à la page publique (75 % pour 30/10/2), perdus et annulés affichés. Version avec données vérifiée visuellement à l'aide d'un rendu de contrôle (non publié).
+- L'ancienne carte « Performances » est retirée ; la carte « Crédits » (`#tarifs`) reste, en attente de la partie Tarifs.

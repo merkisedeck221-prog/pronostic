@@ -13,6 +13,7 @@ import { LandingDemo } from "@/components/landing/demo-section";
 import { LandingHero } from "@/components/landing/hero";
 import { LandingHowItWorks } from "@/components/landing/how-it-works";
 import { LandingMarkets } from "@/components/landing/markets";
+import { LandingPerformance } from "@/components/landing/performance";
 import { LandingPresentation } from "@/components/landing/presentation";
 import { SectionHeading } from "@/components/layout/section-heading";
 import { TeamLogo } from "@/components/matches/team-logo";
@@ -20,7 +21,6 @@ import { buttonVariants } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getLandingData } from "@/lib/catalog/landing";
 import { getPublicFlags } from "@/lib/catalog/settings";
-import { formatRate } from "@/lib/settle/labels";
 import { cn } from "@/lib/utils";
 import { formatKickoff, resolveTimezone } from "@/lib/utils/dates";
 import { formatXof } from "@/lib/utils/format";
@@ -79,8 +79,6 @@ export default async function HomePage() {
   // le 26/11/2026 à la demande du porteur, en attente de décision ; code conservé.
   const [{ markets, packs, performance, fixtures }, flags] = await Promise.all([getLandingData(), getPublicFlags()]);
   const timezone = resolveTimezone(null);
-  const resolved = performance ? performance.global.won + performance.global.lost : 0;
-  const resolved30 = performance ? performance.last30.won + performance.last30.lost : 0;
 
   return (
     <main className="flex-1">
@@ -104,6 +102,7 @@ export default async function HomePage() {
       </section>
 
       <LandingMarkets activeCodes={markets.map((m) => m.code)} />
+      <LandingPerformance stats={performance} />
 
       {/* Aperçu des matchs : uniquement si des matchs analysés existent */}
       {fixtures.length > 0 ? (
@@ -136,45 +135,8 @@ export default async function HomePage() {
         </section>
       ) : null}
 
-      {/* Performances réelles + crédits */}
-      <section className="mx-auto grid w-full max-w-6xl gap-4 px-4 pb-14 lg:grid-cols-2">
-        <div id="performances" aria-labelledby="perfs" className="scroll-mt-20 space-y-4 rounded-2xl border border-white/8 bg-card p-6">
-          <p className="text-xs font-semibold tracking-[0.2em] text-pronex-pink uppercase">Performances</p>
-          <h2 id="perfs" className="text-xl font-bold">
-            Des résultats publics
-          </h2>
-          {resolved > 0 && performance ? (
-            <dl className="grid grid-cols-3 gap-3">
-              <div>
-                <dt className="text-xs text-muted-foreground">Réussite globale</dt>
-                <dd className="font-heading text-2xl font-extrabold tabular-nums">{formatRate(performance.global.won, performance.global.lost)}</dd>
-              </div>
-              <div>
-                <dt className="text-xs text-muted-foreground">Gagnés</dt>
-                <dd className="font-heading text-2xl font-extrabold text-success tabular-nums">{performance.global.won}</dd>
-              </div>
-              <div>
-                <dt className="text-xs text-muted-foreground">Perdus</dt>
-                <dd className="font-heading text-2xl font-extrabold text-red-400 tabular-nums">{performance.global.lost}</dd>
-              </div>
-              {resolved30 > 0 ? (
-                <div className="col-span-3 text-sm text-muted-foreground">
-                  30 derniers jours : {formatRate(performance.last30.won, performance.last30.lost)} sur {resolved30} pronostic
-                  {resolved30 > 1 ? "s" : ""} terminé{resolved30 > 1 ? "s" : ""}.
-                </div>
-              ) : null}
-            </dl>
-          ) : (
-            <p className="text-muted-foreground">
-              Les premiers résultats apparaîtront ici après les premiers matchs analysés. Aucun chiffre n&apos;est affiché avant
-              d&apos;être réel.
-            </p>
-          )}
-          <Link href="/performances" className="inline-block text-sm font-semibold text-pronex-pink hover:underline">
-            Voir le détail des performances
-          </Link>
-        </div>
-
+      {/* Crédits (refonte à venir dans la partie « Tarifs » du brief) */}
+      <section className="mx-auto grid w-full max-w-3xl gap-4 px-4 py-14">
         <div id="tarifs" aria-labelledby="credits" className="scroll-mt-20 space-y-4 rounded-2xl border border-white/8 bg-card p-6">
           <p className="text-xs font-semibold tracking-[0.2em] text-pronex-pink uppercase">Crédits</p>
           <h2 id="credits" className="text-xl font-bold">
