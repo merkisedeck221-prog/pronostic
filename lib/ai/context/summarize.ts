@@ -61,7 +61,32 @@ export type MatchSummary = {
     percent: { home: string | null; draw: string | null; away: string | null };
     under_over: string | null;
   } | null;
-  data_quality: { has_standings: boolean; h2h_count: number; is_friendly: boolean };
+  data_quality: DataQuality;
+};
+
+/** Fiabilité d'une source du dossier : complète, partielle ou absente. */
+export type Availability = "reliable" | "partial" | "unavailable";
+
+export type DataAvailability = {
+  form: Availability;
+  standings: Availability;
+  head_to_head: Availability;
+  goal_averages: Availability;
+  corners_cards: Availability;
+  injuries: Availability;
+  provider_prediction: Availability;
+};
+
+export type DataQuality = {
+  has_standings: boolean;
+  h2h_count: number;
+  is_friendly: boolean;
+  /** Fiabilité par source (dossiers construits depuis le prompt v4 ; absent avant). */
+  availability?: DataAvailability;
+  /** Données insuffisantes : ni forme, ni classement, ni confrontation exploitables. */
+  insufficient_data?: boolean;
+  /** Sources indisponibles ou partielles, en clair (pour l'IA et l'administration). */
+  notes?: string[];
 };
 
 export type StandingInput = {
@@ -95,6 +120,11 @@ export type SummaryInput = {
   injuries: InjuryItem[];
   /** Statistiques des derniers matchs (récent → ancien), lot B. */
   matchStats?: { home: TeamStatsInput[]; away: TeamStatsInput[] };
+  /**
+   * Absences réellement interrogées (/injuries couvert et appel réussi) : une liste
+   * vide signifie alors « aucune absence signalée », sinon « information indisponible ».
+   */
+  injuriesChecked?: boolean;
 };
 
 /** Identifiant API-Football des matchs amicaux internationaux. */
@@ -226,6 +256,8 @@ export function summarizeMatchContext(input: SummaryInput): MatchSummary {
   const friendly = isFriendly(input.competition);
   const h2h = headToHead(input);
   const prediction = input.predictions?.predictions;
+  const home = teamSummary("home", input);
+  const away = teamSummary("away", input);
 
   return {
     match: {
@@ -236,8 +268,8 @@ export function summarizeMatchContext(input: SummaryInput): MatchSummary {
       is_neutral_venue: isNeutralVenue(input.competition),
       competition_type: competitionType(input.competition),
     },
-    home: teamSummary("home", input),
-    away: teamSummary("away", input),
+    home,
+    away,
     head_to_head: h2h,
     provider_prediction: prediction
       ? {
@@ -250,12 +282,74 @@ export function summarizeMatchContext(input: SummaryInput): MatchSummary {
           under_over: prediction.under_over ?? null,
         }
       : null,
-    data_quality: {
-      has_standings: Boolean(input.standings.home && input.standings.away),
-      h2h_count: h2h.length,
-      is_friendly: friendly,
-    },
+    data_quality: dataQuality(input, home, away, h2h.length, friendly, Boolean(prediction)),
   };
+}
+
+const NOTE_LABELS: Record<keyof DataAvailability, string> = {
+  form: "forme récente",
+  standings: "classement",
+  head_to_head: "confrontations directes",
+  goal_averages: "moyennes de buts",
+  corners_cards: "statistiques de corners et cartons",
+  injuries: "absences et blessures",
+  provider_prediction: "prédiction du fournisseur de données",
+};
+
+/** Deux équipes → fiable, une seule → partielle, aucune → indisponible. */
+function both(home: boolean, away: boolean): Availability {
+  return home && away ? "reliable" : home || away ? "partial" : "unavailable";
+}
+
+/**
+ * Qualité du dossier (fonction pure) : chaque source est classée fiable,
+ * partielle ou indisponible, et le dossier est déclaré insuffisant quand
+ * ni la forme, ni le classement, ni les confrontations ne sont exploitables.
+ */
+export function dataQuality(
+  input: SummaryInput,
+  home: TeamSummary,
+  away: TeamSummary,
+  h2hCount: number,
+  friendly: boolean,
+  hasProviderPrediction: boolean,
+): DataQuality {
+  const formLen = (t: TeamSummary) => t.last5?.length ?? 0;
+  const statsOk = (t: TeamSummary) => (t.match_stats?.matches ?? 0) >= MIN_STATS_MATCHES;
+  const statsAny = (t: TeamSummary) => (t.match_stats?.matches ?? 0) > 0;
+  const availability: DataAvailability = {
+    form:
+      formLen(home) >= 5 && formLen(away) >= 5
+        ? "reliable"
+        : formLen(home) >= 3 || formLen(away) >= 3
+          ? "partial"
+          : "unavailable",
+    standings: both(Boolean(input.standings.home), Boolean(input.standings.away)),
+    head_to_head: h2hCount >= 3 ? "reliable" : h2hCount > 0 ? "partial" : "unavailable",
+    goal_averages: both(home.avg_goals_for !== null && home.avg_goals_against !== null, away.avg_goals_for !== null && away.avg_goals_against !== null),
+    corners_cards: statsOk(home) && statsOk(away) ? "reliable" : statsAny(home) || statsAny(away) ? "partial" : "unavailable",
+    injuries: input.injuriesChecked || input.injuries.length > 0 ? "reliable" : "unavailable",
+    provider_prediction: hasProviderPrediction ? "reliable" : "unavailable",
+  };
+  const notes = (Object.keys(availability) as (keyof DataAvailability)[])
+    .filter((key) => availability[key] !== "reliable")
+    .map((key) => `${NOTE_LABELS[key]} : ${availability[key] === "partial" ? "données incomplètes" : "indisponible"}`);
+  return {
+    has_standings: Boolean(input.standings.home && input.standings.away),
+    h2h_count: h2hCount,
+    is_friendly: friendly,
+    availability,
+    insufficient_data:
+      availability.form === "unavailable" && availability.standings === "unavailable" && availability.head_to_head === "unavailable",
+    notes,
+  };
+}
+
+/** Dossier insuffisant (champ calculé, ou recalculé pour les dossiers antérieurs au prompt v4). */
+export function isInsufficientData(summary: MatchSummary): boolean {
+  if (typeof summary.data_quality.insufficient_data === "boolean") return summary.data_quality.insufficient_data;
+  const formKnown = (summary.home.last5?.length ?? 0) >= 3 || (summary.away.last5?.length ?? 0) >= 3;
+  return !formKnown && !summary.data_quality.has_standings && summary.data_quality.h2h_count === 0;
 }
 
 /**

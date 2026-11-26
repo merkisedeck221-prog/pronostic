@@ -3,7 +3,7 @@ import "server-only";
 import OpenAI from "openai";
 import type { MatchSummary } from "./context/summarize";
 import { estimateCostUsd } from "./pricing";
-import { buildRetryMessageV3, buildUserMessageV3, PROMPT_VERSION, SYSTEM_PROMPT_V3 } from "./prompts/v3";
+import { buildRetryMessageV4, buildUserMessageV4, PROMPT_VERSION, SYSTEM_PROMPT_V4 } from "./prompts/v4";
 import { toOpenAiJsonSchema, type PredictionOutput } from "./schema";
 import { validatePrediction } from "./validate";
 
@@ -27,7 +27,7 @@ export type GenerationMetrics = {
 };
 
 export type GenerationResult =
-  | { ok: true; output: PredictionOutput; raw: unknown; metrics: GenerationMetrics }
+  | { ok: true; output: PredictionOutput; raw: unknown; metrics: GenerationMetrics; adjustments: string[] }
   | { ok: false; error: string; errors: string[]; raw: unknown; metrics: GenerationMetrics };
 
 /** Les modèles de raisonnement (o1, o3, gpt-5…) n'acceptent pas de température personnalisée. */
@@ -60,8 +60,8 @@ export async function generatePrediction(summary: MatchSummary, options: Generat
   };
 
   const messages: ChatMessage[] = [
-    { role: "system", content: SYSTEM_PROMPT_V3 },
-    { role: "user", content: buildUserMessageV3(JSON.stringify(summary)) },
+    { role: "system", content: SYSTEM_PROMPT_V4 },
+    { role: "user", content: buildUserMessageV4(JSON.stringify(summary)) },
   ];
 
   let lastRaw: unknown = null;
@@ -106,7 +106,7 @@ export async function generatePrediction(summary: MatchSummary, options: Generat
     } catch {
       lastRaw = content;
       lastErrors = ["La réponse n'est pas un JSON valide."];
-      messages.push({ role: "assistant", content }, { role: "user", content: buildRetryMessageV3(lastErrors) });
+      messages.push({ role: "assistant", content }, { role: "user", content: buildRetryMessageV4(lastErrors) });
       continue;
     }
 
@@ -114,10 +114,11 @@ export async function generatePrediction(summary: MatchSummary, options: Generat
     if (validation.ok) {
       metrics.durationMs = Date.now() - started;
       metrics.costEstimateUsd = estimateCostUsd(options.model, metrics.inputTokens, metrics.outputTokens);
-      return { ok: true, output: validation.data, raw: lastRaw, metrics };
+      if (validation.adjustments.length) console.info("[ai] corrections de confiance :", validation.adjustments.join(" | "));
+      return { ok: true, output: validation.data, raw: lastRaw, metrics, adjustments: validation.adjustments };
     }
     lastErrors = validation.errors;
-    messages.push({ role: "assistant", content }, { role: "user", content: buildRetryMessageV3(lastErrors) });
+    messages.push({ role: "assistant", content }, { role: "user", content: buildRetryMessageV4(lastErrors) });
   }
 
   metrics.durationMs = Date.now() - started;

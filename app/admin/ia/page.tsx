@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { pageCount, pageRange, parsePageParam } from "@/lib/admin/params";
 import { adminRpc } from "@/lib/admin/queries";
 import { requireAdmin } from "@/lib/auth/session";
-import { PROMPT_VERSION } from "@/lib/ai/prompts/v3";
+import { PROMPT_VERSION } from "@/lib/ai/prompts/v4";
 import { formatRate } from "@/lib/settle/labels";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateTime, resolveTimezone } from "@/lib/utils/dates";
@@ -99,7 +99,7 @@ export default async function AdminAiPage({ searchParams }: PageProps<"/admin/ia
     supabase.from("ai_generation_runs").select("error").eq("status", "failed").order("created_at", { ascending: false }).limit(200),
     supabase.from("ai_generation_runs").select("status, duration_ms, created_at").order("created_at", { ascending: false }).limit(100),
     // Qualité des données : dossiers des 30 derniers jours et erreurs de collecte (jamais le contenu du dossier).
-    supabase.from("match_contexts").select("fixture_id, fetched_at, errors:raw->errors").gte("fetched_at", since30).order("fetched_at", { ascending: false }).limit(500),
+    supabase.from("match_contexts").select("fixture_id, fetched_at, errors:raw->errors, insufficient:summary->data_quality->insufficient_data").gte("fetched_at", since30).order("fetched_at", { ascending: false }).limit(500),
   ]);
   // Moteur : configuration (sans aucune valeur secrète) et derniers résultats.
   const keyConfigured = Boolean(process.env.OPENAI_API_KEY?.trim());
@@ -118,6 +118,7 @@ export default async function AdminAiPage({ searchParams }: PageProps<"/admin/ia
   const topErrors = [...errorGroups.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6);
   const dossierRows = dossiers.data ?? [];
   const dossierWithErrors = dossierRows.filter((d) => Array.isArray(d.errors) && d.errors.length > 0).length;
+  const dossierInsufficient = dossierRows.filter((d) => d.insufficient === true).length;
   if (runs.error) throw new Error(runs.error.message);
   const month = stats.by_month[0];
   const totalRuns = stats.by_prompt.reduce((s, p) => s + p.runs, 0);
@@ -196,8 +197,12 @@ export default async function AdminAiPage({ searchParams }: PageProps<"/admin/ia
                 ? `${dossierWithErrors} dossier(s) avec une donnée manquante (appel API-Football en échec ou non couvert).`
                 : "Aucune erreur de collecte."}
             </p>
+            <p className={dossierInsufficient > 0 ? "text-warning" : "text-muted-foreground"}>
+              {dossierInsufficient} dossier(s) « données insuffisantes » (ni forme, ni classement, ni confrontation) : confiance limitée à « faible ».
+            </p>
             <p className="text-xs text-muted-foreground">
-              Le contenu détaillé d&apos;un dossier est visible sur la fiche du match (section « Dossier envoyé à l&apos;IA »).
+              Chaque dossier classe ses sources en fiables, incomplètes ou indisponibles (prompt v4). Le détail est visible sur la fiche du match
+              (section « Dossier envoyé à l&apos;IA »).
             </p>
           </CardContent>
         </Card>

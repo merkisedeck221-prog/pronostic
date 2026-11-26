@@ -6,7 +6,7 @@ import type { Json } from "@/types/database";
 import type { MatchSummary } from "./context/summarize";
 import { generatePrediction, type GenerationMetrics } from "./generate";
 import { toPredictionRows } from "./labels";
-import { PROMPT_VERSION } from "./prompts/v3";
+import { PROMPT_VERSION } from "./prompts/v4";
 
 /**
  * Génération complète pour un match (section 8, étapes 3 à 5) :

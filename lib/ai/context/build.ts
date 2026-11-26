@@ -100,6 +100,7 @@ export async function buildMatchContext(db: DB, api: ApiFootballClient, fixtureI
   const errors: string[] = [];
   let predictions: PredictionsItem | null = null;
   let injuries: InjuryItem[] = [];
+  let injuriesChecked = false;
   let rawPredictions: unknown = null;
   let rawInjuries: unknown = null;
 
@@ -118,6 +119,7 @@ export async function buildMatchContext(db: DB, api: ApiFootballClient, fixtureI
       const result = await api.get("/injuries", { fixture: fixture.api_fixture_id }, z.array(injuryItemSchema));
       injuries = result.data;
       rawInjuries = result.data;
+      injuriesChecked = true;
     } catch (e) {
       if ((e as Error).name === "BudgetExceededError") throw e;
       errors.push(`/injuries : ${(e as Error).message}`);
@@ -138,6 +140,7 @@ export async function buildMatchContext(db: DB, api: ApiFootballClient, fixtureI
     predictions,
     injuries,
     matchStats: { home: statsFor(fixture.home_team_id), away: statsFor(fixture.away_team_id) },
+    injuriesChecked,
   });
 
   const raw = { predictions: rawPredictions, injuries: rawInjuries, errors, fetched_at: new Date().toISOString() };

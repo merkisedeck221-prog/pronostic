@@ -830,3 +830,21 @@ Aucune migration ni nouvelle intégration : uniquement des lectures (RLS admin) 
 Vérifications : lint, typecheck, 348 tests, build ; 16 pages admin à 320, 390, 768 et 1366 px sans débordement ni erreur ; axe-core : 0 problème sur 20 pages (dont 14 admin).
 
 Point à décider : `alert_quota_min` vaut 200 alors que l'offre gratuite d'API-Football donne 100 appels par jour : la surveillance signalera un quota bas tant que l'offre Pro n'est pas prise.
+
+## Décisions du porteur (26/11/2026, suite)
+
+- Production : 10 derniers crédits de test retirés (`admin_adjust_balance(-10)`, journalisé) : solde 0 ; `alert_quota_min` = 20 (quota gratuit de 100 appels / jour), à remonter avec l'offre Pro d'API-Football.
+- Reporté **après l'achat du nom de domaine** (dans cet ordre) : branchement du domaine (Vercel + URL du site et redirections Supabase + `NEXT_PUBLIC_APP_URL`), modèles d'e-mails français (`supabase/templates/`), SMTP Resend (domaine vérifié requis), puis activation de « Confirm email » (à ne PAS activer avant : le SMTP par défaut n'envoie qu'aux membres de l'équipe Supabase, aucune inscription ne serait possible).
+- Protection des mots de passe divulgués : réservée à l'offre Supabase Pro ; non bloquant (8 caractères minimum déjà exigés).
+
+## Étape 5 — finalisation de PRONEX AI (26/11/2026)
+
+Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build-contexts` / `generate-predictions`, fonctions SQL et contraintes) puis améliorations :
+
+- **Audit, déjà conforme** : 13 marchés (schéma Zod strict → JSON Schema OpenAI), combiné limité à 2 ou 3 sélections du MÊME match, génération automatique à 48 h (`prediction_window_hours`) puis validation et enregistrement atomique (`save_ai_generation`), génération à la demande avec réservation / débit au succès / remboursement à l'échec ou à l'expiration (aucun second système), un seul jeu par match (contraintes uniques), contenu figé (déclencheur), masquage serveur + base (attaques rejouées), tarifs 2 / 3 / 7 inchangés.
+- **Dossier analytique** : chaque source classée fiable / incomplète / indisponible, dossier « insuffisant » détecté, absences « inconnues » distinguées de « aucune absence » (`lib/ai/context/summarize.ts`, `build.ts`).
+- **Validation renforcée** (`lib/ai/validate.ts`) : confiance abaissée si incohérente avec la probabilité ou si les données sont insuffisantes, contradiction BTTS / plus de 1,5 but, aucune probabilité à 0 ou 100 %, longueur des explications, nouvelles expressions interdites. Règle « score exact ↔ lignes 1,5 / 3,5 » volontairement non imposée (décision v2).
+- **Prompt v4** (`lib/ai/prompts/v4.ts`, v3 inchangé) : usage de la qualité des données, justification chiffrée, seuils de confiance ; moteur et administration passés en v4.
+- Administration : nombre de dossiers « données insuffisantes » dans Suivi de l'IA.
+- Tests : 65 tests du moteur IA (dont 9 nouveaux) ; aucun appel réel à OpenAI.
+- Non vérifiable sans offre Pro d'API-Football ni clé OpenAI en production : génération réelle de bout en bout sur de vrais matchs (`npm run ai:sample` à lancer dès que possible).
