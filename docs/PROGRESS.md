@@ -1198,3 +1198,37 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
   - mobile uniquement ;
   - contenu factuel (« Inscription gratuite · Paiement à l'unité, sans abonnement »).
 - **Vérifié** : aucun faux témoignage, avis, notification d'achat, utilisateur connecté ou message du type « X personnes viennent de gagner ». La persuasion repose sur la démonstration, la transparence (performances réelles, perdus compris), les prix clairs et la FAQ.
+
+## Landing — partie 18 du brief : exigences techniques (26/11/2026)
+
+- **Inspection (réponses aux 8 points)** :
+  1. Structure : App Router, groupes `(public)`, `(app)`, `admin`.
+  2. Page d'accueil : `app/(public)/page.tsx` (composants `components/landing/*`) ; un utilisateur connecté est redirigé vers `/tableau-de-bord`.
+  3. Composants réutilisés :
+     - `SectionHeading`, `StatCard` ;
+     - `FormBadges` de la fiche match ;
+     - `WeeklyChart` / `RateBars` / `RateRing` (partagés avec `/performances`) ;
+     - `VISUAL_STEPS` du moteur ;
+     - `buttonVariants`.
+  4. Routes : `/inscription`, `/connexion`, `/mot-de-passe-oublie`.
+  5. Statistiques publiques : `get_performance_stats()` (SQL, agrégats).
+  6. Compteurs : `get_public_counters()` (agrégats, seuils), non affichés à la demande du porteur.
+  7. Performances : LCP ≈ 1,8 s (Pixel 7, 4G lente, CPU ×4), CLS 0, environ 500 Ko.
+  8. Sécurité : voir ci-dessous.
+- **Sécurité** :
+  - données de la landing lues côté serveur (`getLandingData`) ; les composants navigateur ne reçoivent que des agrégats en props et n'appellent jamais Supabase (vérifié) ;
+  - statistiques publiques par des fonctions SQL d'agrégats, sans donnée personnelle ;
+  - aucune clé secrète dans `.next/static` (vérifié).
+  - **Aucune migration ni changement de permission** dans cette partie.
+- **SEO** :
+  - `metadataBase` (`lib/seo/site.ts`, testé : `NEXT_PUBLIC_APP_URL`, puis l'adresse de production Vercel, puis l'adresse locale) ;
+  - Open Graph et Twitter complets ;
+  - URL canonique `/` ;
+  - **image d'aperçu** `app/opengraph-image.tsx` / `twitter-image.tsx` (next/og, 1200 × 630, logotype et symbole officiels, générée au build) ;
+  - `app/robots.ts` (espace connecté, admin, API et auth exclus) ;
+  - `app/sitemap.ts` (pages publiques) ;
+  - JSON-LD Organization + WebSite (sans note ni avis inventés) sur la landing, FAQPage déjà présent.
+- **Images** : WebP dimensionnés (optimisation Vercel désactivée pour le quota Hobby), `next/image` avec dimensions (CLS 0), photo du CTA chargée en différé.
+- **Dépendances** : aucune ajoutée pendant toute la refonte de la landing (next/og fait partie de Next).
+- **Accessibilité** : axe sans violation sur le texte réel ; débordements et coupures contrôlés sur 6 appareils.
+- **À faire après l'achat du domaine** : définir `NEXT_PUBLIC_APP_URL=https://<domaine>` dans Vercel ; les URL canoniques, Open Graph, robots et sitemap suivront automatiquement.

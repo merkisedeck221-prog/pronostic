@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Exo_2, Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, siteUrl } from "@/lib/seo/site";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -24,10 +25,19 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: { default: "PRONEX — Prédisez. Analysez. Dominez.", template: "%s" },
-  description:
-    "PRONEX : analyses et pronostics football par intelligence artificielle, débloqués avec des crédits.",
-  applicationName: "PRONEX",
+  metadataBase: siteUrl(),
+  title: { default: `${SITE_NAME} — ${SITE_TAGLINE}`, template: "%s" },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: { card: "summary_large_image", title: `${SITE_NAME} — ${SITE_TAGLINE}`, description: SITE_DESCRIPTION },
+  formatDetection: { telephone: false },
 };
 
 export const viewport: Viewport = {

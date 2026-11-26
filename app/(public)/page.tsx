@@ -17,14 +17,54 @@ import { SectionHeading } from "@/components/layout/section-heading";
 import { TeamLogo } from "@/components/matches/team-logo";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getLandingData } from "@/lib/catalog/landing";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, siteUrl } from "@/lib/seo/site";
 import { getPublicFlags } from "@/lib/catalog/settings";
 import { formatKickoff, resolveTimezone } from "@/lib/utils/dates";
 
 export const metadata: Metadata = {
-  title: "PRONEX — Prédisez. Analysez. Dominez.",
+  title: "PRONEX — Le football analysé par l'intelligence artificielle",
   description:
-    "Analyses et pronostics football par PRONEX AI : probabilités, niveau de confiance et explication pour chaque match.",
+    "Analyses et pronostics football par PRONEX AI : 13 types de pronostics, probabilités, niveau de confiance et explication pour chaque match. Performances publiques, paiement à l'unité, sans abonnement.",
+  alternates: { canonical: "/" },
+  // Les métadonnées Open Graph d'une page remplacent celles du site : on les redonne en entier.
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    siteName: SITE_NAME,
+    url: "/",
+    title: "PRONEX — Le football analysé par l'intelligence artificielle",
+    description: SITE_DESCRIPTION,
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "PRONEX — Prédisez. Analysez. Dominez." }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PRONEX — Le football analysé par l'intelligence artificielle",
+    description: SITE_DESCRIPTION,
+    images: ["/twitter-image"],
+  },
 };
+
+function structuredData() {
+  const base = siteUrl();
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: base.origin,
+      logo: new URL("/brand/pronex-logo.png", base).toString(),
+      slogan: SITE_TAGLINE,
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: SITE_NAME,
+      url: base.origin,
+      inLanguage: "fr",
+      description: SITE_DESCRIPTION,
+    },
+  ];
+}
 
 export default async function HomePage() {
   // Un utilisateur connecté va directement à son tableau de bord.
@@ -107,6 +147,8 @@ export default async function HomePage() {
 
       <LandingFinalCta />
       <MobileCta />
+      {/* Données structurées : identité du site, sans note ni avis (aucune donnée inventée). */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData()).replace(/</g, "\\u003c") }} />
     </main>
   );
 }
