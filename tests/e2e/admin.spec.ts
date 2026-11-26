@@ -54,7 +54,7 @@ test("parcours administrateur", async ({ page }) => {
 
   // Masquage d'un marché
   await page.goto(`/admin/matchs/${fx.fixtureId}`);
-  const bttsBlock = page.locator("div.rounded-lg", { hasText: "Les deux équipes marquent" }).filter({ has: page.getByRole("button", { name: "Masquer ce marché" }) }).first();
+  const bttsBlock = page.locator("div.rounded-xl", { hasText: "Les deux équipes marquent" }).filter({ has: page.getByRole("button", { name: "Masquer ce marché" }) }).first();
   await bttsBlock.getByRole("button", { name: "Masquer ce marché" }).click();
   await expect(bttsBlock.getByText(/Marché masqué/)).toBeVisible();
 

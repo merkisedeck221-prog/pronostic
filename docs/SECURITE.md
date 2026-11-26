@@ -236,6 +236,15 @@ Corrections :
 | Codes promo | ✅ refusés par `start_topup` (`PROMO_DISABLED`), page et actions d'administration retirées, tables conservées |
 | Soldes existants | ✅ inchangés (vérifié avant / après sur la base de test) |
 
+## 9 nonies. Contrôle final de la refonte PRONEX (phase G, 26/11/2026)
+
+- Attaques rejouées avec la clé publique seule (script hors CI, équivalent d'`audit.test.ts` sans clé secrète) :
+  - base de test, anonyme puis connecté (compte « Intrus ») : 56 tentatives, 56 refusées (lecture des tables sensibles, lecture des données d'un autre compte, écriture sur `wallets` / `credit_transactions` / `unlocks`, passage en admin, modification des prix, fonctions `apply_topup`, `admin_*`, `settle_fixture`) ; `get_fixture_predictions` ne révèle aucun marché non débloqué ;
+  - production, anonyme uniquement : 28 tentatives, 28 refusées (aucune écriture possible, aucune donnée créée).
+- Recharge : code promo refusé (`PROMO_DISABLED`), `apply_topup` refusé à l'utilisateur (42501), crédit exact du pack (+10), deuxième application sans effet (`already_processed`).
+- Conseiller Supabase (production) : alertes « SECURITY DEFINER exécutable » attendues (fonctions protégées par `auth.uid()` / `is_admin()`, voir § 3) ; protection des mots de passe divulgués toujours désactivée (réglage du porteur, voir § 10).
+- `npm run test:security` et les autres suites d'intégration n'ont pas pu être relancés : la clé secrète du projet de test n'est pas disponible dans la session.
+
 ## 10. Points ouverts et risques acceptés
 
 1. ⚠️ **`picomatch`** (outils de développement uniquement) : voir § 8.

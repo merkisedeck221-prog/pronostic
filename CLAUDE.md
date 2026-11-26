@@ -123,7 +123,7 @@
 ## Design PRONEX (phase design ouverte le 25/11/2026)
 
 - Identité : **PRONEX**, slogan « Prédisez. Analysez. Dominez. ». Thème **sombre unique** : noir nuit #080B20, rose néon #FF1493, violet #A000FF, blanc, gris #9CA3AF (jetons dans `app/globals.css`, classe `dark` sur `<html>`). Titres en Exo 2 (`--font-display`), texte en Geist.
-- Logo : `public/brand/` (icône, logotype, logo complet, fond transparent, tirés du fichier fourni) et `components/layout/brand.tsx` ; icônes `app/icon.png`, `app/apple-icon.png`, `app/favicon.ico`. Remplacer par la version vectorielle dès qu'elle est fournie.
+- Logo : `public/brand/` (icône, logotype, logo complet, fond transparent, tirés du fichier fourni ; les `.png` sont les sources, les pages utilisent les `.webp` allégés car l'optimisation d'images Vercel est désactivée) et `components/layout/brand.tsx` ; icônes `app/icon.png`, `app/apple-icon.png`, `app/favicon.ico`. Remplacer par la version vectorielle dès qu'elle est fournie.
 - Navigation : en-tête collant (`components/layout/app-header.tsx`), barre fixe en bas sur mobile (`BottomNav` dans `components/layout/app-nav.tsx`).
 - Plan de la refonte : phases A (fondations) → G (contrôle final), validées une par une par le porteur ; aucune donnée ni statistique inventée, états vides soignés.
 

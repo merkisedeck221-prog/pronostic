@@ -766,3 +766,24 @@ Statut : **fait et vérifié sur la base de test** ; production après accord du
   - Administration : zone principale `<main>` (repère manquant).
   - Lien « Aller au contenu » au premier appui sur Tab ; contour de focus rose visible au clavier partout.
 - Recherche globale : non faite (non demandée).
+
+## Refonte PRONEX — phase G : contrôle final (26/11/2026)
+
+Parcours réel sur la base de test (application compilée en local) :
+1. Inscription : formulaire, validation et case CGU vérifiés. Une adresse refusée par Supabase (ex. `@example.com`) affichait « Une erreur est survenue » : message dédié ajouté (`email_address_invalid`, test unitaire).
+2. Achat : 5 packs visibles sans bonus, bandeau « Paiement de test », code promo refusé, recharge Starter créée par l'utilisateur, validée par `apply_topup` (rôle du webhook vérifié) : 16 → 26 crédits, deuxième validation sans effet. (L'action serveur d'achat exige la clé secrète, absente en local : comportement voulu.)
+3. Déblocage : fenêtre de confirmation (prix, solde avant / après), 26 → 24 crédits, sélection, confiance et probabilités affichées, solde de l'en-tête à jour ; « match complet » proposé au prix restant (1 crédit, déjà payé déduit).
+4. Portefeuille, reçu (RC-…, 1 000 FCFA, pack Starter) et Mes pronostics cohérents ; aucune erreur console.
+
+Sécurité : voir docs/SECURITE.md § 9 nonies (84 tentatives d'attaque, toutes refusées).
+
+Accessibilité : axe-core sur 22 pages, 0 problème ; affichage des 16 pages admin de 320 à 1366 px sans débordement.
+
+Rapidité (production, mesures depuis un serveur européen) :
+- temps de réponse : accueil 0,58 s en moyenne, autres pages 0,18 à 0,27 s ;
+- affichage principal (LCP) : 0,4 à 1,1 s, aucun décalage de mise en page notable (CLS ≤ 0,015) ;
+- correction : le logo était servi en PNG d'origine (726 Ko pour les trois images, optimisation Vercel désactivée). Versions WebP sans perte de transparence (127 Ko) ; le grand logo de la page de connexion n'est plus chargé sur téléphone (caché). Poids du logo sur /connexion mobile : 725 Ko → 29 Ko.
+
+Tests automatiques : sélecteurs périmés de `tests/e2e/*.spec.ts` corrigés (cartes `article`, encadrés `rounded-xl`, case CGU cochée directement). Lint, typecheck, 332 tests, build : OK.
+
+Points ouverts (porteur) : domaine, e-mails Resend + modèles français (évite l'erreur « lien ouvert dans un autre navigateur »), confirmation d'e-mail, protection des mots de passe divulgués, offre API-Football Pro, décisions `refund_on_cancel` et prix du match complet. Conseiller performance : index en double sur `admin_audit_log` (à supprimer par une migration, avec accord).

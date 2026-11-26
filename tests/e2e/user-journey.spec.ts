@@ -36,7 +36,7 @@ test("parcours utilisateur complet", async ({ page }) => {
   await page.getByLabel("Mot de passe", { exact: true }).fill(password);
   await page.getByLabel("Confirmation du mot de passe").fill(password);
   await page.getByLabel("Nom d'affichage").fill("Awa E2E");
-  await page.getByText("J'ai 18 ans ou plus").click();
+  await page.getByRole("checkbox", { name: /J'ai 18 ans ou plus/ }).check();
   await page.getByRole("button", { name: "Créer mon compte" }).click();
   await expect(page.getByText("vous allez recevoir un e-mail de confirmation", { exact: false })).toBeVisible();
 
@@ -60,7 +60,7 @@ test("parcours utilisateur complet", async ({ page }) => {
   await expect(page.getByText(`${fx.home} 2 – 1 ${fx.away}`)).toHaveCount(0);
 
   // 3. Refus faute de solde → Recharger
-  const exactCard = page.locator("div.rounded-md", { has: page.getByRole("heading", { name: "Score exact" }) });
+  const exactCard = page.locator("article", { has: page.getByRole("heading", { name: "Score exact" }) });
   await exactCard.getByRole("button", { name: "Débloquer" }).click();
   await expect(page.getByText("Solde insuffisant")).toBeVisible();
   await page.getByRole("link", { name: "Recharger" }).click();
