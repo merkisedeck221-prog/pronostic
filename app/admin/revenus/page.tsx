@@ -101,11 +101,31 @@ export default async function AdminRevenusPage({ searchParams }: PageProps<"/adm
           <CardHeader>
             <CardTitle>Par jour</CardTitle>
           </CardHeader>
-          <CardContent className="max-h-96 overflow-y-auto">
+          <CardContent className="max-h-96 space-y-4 overflow-y-auto">
+            <DailyBars days={revenue.by_day} />
             <SimpleTable head={["Jour", "Recharges", "Montant"]} rows={revenue.by_day.map((d) => [d.day, d.topups, formatXof(d.revenue_xof)])} />
           </CardContent>
         </Card>
       </div>
     </AdminPage>
+  );
+}
+
+/** Barres du chiffre d'affaires quotidien (jours avec au moins une recharge payée). */
+function DailyBars({ days }: { days: { day: string; revenue_xof: number; topups: number }[] }) {
+  if (days.length === 0) return null;
+  const max = Math.max(1, ...days.map((d) => d.revenue_xof));
+  return (
+    <ul className="space-y-1.5" aria-label="Chiffre d'affaires par jour">
+      {days.map((d) => (
+        <li key={d.day} className="grid grid-cols-[5.5rem_1fr_auto] items-center gap-2 text-xs">
+          <span className="text-muted-foreground tabular-nums">{d.day}</span>
+          <span className="h-2 overflow-hidden rounded-full bg-white/8">
+            <span className="block h-full rounded-full bg-pronex-violet" style={{ width: `${(d.revenue_xof / max) * 100}%` }} />
+          </span>
+          <span className="tabular-nums">{formatXof(d.revenue_xof)}</span>
+        </li>
+      ))}
+    </ul>
   );
 }

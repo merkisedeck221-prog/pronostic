@@ -813,3 +813,20 @@ Fondations du design system validé : couleurs d'état officielles, boutons stan
 - **Pages d'accès** : carte plus sobre avec logo sur mobile, message clair si un lien est ouvert dans un autre navigateur, confirmation après déconnexion globale ; déclaration 18+ inchangée.
 
 Vérifications : lint, typecheck, 345 tests, build ; 19 pages à 320, 390, 768 et 1366 px sans débordement ni erreur console ; axe-core (WCAG A/AA) sur 25 pages : 0 problème.
+
+## Étape 4 — refonte de l'administration (26/11/2026)
+
+Aucune migration ni nouvelle intégration : uniquement des lectures (RLS admin) et de la présentation ; actions sensibles inchangées (Server Actions `requireAdmin()` + journal d'audit).
+
+- **Centre de contrôle** (`/admin`, `lib/admin/control-center.ts`) : utilisateurs (total, actifs sur 30 jours = au moins un mouvement de crédits, suspendus), matchs (en base, à venir 7 j, publiés), pronostics générés et matchs couverts, déblocages (total, 30 j), transactions (total, 30 j, recharges en attente) ; état des systèmes : tâches Supabase Cron, dernière exécution de chaque synchronisation (OK / erreur / en retard > 26 h / jamais), moteur IA (générations et échecs 24 h, durée moyenne, demandes en cours ; un échec à la demande, crédits rendus, est une alerte orange) ; revenus (simulés) et crédits ; « À surveiller ».
+- **Compétitions** : chiffres clés, matchs en base (à venir / terminés), couverture API-Football par compétition (classement, statistiques, absences, prédictions). **Matchs** : recherche équipe / compétition, chiffres du filtre, colonne « Données » (dossier IA, score, mi-temps, statistiques). **Fiche match** : carte « Données disponibles » (dossier, forme, classement, confrontations, corners / cartons, absences, score, statistiques) ; durée de chaque génération.
+- **Pronostics** : explication de l'IA dépliable, nombre de déblocages (marché + match complet, jeu partagé), date de génération, version du prompt et du pronostic.
+- **Suivi de l'IA** : état du moteur (clé configurée oui / non, jamais sa valeur ; modèle ; prompt v3), temps de traitement médian et 90 %, échecs récents, erreurs les plus fréquentes (validations refusées), qualité des dossiers sur 30 jours (erreurs de collecte), générations à la demande.
+- **Utilisateurs** : achats, déblocages, pronostics obtenus, résultats ; historique des pronostics (match, type, sélection, probabilité, crédits, résultat).
+- **Packs** : contrôle automatique de la grille officielle (`lib/admin/pack-grid.ts`, testé) ; aucun tarif modifié.
+- **Transactions / revenus** : numéro de reçu des recharges réussies ; barres du chiffre d'affaires par jour.
+- **Paramètres** groupés (généraux, IA, compétitions et matchs, synchronisation, paiement) avec liens vers les pages dédiées ; définitions ajoutées pour `on_demand_generation_enabled`, `on_demand_window_hours`, `alert_quota_min`, `payment_methods`. **Journal d'audit** : filtres objet et période, nombre d'actions sur 24 h et 7 jours.
+
+Vérifications : lint, typecheck, 348 tests, build ; 16 pages admin à 320, 390, 768 et 1366 px sans débordement ni erreur ; axe-core : 0 problème sur 20 pages (dont 14 admin).
+
+Point à décider : `alert_quota_min` vaut 200 alors que l'offre gratuite d'API-Football donne 100 appels par jour : la surveillance signalera un quota bas tant que l'offre Pro n'est pas prise.

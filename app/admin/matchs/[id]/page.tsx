@@ -17,6 +17,7 @@ import {
   settleNowAction,
 } from "@/lib/admin/actions/matches";
 import { requireAdmin } from "@/lib/auth/session";
+import { getFixtureContext } from "@/lib/catalog/queries";
 import { confidenceLabel } from "@/lib/credits/labels";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateTime, resolveTimezone } from "@/lib/utils/dates";
@@ -38,12 +39,13 @@ export default async function AdminFixturePage({ params }: PageProps<"/admin/mat
     .maybeSingle();
   if (!fixture) notFound();
 
-  const [{ data: context }, { data: predictions }, { data: analysis }, { data: unlocks }, { data: runs }] = await Promise.all([
+  const [{ data: context }, { data: predictions }, { data: analysis }, { data: unlocks }, { data: runs }, publicContext] = await Promise.all([
     supabase.from("match_contexts").select("summary, fetched_at").eq("fixture_id", id).maybeSingle(),
     supabase.from("predictions").select("*, market:markets(label, sort_order)").eq("fixture_id", id).order("market_code"),
     supabase.from("prediction_analyses").select("summary, key_factors, model, prompt_version").eq("fixture_id", id).maybeSingle(),
     supabase.from("unlocks").select("credits_spent, refunded_at, market_code").eq("fixture_id", id),
-    supabase.from("ai_generation_runs").select("id, status, model, prompt_version, created_at, input_tokens, output_tokens, cost_estimate_usd, error").eq("fixture_id", id).order("created_at", { ascending: false }).limit(10),
+    supabase.from("ai_generation_runs").select("id, status, model, prompt_version, created_at, input_tokens, output_tokens, cost_estimate_usd, duration_ms, error").eq("fixture_id", id).order("created_at", { ascending: false }).limit(10),
+    getFixtureContext(id),
   ]);
   const predictionIds = (predictions ?? []).map((p) => p.id);
   const { data: revisions } = predictionIds.length
@@ -76,6 +78,54 @@ export default async function AdminFixturePage({ params }: PageProps<"/admin/mat
         <Stat label="Déblocages" value={unlockCount} hint={refunded ? `${refunded} remboursé(s)` : undefined} />
         <Stat label="Crédits encaissés" value={credits} hint="Hors remboursements" />
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Données disponibles</CardTitle>
+          <CardDescription>
+            Ce que la base contient pour ce match (synchronisation API-Football) ; dernière synchronisation :{" "}
+            {fixture.last_synced_at ? formatDateTime(fixture.last_synced_at, tz) : "jamais"}.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ul className="grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { label: "Dossier IA", ok: Boolean(context), detail: context ? `Construit le ${formatDateTime(context.fetched_at, tz)}` : "Non construit" },
+              {
+                label: "Forme récente",
+                ok: Boolean(publicContext && (publicContext.home.form.length > 0 || publicContext.away.form.length > 0)),
+                detail: publicContext ? `${publicContext.home.form.length} / ${publicContext.away.form.length} match(s) en base` : "—",
+              },
+              { label: "Classement", ok: Boolean(publicContext?.has_standings), detail: publicContext?.has_standings ? "Disponible" : "Absent" },
+              { label: "Confrontations", ok: (publicContext?.head_to_head.length ?? 0) > 0, detail: `${publicContext?.head_to_head.length ?? 0} rencontre(s)` },
+              {
+                label: "Corners / cartons (moyennes)",
+                ok: Boolean(publicContext?.home.stats || publicContext?.away.stats),
+                detail: `${publicContext?.home.stats?.matches ?? 0} / ${publicContext?.away.stats?.matches ?? 0} match(s) avec statistiques`,
+              },
+              {
+                label: "Absences",
+                ok: Boolean(publicContext?.home.absences || publicContext?.away.absences),
+                detail:
+                  publicContext?.home.absences || publicContext?.away.absences
+                    ? `${publicContext?.home.absences?.length ?? 0} / ${publicContext?.away.absences?.length ?? 0} signalée(s)`
+                    : "Inconnues",
+              },
+              { label: "Score et mi-temps", ok: fixture.ft_home !== null, detail: fixture.ht_home !== null ? `Mi-temps ${fixture.ht_home} – ${fixture.ht_away}` : "—" },
+              {
+                label: "Statistiques du match",
+                ok: fixture.corners_home !== null || fixture.cards_home !== null,
+                detail: fixture.corners_home !== null ? `Corners ${fixture.corners_home} – ${fixture.corners_away}` : "—",
+              },
+            ].map((item) => (
+              <li key={item.label} className={`rounded-lg border p-3 ${item.ok ? "border-success/30 bg-success/5" : "border-white/10 bg-white/[0.02]"}`}>
+                <p className={`text-xs font-semibold ${item.ok ? "text-success" : "text-muted-foreground"}`}>{item.ok ? "✓" : "—"} {item.label}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{item.detail}</p>
+              </li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -241,7 +291,7 @@ export default async function AdminFixturePage({ params }: PageProps<"/admin/mat
             {(runs ?? []).map((r) => (
               <p key={r.id} className="text-xs">
                 {formatDateTime(r.created_at, tz)} · {r.status} · {r.model} · {r.prompt_version} · {(r.input_tokens ?? 0) + (r.output_tokens ?? 0)} tokens
-                {r.cost_estimate_usd !== null ? ` · ${r.cost_estimate_usd} $` : ""}
+                {r.cost_estimate_usd !== null ? ` · ${r.cost_estimate_usd} $` : ""}{r.duration_ms !== null ? ` · ${(r.duration_ms / 1000).toFixed(1)} s` : ""}
                 {r.error ? <span className="block truncate text-muted-foreground">{r.error}</span> : null}
               </p>
             ))}

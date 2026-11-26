@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AdminActionForm } from "@/components/admin/action-form";
-import { AdminPage, FilterBar, FilterSelect, Pagination, SortLink } from "@/components/admin/table-tools";
+import { AdminPage, FilterBar, FilterInput, FilterSelect, Pagination, SortLink, Stat } from "@/components/admin/table-tools";
+import { matchesSearch, parseSearch } from "@/lib/catalog/fixture-filters";
 import { StatusBadge } from "@/components/matches/status-badge";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -27,6 +28,7 @@ export default async function AdminFixturesPage({ searchParams }: PageProps<"/ad
   const published = parseEnumParam(params.publie, PUBLISHED_FILTERS, "tous");
   const sort = parseEnumParam(params.tri, SORTS, period === "passes-7j" ? "date_desc" : "date_asc");
   const page = parsePageParam(params.page);
+  const search = parseSearch(params.q);
 
   const supabase = await createClient();
   const { data: competitions } = await supabase.from("competitions").select("id, name").order("name");
@@ -34,7 +36,7 @@ export default async function AdminFixturesPage({ searchParams }: PageProps<"/ad
   const range = fixturePeriodRange(period);
   let query = supabase
     .from("fixtures")
-    .select("id, kickoff_at, status_short, is_published, goals_home, goals_away, last_synced_at, competition:competitions(name), home:teams!fixtures_home_team_id_fkey(name), away:teams!fixtures_away_team_id_fkey(name)")
+    .select("id, kickoff_at, status_short, is_published, goals_home, goals_away, ht_home, corners_home, cards_home, last_synced_at, competition:competitions(name), home:teams!fixtures_home_team_id_fkey(name), away:teams!fixtures_away_team_id_fkey(name)")
     .order("kickoff_at", { ascending: sort === "date_asc" })
     .limit(2000);
   if (range.from) query = query.gte("kickoff_at", range.from.toISOString());
@@ -46,25 +48,37 @@ export default async function AdminFixturesPage({ searchParams }: PageProps<"/ad
   const { data: fixtures, error } = await query;
   if (error) throw new Error(error.message);
 
-  const ids = (fixtures ?? []).map((f) => f.id);
-  const [{ data: preds }, { data: unlocks }] = await Promise.all([
+  const searched = (fixtures ?? []).filter((f) => matchesSearch(search, [f.home.name, f.away.name, f.competition?.name]));
+  const ids = searched.map((f) => f.id);
+  const [{ data: preds }, { data: unlocks }, { data: contexts }] = await Promise.all([
     ids.length ? supabase.from("predictions").select("fixture_id, status").in("fixture_id", ids.slice(0, 1000)) : Promise.resolve({ data: [] }),
     ids.length ? supabase.from("unlocks").select("fixture_id").in("fixture_id", ids.slice(0, 1000)) : Promise.resolve({ data: [] }),
+    ids.length ? supabase.from("match_contexts").select("fixture_id").in("fixture_id", ids.slice(0, 1000)) : Promise.resolve({ data: [] }),
   ]);
+  const withContext = new Set((contexts ?? []).map((c) => c.fixture_id));
   const predCount = new Map<number, number>();
   for (const p of preds ?? []) predCount.set(p.fixture_id, (predCount.get(p.fixture_id) ?? 0) + 1);
   const unlockCount = new Map<number, number>();
   for (const u of unlocks ?? []) unlockCount.set(u.fixture_id, (unlockCount.get(u.fixture_id) ?? 0) + 1);
 
-  const filtered = (fixtures ?? []).filter((f) =>
+  const filtered = searched.filter((f) =>
     prediction === "avec" ? predCount.has(f.id) : prediction === "sans" ? !predCount.has(f.id) : true,
   );
   const total = filtered.length;
   const rows = filtered.slice((page - 1) * ADMIN_PAGE_SIZE, page * ADMIN_PAGE_SIZE);
 
+  const totalUnlocks = filtered.reduce((sum, f) => sum + (unlockCount.get(f.id) ?? 0), 0);
+
   return (
-    <AdminPage title="Matchs" description="Liste filtrable ; publier ou masquer un match. Cliquez sur un match pour ses pronostics et actions.">
+    <AdminPage title="Matchs" description="Liste filtrable ; publier ou masquer un match. Cliquez sur un match pour ses pronostics, ses données et ses actions.">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Stat label="Matchs (filtres actuels)" value={total} />
+        <Stat label="Avec pronostics" value={filtered.filter((f) => predCount.has(f.id)).length} />
+        <Stat label="Avec dossier IA" value={filtered.filter((f) => withContext.has(f.id)).length} hint="Données envoyées à l'IA" />
+        <Stat label="Déblocages" value={totalUnlocks} />
+      </div>
       <FilterBar resetHref={PATH}>
+        <FilterInput name="q" label="Recherche (équipe ou compétition)" value={search} className="min-w-56" />
         <FilterSelect
           name="competition"
           label="Compétition"
@@ -127,6 +141,7 @@ export default async function AdminFixturesPage({ searchParams }: PageProps<"/ad
               </TableHead>
               <TableHead>Match</TableHead>
               <TableHead>Statut</TableHead>
+              <TableHead>Données</TableHead>
               <TableHead>Dernière synchro</TableHead>
               <TableHead className="text-right">Pronostics</TableHead>
               <TableHead className="text-right">Déblocages</TableHead>
@@ -136,7 +151,7 @@ export default async function AdminFixturesPage({ searchParams }: PageProps<"/ad
           <TableBody>
             {rows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground">
+                <TableCell colSpan={8} className="text-center text-muted-foreground">
                   Aucun match pour ces filtres.
                 </TableCell>
               </TableRow>
@@ -155,6 +170,14 @@ export default async function AdminFixturesPage({ searchParams }: PageProps<"/ad
                 </TableCell>
                 <TableCell>
                   <StatusBadge status={f.status_short} showUpcoming />
+                </TableCell>
+                <TableCell>
+                  <DataTags items={[
+                    { label: "Dossier IA", ok: withContext.has(f.id) },
+                    { label: "Score", ok: f.goals_home !== null },
+                    { label: "Mi-temps", ok: f.ht_home !== null },
+                    { label: "Stats", ok: f.corners_home !== null || f.cards_home !== null },
+                  ]} />
                 </TableCell>
                 <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
                   {f.last_synced_at ? formatDateTime(f.last_synced_at, tz) : "Jamais"}
@@ -180,5 +203,22 @@ export default async function AdminFixturesPage({ searchParams }: PageProps<"/ad
       </div>
       <Pagination path={PATH} params={params} page={page} pageCount={pageCount(total)} total={total} />
     </AdminPage>
+  );
+}
+
+/** Disponibilité des données d'un match : pastille verte si présente, grise sinon. */
+function DataTags({ items }: { items: { label: string; ok: boolean }[] }) {
+  return (
+    <span className="inline-flex flex-wrap justify-end gap-1 md:justify-start">
+      {items.map((item) => (
+        <span
+          key={item.label}
+          className={item.ok ? "rounded-md bg-success/10 px-1.5 py-0.5 text-[11px] text-success" : "rounded-md bg-white/5 px-1.5 py-0.5 text-[11px] text-muted-foreground line-through decoration-white/30"}
+          title={item.ok ? `${item.label} : disponible` : `${item.label} : absent`}
+        >
+          {item.label}
+        </span>
+      ))}
+    </span>
   );
 }
