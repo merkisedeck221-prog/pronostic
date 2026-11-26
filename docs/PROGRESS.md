@@ -1087,3 +1087,24 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
 - Accordéons natifs `<details name="faq">` : une seule réponse ouverte à la fois, sans JavaScript ; ouverture fluide via `::details-content` sur les navigateurs compatibles ; « + » qui pivote en « × ».
 - Données structurées `FAQPage` (JSON-LD) pour le référencement.
 - Tests `faq.test.tsx` : les 10 questions, la réponse « Non… ne garantit aucun gain », les vrais prix et packs, le réglage de remboursement, le JSON-LD.
+
+## Landing — partie 13 du brief : CTA final (26/11/2026)
+
+- `components/landing/final-cta.tsx` remplace l'ancien encadré final.
+- Contenu :
+  - titre « Prêt à découvrir une nouvelle façon d'analyser le football ? » (« analyser le football » en rose, espace insécable avant « ? ») ;
+  - texte du brief ;
+  - « Créer mon compte » (bouton principal, vers `/inscription`) et « Découvrir les performances » (vers `/performances`) ;
+  - mentions « inscription gratuite · paiement à l'unité · 18+ ».
+- Composition :
+  - panneau à liseré dégradé (`.pronex-panel`), terrain discret et halos ;
+  - **symbole PRONEX en filigrane** (12 % d'opacité), avec une version large `public/brand/pronex-symbol-lg.webp` (640 px, 55 Ko) redimensionnée à partir du fichier fourni, sans retouche ;
+  - logotype au-dessus du titre.
+- Vérifié sans débordement sur ordinateur, tablette, iPhone 14 et iPhone SE.
+- **Révision du CTA final (demande du porteur)** : le symbole « P » en filigrane est remplacé par la photo de stade fournie par le porteur.
+  - Fichier `public/landing/stadium.webp` (736 × 981, 184 Ko).
+  - Cadrage centré sur les tribunes sur ordinateur.
+  - Voile noir nuit → transparent et légère teinte violette pour la lisibilité.
+  - Le fichier `pronex-symbol-lg.webp`, devenu inutile, est retiré.
+  - La photo montre un stade réel ; les inscriptions des tribunes restent à peine lisibles sous le voile. Les droits d'utilisation de la photo relèvent du porteur.
+- CTA final plus clair (demande du porteur) : photo à pleine opacité, voile allégé (sombre seulement à gauche sur ordinateur, léger sur mobile), teinte violette retirée, ombres portées discrètes sur le texte pour la lisibilité.

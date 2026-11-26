@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import {
-  CalendarClockIcon,
-  ShieldCheckIcon,
-} from "lucide-react";
+import { CalendarClockIcon } from "lucide-react";
 import { LandingAdvantages } from "@/components/landing/advantages";
 import { LandingDemo } from "@/components/landing/demo-section";
 import { LandingFaq } from "@/components/landing/faq";
+import { LandingFinalCta } from "@/components/landing/final-cta";
 import { LandingHero } from "@/components/landing/hero";
 import { LandingHowItWorks } from "@/components/landing/how-it-works";
 import { LandingMarkets } from "@/components/landing/markets";
@@ -16,7 +14,6 @@ import { LandingPricing } from "@/components/landing/pricing";
 import { LandingPresentation } from "@/components/landing/presentation";
 import { SectionHeading } from "@/components/layout/section-heading";
 import { TeamLogo } from "@/components/matches/team-logo";
-import { buttonVariants } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getLandingData } from "@/lib/catalog/landing";
 import { getPublicFlags } from "@/lib/catalog/settings";
@@ -86,26 +83,7 @@ export default async function HomePage() {
         revealAfterMatch={flags.revealAfterMatch}
       />
 
-      {/* Appel à l'action final */}
-      <section className="mx-auto w-full max-w-6xl px-4 pb-16">
-        <div className="flex flex-col items-start gap-6 rounded-3xl border border-pronex-violet/30 bg-card p-8 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-2">
-            <h2 className="text-2xl font-bold">Prêt à analyser votre prochain match ?</h2>
-            <p className="flex items-center gap-2 text-sm text-muted-foreground">
-              <ShieldCheckIcon className="size-4 text-success" aria-hidden />
-              Inscription gratuite · réservée aux 18 ans et plus
-            </p>
-          </div>
-          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-            <Link href="/inscription" className={buttonVariants({ variant: "hero", size: "lg" })}>
-              Créer mon compte
-            </Link>
-            <Link href="/connexion" className={buttonVariants({ variant: "outline", size: "lg" })}>
-              Se connecter
-            </Link>
-          </div>
-        </div>
-      </section>
+      <LandingFinalCta />
     </main>
   );
 }
