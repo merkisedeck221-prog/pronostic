@@ -3,7 +3,15 @@ import { describe, expect, it, vi } from "vitest";
 import type { PerformanceStats } from "@/lib/settle/schemas";
 import { LandingPerformance } from "./performance";
 
-vi.mock("next/link", () => ({ default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a> }));
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    children,
+  }: {
+    href: string;
+    children: React.ReactNode;
+  }) => <a href={href}>{children}</a>,
+}));
 
 const base: PerformanceStats = {
   reveal_after_match: true,
@@ -28,7 +36,15 @@ describe("landing : performances de PRONEX AI", () => {
       ...base,
       global: { won: 30, lost: 10, void: 2 },
       last_30_days: { won: 6, lost: 4, void: 1 },
-      by_market: [{ code: "BTTS", label: "Les deux équipes marquent", won: 5, lost: 5, void: 0 }],
+      by_market: [
+        {
+          code: "BTTS",
+          label: "Les deux équipes marquent",
+          won: 5,
+          lost: 5,
+          void: 0,
+        },
+      ],
     };
     const html = renderToStaticMarkup(<LandingPerformance stats={stats} />);
     expect(html).toContain("75 %"); // 30 ÷ (30 + 10), annulés exclus

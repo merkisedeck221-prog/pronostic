@@ -9,14 +9,26 @@ import { cn } from "@/lib/utils";
  * l'élément est encore sous l'écran, et levé dès que le défilement l'atteint
  * (y compris par un saut d'ancre). Coupé par « réduire les animations ».
  */
-export function Reveal({ children, delay = 0, className }: { children: ReactNode; delay?: number; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
+export function Reveal({
+  children,
+  delay = 0,
+  className,
+  as: Tag = "div",
+}: {
+  children: ReactNode;
+  delay?: number;
+  className?: string;
+  /** « li » pour une carte de liste (ul / ol). */
+  as?: "div" | "li";
+}) {
+  const ref = useRef<HTMLDivElement & HTMLLIElement>(null);
 
   useEffect(() => {
     const element = ref.current;
     if (!element) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const reached = () => element.getBoundingClientRect().top < window.innerHeight * 0.9;
+    const reached = () =>
+      element.getBoundingClientRect().top < window.innerHeight * 0.9;
     if (reached()) return;
     element.dataset.reveal = "hidden";
     // Le haut de l'élément a passé le bas de l'écran (défilement ou saut par une ancre) : on affiche.
@@ -41,8 +53,12 @@ export function Reveal({ children, delay = 0, className }: { children: ReactNode
   }, []);
 
   return (
-    <div ref={ref} className={cn("pronex-reveal", className)} style={{ transitionDelay: `${delay}ms` }}>
+    <Tag
+      ref={ref}
+      className={cn("pronex-reveal", className)}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
       {children}
-    </div>
+    </Tag>
   );
 }

@@ -14,7 +14,10 @@ export function easeInOutCubic(t: number): number {
 
 /** Valeur affichée à l'instant t (0 → 1) ; arrondie à l'entier, jamais au-delà de la cible. */
 export function countAt(target: number, t: number): number {
-  return Math.min(target, Math.round(target * easeInOutCubic(Math.max(0, Math.min(1, t)))));
+  return Math.min(
+    target,
+    Math.round(target * easeInOutCubic(Math.max(0, Math.min(1, t)))),
+  );
 }
 
 const FORMAT = new Intl.NumberFormat("fr-FR");
@@ -25,7 +28,15 @@ const FORMAT = new Intl.NumberFormat("fr-FR");
  * (lisible sans JavaScript, référencement) ; avec « réduire les animations »,
  * la valeur finale reste affichée sans animation.
  */
-export function CountUp({ value, prefix = "", className }: { value: number; prefix?: string; className?: string }) {
+export function CountUp({
+  value,
+  prefix = "",
+  className,
+}: {
+  value: number;
+  prefix?: string;
+  className?: string;
+}) {
   const ref = useRef<HTMLSpanElement>(null);
   const [display, setDisplay] = useState(value);
   const [phase, setPhase] = useState<"idle" | "running" | "done">("idle");
@@ -33,7 +44,11 @@ export function CountUp({ value, prefix = "", className }: { value: number; pref
   useEffect(() => {
     const element = ref.current;
     if (!element) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || !("IntersectionObserver" in window)) return;
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      !("IntersectionObserver" in window)
+    )
+      return;
 
     let started = false;
     // Repart de zéro avant d'être visible (au prochain rafraîchissement, hors rendu).

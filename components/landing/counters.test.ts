@@ -3,7 +3,9 @@ import { activityItems, goalItems } from "./counters";
 
 describe("compteurs de la landing : uniquement des chiffres vrais", () => {
   it("n'affiche que les indicateurs d'activité réellement disponibles, avec « + »", () => {
-    expect(activityItems({ users: null, won: null, analyses: null })).toEqual([]);
+    expect(activityItems({ users: null, won: null, analyses: null })).toEqual(
+      [],
+    );
     const items = activityItems({ users: 140, won: null, analyses: 75 });
     expect(items.map((i) => [i.key, i.value, i.prefix])).toEqual([
       ["users", 140, "+"],

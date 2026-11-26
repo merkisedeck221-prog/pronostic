@@ -2,12 +2,28 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { faqItems, LandingFaq, type FaqContext } from "./faq";
 
-vi.mock("next/link", () => ({ default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a> }));
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    children,
+  }: {
+    href: string;
+    children: React.ReactNode;
+  }) => <a href={href}>{children}</a>,
+}));
 
 const context: FaqContext = {
   marketLabels: ["Résultat du match (1N2)", "Score exact", "Combiné IA"],
   pricing: { marketMin: 2, marketMax: 3, bundle: 7 },
-  packs: [{ id: 1, name: "Starter", credits: 10, price_xof: 1000, is_featured: false }],
+  packs: [
+    {
+      id: 1,
+      name: "Starter",
+      credits: 10,
+      price_xof: 1000,
+      is_featured: false,
+    },
+  ],
   refundOnCancel: true,
   revealAfterMatch: true,
 };
@@ -29,27 +45,41 @@ describe("landing : FAQ", () => {
   });
 
   it("insiste : estimations, aucun gain garanti", () => {
-    const gains = faqItems(context).find((i) => i.q === "PRONEX garantit-il des gains ?");
+    const gains = faqItems(context).find(
+      (i) => i.q === "PRONEX garantit-il des gains ?",
+    );
     expect(gains?.a).toMatch(/^Non\./);
     expect(gains?.a).toContain("ne garantit aucun gain");
-    expect(renderToStaticMarkup(<LandingFaq {...context} />)).toContain("estimations");
+    expect(renderToStaticMarkup(<LandingFaq {...context} />)).toContain(
+      "estimations",
+    );
   });
 
   it("reprend les vrais prix, packs et réglages", () => {
-    const all = faqItems(context).map((i) => i.a).join(" ");
+    const all = faqItems(context)
+      .map((i) => i.a)
+      .join(" ");
     expect(all).toContain("2 ou 3 crédits");
     expect(all).toContain("7 crédits pour le match complet");
-    expect(all).toContain("Starter : 1 000 FCFA pour 10 crédits".replace(" ", " ").replace("1 000", new Intl.NumberFormat("fr-FR").format(1000)));
+    expect(all).toContain(
+      "Starter : 1 000 FCFA pour 10 crédits"
+        .replace(" ", " ")
+        .replace("1 000", new Intl.NumberFormat("fr-FR").format(1000)),
+    );
     expect(all).toContain("reporté de plus de 48 heures");
     expect(all).toContain("même match");
   });
 
   it("n'annonce pas de remboursement si le réglage est désactivé", () => {
-    const all = faqItems({ ...context, refundOnCancel: false }).map((i) => i.a).join(" ");
+    const all = faqItems({ ...context, refundOnCancel: false })
+      .map((i) => i.a)
+      .join(" ");
     expect(all).not.toContain("48 heures");
   });
 
   it("ajoute les données structurées FAQPage", () => {
-    expect(renderToStaticMarkup(<LandingFaq {...context} />)).toContain('"@type":"FAQPage"');
+    expect(renderToStaticMarkup(<LandingFaq {...context} />)).toContain(
+      '"@type":"FAQPage"',
+    );
   });
 });
