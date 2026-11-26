@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { SparklesIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -18,6 +19,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { requestGenerationAction, runGenerationAction } from "@/lib/generation/actions";
 import type { GenerationOption } from "@/lib/generation/queries";
 import { formatCredits } from "@/lib/utils/format";
+import { AiGenerationProgress, type ServerOutcome } from "./ai-generation-progress";
 
 type Props = {
   fixtureId: number;
@@ -39,6 +41,9 @@ export function GeneratePanel({ fixtureId, options, balance, activeRequestId }: 
   const [selected, setSelected] = useState(0);
   const [open, setOpen] = useState(false);
   const [phase, setPhase] = useState<Phase>(activeRequestId ? { kind: "running" } : { kind: "idle" });
+  // Suivi de l'animation : demande en cours et issue réelle renvoyée par le serveur.
+  const [tracked, setTracked] = useState<string | null>(activeRequestId);
+  const [outcome, setOutcome] = useState<ServerOutcome>(null);
   // Clé d'idempotence : une par confirmation ; un double clic renvoie la même demande.
   const keyRef = useRef<string | null>(null);
   const resumed = useRef(false);
@@ -49,20 +54,23 @@ export function GeneratePanel({ fixtureId, options, balance, activeRequestId }: 
   const rechargeHref = `/recharger?next=${encodeURIComponent(`/matchs/${fixtureId}`)}`;
 
   async function run(requestId: string) {
+    setTracked(requestId);
+    setOutcome(null);
+    setOpen(false);
     setPhase({ kind: "running" });
-    const outcome = await runGenerationAction(requestId);
-    if (outcome.status === "succeeded") {
-      toast.success("Analyse IA prête : bonne lecture !");
-      setOpen(false);
+    const result = await runGenerationAction(requestId);
+    setOutcome(result.status === "succeeded" ? { status: "succeeded" } : { status: result.status, message: result.message });
+    if (result.status === "succeeded") {
+      toast.success("Analyse IA validée : vos pronostics sont prêts.");
       setPhase({ kind: "idle" });
-    } else if (outcome.status === "failed") {
-      toast.error(outcome.message);
-      setPhase({ kind: "error", message: outcome.message });
-    } else {
-      toast.info(outcome.message);
-      setPhase({ kind: "error", message: outcome.message });
+      // Laisse voir l'étape finale, puis affiche les cartes (rechargées depuis le serveur).
+      setTimeout(() => router.refresh(), 6_000);
+      return;
     }
-    router.refresh(); // pronostics, solde et notifications rechargés depuis le serveur
+    if (result.status === "failed") toast.error(result.message);
+    else toast.info(result.message);
+    setPhase({ kind: "error", message: result.message });
+    router.refresh(); // solde et notifications rechargés depuis le serveur
   }
 
   useEffect(() => {
@@ -90,10 +98,33 @@ export function GeneratePanel({ fixtureId, options, balance, activeRequestId }: 
 
   if (options.length === 0) return null;
 
+  if (tracked) {
+    return (
+      <div className="space-y-3">
+        <AiGenerationProgress requestId={tracked} outcome={outcome} onShowResult={() => router.refresh()} />
+        {outcome && outcome.status !== "succeeded" ? (
+          <Button
+            variant="outline"
+            onClick={() => {
+              setTracked(null);
+              setOutcome(null);
+              setPhase({ kind: "idle" });
+            }}
+          >
+            {outcome.status === "failed" ? "Choisir une autre analyse" : "Revenir au choix des analyses"}
+          </Button>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Analyse IA à la demande</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <SparklesIcon className="size-4 text-pronex-pink" aria-hidden />
+          Analyse PRONEX AI à la demande
+        </CardTitle>
         <CardDescription>
           Aucun pronostic n&apos;est encore publié pour ce match. Lancez l&apos;analyse : les crédits sont réservés, puis débités
           seulement si l&apos;analyse réussit (sinon, ils vous sont rendus).
@@ -108,9 +139,12 @@ export function GeneratePanel({ fixtureId, options, balance, activeRequestId }: 
           <fieldset className="space-y-2">
             <legend className="sr-only">Type d&apos;analyse</legend>
             {options.map((o, i) => (
-              <label key={o.marketCode ?? "all"} className="flex cursor-pointer items-center justify-between gap-3 rounded-md border p-3 text-sm">
+              <label
+                key={o.marketCode ?? "all"}
+                className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-white/10 bg-muted p-3 text-sm transition-colors has-[:checked]:border-pronex-violet/60 has-[:checked]:bg-pronex-violet/10"
+              >
                 <span className="flex items-center gap-2">
-                  <input type="radio" name="generation-option" checked={selected === i} onChange={() => setSelected(i)} className="size-4" />
+                  <input type="radio" name="generation-option" checked={selected === i} onChange={() => setSelected(i)} className="size-4 accent-pronex-violet" />
                   {o.label}
                 </span>
                 <span className="font-medium tabular-nums">{formatCredits(o.price)}</span>
@@ -125,7 +159,7 @@ export function GeneratePanel({ fixtureId, options, balance, activeRequestId }: 
         ) : null}
 
         <AlertDialog open={open} onOpenChange={(next) => !busy && setOpen(next)}>
-          <Button onClick={() => setOpen(true)} disabled={busy}>
+          <Button variant="hero" size="lg" onClick={() => setOpen(true)} disabled={busy}>
             {busy ? "Analyse en cours…" : "Générer l'analyse"}
           </Button>
           <AlertDialogContent>

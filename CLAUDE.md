@@ -119,6 +119,7 @@
 - 10 marchés depuis le prompt v2 (`lib/ai/prompts/v2.ts`) ; HT_RESULT et HT_FT se résolvent avec `ht_home` / `ht_away` (`settle_outcome_ht`).
 - 13 marchés depuis le prompt v3 (lot B) : corners, cartons (`fixtures.corners_*`, `cards_*`, tâche `sync-statistics`) et combiné (`MARCHÉ:SÉL+…`). Résolution SQL : `settle_outcome_full`. Corners / cartons d'un match prolongé = `void` + remboursement (`private.refund_voided_market`, partiel pour un match complet : `unlock_partial_refunds`).
 - Génération à la demande (`lib/generation/`) : `request_generation` (réserve) → `runGeneration` (orchestration testée, dépendances injectées) → `complete_generation` ou `fail_generation`. Une seule génération par match (mutualisée) ; jamais de débit sans résultat.
+- Animation PRONEX AI (étape 6) : phases RÉELLES écrites par le serveur (`set_generation_stage`, colonne `generation_requests.stage`), lues toutes les 1,5 s par `components/predictions/ai-generation-progress.tsx` via `GET /api/generation/[id]` (une Server Action serait mise en file derrière la génération). Correspondance phases → 7 étapes : `lib/generation/stages.ts` (testée). Jamais de progression simulée ; résultat final seulement au statut `succeeded`.
 
 ## Design PRONEX (phase design ouverte le 25/11/2026)
 

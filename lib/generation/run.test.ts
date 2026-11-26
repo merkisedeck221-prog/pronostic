@@ -99,3 +99,33 @@ describe("runGeneration", () => {
     expect((await runGeneration(d, "r1")).status).toBe("failed");
   });
 });
+
+describe("suivi des phases réelles (animation PRONEX AI)", () => {
+  it("enregistre les phases dans l'ordre réel du traitement", async () => {
+    const stages: string[] = [];
+    const { d } = deps({ stage: vi.fn(async (_id: string, s: string) => void stages.push(s)) });
+    expect(await runGeneration(d, "r1")).toEqual({ status: "succeeded" });
+    expect(stages).toEqual(["starting", "fixture", "context"]);
+  });
+
+  it("signale une analyse mutualisée (attente du résultat d'une autre demande)", async () => {
+    const stages: string[] = [];
+    let polls = 0;
+    const { d } = deps({
+      start: vi.fn(async () => ({ ok: true, action: "wait", status: "running", fixture_id: 7 })),
+      hasResult: vi.fn(async () => ++polls > 1),
+      stage: vi.fn(async (_id: string, s: string) => void stages.push(s)),
+    });
+    expect(await runGeneration(d, "r1")).toEqual({ status: "succeeded" });
+    expect(stages[0]).toBe("starting");
+    expect(stages).toContain("waiting");
+    expect(stages).not.toContain("context");
+  });
+
+  it("une erreur d'affichage n'interrompt jamais l'analyse ni ne touche aux crédits", async () => {
+    const { d, calls } = deps({ stage: vi.fn(async () => Promise.reject(new Error("réseau"))) });
+    expect(await runGeneration(d, "r1")).toEqual({ status: "succeeded" });
+    expect(calls.fail).toEqual([]);
+    expect(calls.complete).toBe(1);
+  });
+});

@@ -23,6 +23,8 @@ export type GenerationDeps = {
   /** Dossier + IA + enregistrement. `alreadyGenerated` : un autre traitement l'a fait entre-temps. */
   generate: (fixtureId: number) => Promise<{ ok: true } | { ok: false; error: string; alreadyGenerated?: boolean }>;
   sleep: (ms: number) => Promise<void>;
+  /** Phase réelle en cours (animation) ; facultatif, jamais bloquant. */
+  stage?: (requestId: string, stage: "starting" | "fixture" | "context" | "waiting") => Promise<unknown>;
 };
 
 export const WAIT_STEP_MS = 3_000;
@@ -37,7 +39,15 @@ async function finish(deps: GenerationDeps, requestId: string): Promise<Generati
 }
 
 export async function runGeneration(deps: GenerationDeps, requestId: string): Promise<GenerationOutcome> {
+  const stage = async (name: "starting" | "fixture" | "context" | "waiting") => {
+    try {
+      await deps.stage?.(requestId, name);
+    } catch {
+      /* suivi d'affichage seulement : n'interrompt jamais la génération */
+    }
+  };
   try {
+    await stage("starting");
     for (let step = 0; step <= WAIT_MAX_STEPS; step++) {
       const started = startGenerationResultSchema.safeParse(await deps.start(requestId));
       if (!started.success || !started.data.ok) return { status: "failed", message: "Demande introuvable." };
@@ -49,6 +59,7 @@ export async function runGeneration(deps: GenerationDeps, requestId: string): Pr
         return { status: "pending", message: "L'analyse est en cours. Revenez dans quelques minutes." };
       }
       if (fixtureId === undefined) return { status: "failed", message: "Demande invalide." };
+      await stage(action === "wait" ? "waiting" : "fixture");
 
       if (action === "wait") {
         // Résultat mutualisé : un autre utilisateur a déjà lancé l'analyse de ce match.
@@ -63,6 +74,7 @@ export async function runGeneration(deps: GenerationDeps, requestId: string): Pr
         await deps.fail(requestId, "Limite quotidienne d'analyses IA atteinte");
         return { status: "failed", message: "La limite quotidienne d'analyses est atteinte. Vos crédits ont été rendus ; réessayez demain." };
       }
+      await stage("context");
       const result = await deps.generate(fixtureId);
       if (result.ok || result.alreadyGenerated) return finish(deps, requestId);
       await deps.fail(requestId, result.error.slice(0, 1000));

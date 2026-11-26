@@ -76,6 +76,8 @@ export type Database = {
           idempotency_key: string
           market_code: string | null
           price: number
+          stage: string | null
+          stage_updated_at: string | null
           started_at: string | null
           status: string
           updated_at: string
@@ -92,6 +94,8 @@ export type Database = {
           idempotency_key: string
           market_code?: string | null
           price: number
+          stage?: string | null
+          stage_updated_at?: string | null
           started_at?: string | null
           status?: string
           updated_at?: string
@@ -108,6 +112,8 @@ export type Database = {
           idempotency_key?: string
           market_code?: string | null
           price?: number
+          stage?: string | null
+          stage_updated_at?: string | null
           started_at?: string | null
           status?: string
           updated_at?: string
@@ -1355,6 +1361,10 @@ export type Database = {
       }
       admin_settle_fixture: { Args: { p_fixture_id: number }; Returns: Json }
       admin_run_health_check: { Args: never; Returns: Json }
+      set_generation_stage: {
+        Args: { p_request_id: string; p_stage: string }
+        Returns: undefined
+      }
       request_generation: {
         Args: { p_fixture_id: number; p_idempotency_key: string; p_market_code: string }
         Returns: Json

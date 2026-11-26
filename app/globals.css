@@ -265,3 +265,16 @@ main#contenu > * {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
+
+/* Animation PRONEX AI : balayage de l'étape en cours (aucune durée ni progression simulée). */
+@keyframes pronex-scan {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(300%);
+  }
+}
+.pronex-scan {
+  animation: pronex-scan 1.4s ease-in-out infinite;
+}

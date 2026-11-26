@@ -43,6 +43,8 @@ export type GenerateOptions = {
   /** Délai pour CET appel (≤ 60 s) : réduit si la tâche approche de sa limite de durée. */
   timeoutMs?: number;
   client?: Pick<OpenAI, "chat">;
+  /** Appelé quand une réponse de l'IA est reçue, juste avant sa validation (suivi de l'animation). */
+  onResponse?: () => void | Promise<void>;
 };
 
 export async function generatePrediction(summary: MatchSummary, options: GenerateOptions): Promise<GenerationResult> {
@@ -110,6 +112,7 @@ export async function generatePrediction(summary: MatchSummary, options: Generat
       continue;
     }
 
+    await options.onResponse?.();
     const validation = validatePrediction(lastRaw, summary);
     if (validation.ok) {
       metrics.durationMs = Date.now() - started;
