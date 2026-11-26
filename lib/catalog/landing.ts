@@ -2,7 +2,7 @@ import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
 import { getPerformanceStats } from "@/lib/settle/queries";
-import type { Counts } from "@/lib/settle/schemas";
+import type { PerformanceStats } from "@/lib/settle/schemas";
 
 /**
  * Données RÉELLES de la page d'accueil (lecture publique, RLS) : types de
@@ -21,7 +21,8 @@ export type LandingFixture = {
 export type LandingData = {
   markets: { code: string; label: string; description: string | null }[];
   packs: { id: number; name: string; credits: number; price_xof: number; is_featured: boolean }[];
-  performance: { global: Counts; last30: Counts } | null;
+  /** Réponse complète de get_performance_stats() : même source que la page /performances. */
+  performance: PerformanceStats | null;
   fixtures: LandingFixture[];
   /** Nombre réel de compétitions actives (couverture). */
   competitionCount: number;
@@ -65,7 +66,7 @@ export async function getLandingData(): Promise<LandingData> {
   return {
     markets: markets.data ?? [],
     packs: packs.data ?? [],
-    performance: performance ? { global: performance.global, last30: performance.last_30_days } : null,
+    performance: performance ?? null,
     fixtures,
     competitionCount: competitions.error ? 0 : (competitions.count ?? 0),
   };
