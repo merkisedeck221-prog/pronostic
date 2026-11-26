@@ -19,19 +19,19 @@ export function LandingFinalCta() {
             alt=""
             fill
             sizes="(min-width: 1152px) 1152px, 100vw"
-            className="object-cover object-[center_55%] opacity-75 lg:object-[center_36%] lg:opacity-90"
+            className="object-cover object-[center_55%] lg:object-[center_36%]"
           />
-          <div className="absolute inset-0 bg-linear-to-b from-pronex-night/80 via-pronex-night/75 to-pronex-night/95 lg:bg-linear-to-r lg:from-pronex-night lg:via-pronex-night/75 lg:to-pronex-night/5" />
-          <div className="absolute inset-0 bg-pronex-violet/10 mix-blend-color" />
-          <div className="absolute -right-24 -bottom-32 size-[26rem] rounded-full bg-pronex-violet/25 blur-[110px]" />
+          <div className="absolute inset-0 bg-linear-to-b from-pronex-night/55 via-pronex-night/50 to-pronex-night/80 lg:bg-linear-to-r lg:from-pronex-night/85 lg:via-pronex-night/40 lg:to-transparent" />
+          
+          <div className="absolute -right-24 -bottom-32 size-[26rem] rounded-full bg-pronex-violet/15 blur-[110px]" />
         </div>
 
         <div className="max-w-2xl space-y-6">
           <Image src="/brand/pronex-wordmark.webp" alt="PRONEX" width={995} height={138} className="h-auto w-32 opacity-90" />
-          <h2 id="cta-titre" className="font-heading text-3xl leading-tight font-extrabold tracking-tight sm:text-4xl lg:text-5xl">
+          <h2 id="cta-titre" className="font-heading text-3xl leading-tight font-extrabold tracking-tight [text-shadow:0_2px_18px_rgb(8_11_32_/_0.65)] sm:text-4xl lg:text-5xl">
             Prêt à découvrir une nouvelle façon d&apos;<span className="text-pronex-pink">analyser le football</span>{"\u00a0"}?
           </h2>
-          <p className="max-w-xl text-base text-muted-foreground sm:text-lg">
+          <p className="max-w-xl text-base text-white/85 [text-shadow:0_1px_12px_rgb(8_11_32_/_0.8)] sm:text-lg">
             Rejoignez PRONEX et découvrez les analyses de notre intelligence artificielle.
           </p>
           <div className="flex flex-col gap-3 sm:flex-row">
@@ -44,7 +44,7 @@ export function LandingFinalCta() {
               Découvrir les performances
             </Link>
           </div>
-          <p className="flex items-start gap-2 text-xs text-muted-foreground">
+          <p className="flex items-start gap-2 text-xs text-white/75 [text-shadow:0_1px_8px_rgb(8_11_32_/_0.9)]">
             <ShieldCheckIcon className="mt-px size-3.5 shrink-0 text-success" aria-hidden />
             <span>Inscription gratuite · Paiement à l&apos;unité, sans abonnement · Réservé aux 18 ans et plus</span>
           </p>

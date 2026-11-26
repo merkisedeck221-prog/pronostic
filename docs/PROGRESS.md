@@ -1107,3 +1107,4 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
   - Voile noir nuit → transparent et légère teinte violette pour la lisibilité.
   - Le fichier `pronex-symbol-lg.webp`, devenu inutile, est retiré.
   - La photo montre un stade réel ; les inscriptions des tribunes restent à peine lisibles sous le voile. Les droits d'utilisation de la photo relèvent du porteur.
+- CTA final plus clair (demande du porteur) : photo à pleine opacité, voile allégé (sombre seulement à gauche sur ordinateur, léger sur mobile), teinte violette retirée, ombres portées discrètes sur le texte pour la lisibilité.
