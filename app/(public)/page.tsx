@@ -12,6 +12,7 @@ import {
 import { LandingDemo } from "@/components/landing/demo-section";
 import { LandingHero } from "@/components/landing/hero";
 import { LandingHowItWorks } from "@/components/landing/how-it-works";
+import { LandingMarkets } from "@/components/landing/markets";
 import { LandingPresentation } from "@/components/landing/presentation";
 import { SectionHeading } from "@/components/layout/section-heading";
 import { TeamLogo } from "@/components/matches/team-logo";
@@ -102,25 +103,7 @@ export default async function HomePage() {
         </ul>
       </section>
 
-      {/* Types d'analyses (lus en base) */}
-      {markets.length > 0 ? (
-        <section id="types-pronostics" aria-labelledby="analyses-titre" className="mx-auto w-full max-w-6xl scroll-mt-20 space-y-8 px-4 pb-14">
-          <SectionHeading
-            id="analyses-titre"
-            eyebrow="Analyses"
-            title={`${markets.length} types de pronostics par match`}
-            description="Débloquez-les un par un, ou tous ensemble avec le match complet."
-          />
-          <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {markets.map((m) => (
-              <li key={m.code} className="rounded-xl border border-white/8 bg-card p-4">
-                <p className="font-semibold">{m.label}</p>
-                {m.description ? <p className="mt-1 text-sm text-muted-foreground">{m.description}</p> : null}
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
+      <LandingMarkets activeCodes={markets.map((m) => m.code)} />
 
       {/* Aperçu des matchs : uniquement si des matchs analysés existent */}
       {fixtures.length > 0 ? (
