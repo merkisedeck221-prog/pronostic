@@ -4,26 +4,26 @@ import { ArrowRightIcon, BarChart3Icon, ShieldCheckIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 
 /**
- * Appel à l'action final (brief, partie 13) : panneau à liseré dégradé, terrain
- * en perspective très discret et symbole PRONEX en filigrane (fichier fourni
- * par le porteur, non redessiné). Titre et boutons visibles d'emblée.
+ * Appel à l'action final (brief, partie 13) : panneau à liseré dégradé sur une
+ * photo de stade fournie par le porteur (voile sombre pour la lisibilité),
+ * logotype PRONEX au-dessus du titre. Titre et boutons visibles d'emblée.
  */
 export function LandingFinalCta() {
   return (
     <section aria-labelledby="cta-titre" className="mx-auto w-full max-w-6xl px-4 pt-4 pb-20 sm:pb-24">
       <div className="pronex-panel relative isolate overflow-hidden rounded-[2rem] px-6 py-12 sm:px-12 sm:py-16">
-        {/* Décor : terrain, halo, symbole en filigrane */}
+        {/* Décor : photo de stade (fournie par le porteur) sous un voile noir nuit / violet */}
         <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-          <div className="pronex-pitch absolute inset-x-0 top-0 h-[140%] opacity-40" />
-          <div className="absolute -right-24 -bottom-32 size-[26rem] rounded-full bg-pronex-violet/20 blur-[110px]" />
-          <div className="absolute -top-24 -left-24 size-72 rounded-full bg-pronex-pink/10 blur-[100px]" />
           <Image
-            src="/brand/pronex-symbol-lg.webp"
+            src="/landing/stadium.webp"
             alt=""
-            width={640}
-            height={302}
-            className="absolute top-1/2 -right-16 w-[26rem] max-w-none -translate-y-1/2 opacity-[0.09] sm:-right-10 lg:right-6 lg:w-[34rem] lg:opacity-[0.12]"
+            fill
+            sizes="(min-width: 1152px) 1152px, 100vw"
+            className="object-cover object-[center_55%] opacity-75 lg:object-[center_36%] lg:opacity-90"
           />
+          <div className="absolute inset-0 bg-linear-to-b from-pronex-night/80 via-pronex-night/75 to-pronex-night/95 lg:bg-linear-to-r lg:from-pronex-night lg:via-pronex-night/75 lg:to-pronex-night/5" />
+          <div className="absolute inset-0 bg-pronex-violet/10 mix-blend-color" />
+          <div className="absolute -right-24 -bottom-32 size-[26rem] rounded-full bg-pronex-violet/25 blur-[110px]" />
         </div>
 
         <div className="max-w-2xl space-y-6">

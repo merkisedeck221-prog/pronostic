@@ -1101,3 +1101,9 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
   - **symbole PRONEX en filigrane** (12 % d'opacité), avec une version large `public/brand/pronex-symbol-lg.webp` (640 px, 55 Ko) redimensionnée à partir du fichier fourni, sans retouche ;
   - logotype au-dessus du titre.
 - Vérifié sans débordement sur ordinateur, tablette, iPhone 14 et iPhone SE.
+- **Révision du CTA final (demande du porteur)** : le symbole « P » en filigrane est remplacé par la photo de stade fournie par le porteur.
+  - Fichier `public/landing/stadium.webp` (736 × 981, 184 Ko).
+  - Cadrage centré sur les tribunes sur ordinateur.
+  - Voile noir nuit → transparent et légère teinte violette pour la lisibilité.
+  - Le fichier `pronex-symbol-lg.webp`, devenu inutile, est retiré.
+  - La photo montre un stade réel ; les inscriptions des tribunes restent à peine lisibles sous le voile. Les droits d'utilisation de la photo relèvent du porteur.
