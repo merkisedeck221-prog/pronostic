@@ -1232,3 +1232,9 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
 - **Dépendances** : aucune ajoutée pendant toute la refonte de la landing (next/og fait partie de Next).
 - **Accessibilité** : axe sans violation sur le texte réel ; débordements et coupures contrôlés sur 6 appareils.
 - **À faire après l'achat du domaine** : définir `NEXT_PUBLIC_APP_URL=https://<domaine>` dans Vercel ; les URL canoniques, Open Graph, robots et sitemap suivront automatiquement.
+
+## Landing — partie 19 : méthode et phase D (26/11/2026)
+
+- Les phases A à C ont été réalisées partie par partie et validées par fusion.
+- Phase D exécutée en production : 12 contrôles, tous réussis. Le seul échec initial venait du test lui-même : il cliquait le lien « Tarifs » du pied de page au lieu de celui du menu. Le menu fonctionne.
+- Rapport complet : [RAPPORT-LANDING.md](RAPPORT-LANDING.md).

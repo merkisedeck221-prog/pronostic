@@ -99,7 +99,7 @@
 
 ## Recette et sécurité (phase 11)
 
-- Rapports : [docs/RECETTE.md](docs/RECETTE.md) (conformité) et [docs/SECURITE.md](docs/SECURITE.md) (audit), [docs/RAPPORT-FINAL.md](docs/RAPPORT-FINAL.md) (bilan de la refonte, étapes 1 à 8) : les tenir à jour à chaque nouvelle règle ou correction.
+- Rapports : [docs/RECETTE.md](docs/RECETTE.md) (conformité) et [docs/SECURITE.md](docs/SECURITE.md) (audit), [docs/RAPPORT-FINAL.md](docs/RAPPORT-FINAL.md) (bilan de la refonte, étapes 1 à 8), [docs/RAPPORT-LANDING.md](docs/RAPPORT-LANDING.md) (landing, parties 1 à 19) : les tenir à jour à chaque nouvelle règle ou correction.
 - Attaques rejouées en CI : `tests/security/audit.test.ts` (clé publique seule). Parcours Playwright : `tests/e2e/` (`npm run test:e2e`, application compilée + Supabase DEV).
 - En-têtes HTTP de sécurité dans `next.config.ts`. Pages `app/not-found.tsx`, `app/error.tsx`, `app/global-error.tsx` en français.
 - `loading.tsx` uniquement sur des segments dont la page n'appelle pas `notFound()` (sinon le 404 devient un 200).
