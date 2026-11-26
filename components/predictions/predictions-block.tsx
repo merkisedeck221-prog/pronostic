@@ -44,7 +44,7 @@ function ProbabilityBar({ label, value }: { label: string; value: number }) {
       </div>
       <div className="h-2 overflow-hidden rounded-full bg-white/10" role="presentation">
         <div
-          className="h-full rounded-full bg-linear-to-r from-pronex-pink/85 to-pronex-violet"
+          className="h-full rounded-full bg-pronex-violet"
           style={{ width: `${Math.max(0, Math.min(100, value))}%` }}
         />
       </div>
@@ -93,7 +93,7 @@ function LockedPreview() {
   );
 }
 
-const unlockClasses = "h-10 w-full rounded-lg border-pronex-pink/50 bg-pronex-pink/10 font-semibold text-white hover:bg-pronex-pink/20";
+const unlockClasses = "h-10 w-full";
 
 export function PredictionsBlock({ fixtureId, homeName, awayName, data, balance, upcoming }: Props) {
   const bundle = data.match_bundle;
@@ -125,7 +125,7 @@ export function PredictionsBlock({ fixtureId, homeName, awayName, data, balance,
       ) : null}
 
       {showBundle && bundle.purchasable && bundle.price !== null ? (
-        <div className="rounded-2xl bg-linear-to-r from-pronex-pink/85 to-pronex-violet p-px shadow-[0_0_40px_-12px] shadow-pronex-pink/60">
+        <div className="rounded-2xl bg-linear-to-r from-pronex-pink/60 to-pronex-violet/60 p-px">
           <div className="flex flex-col gap-4 rounded-2xl bg-card p-5 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
               <p className="font-heading text-lg font-bold">Match complet</p>
@@ -144,7 +144,8 @@ export function PredictionsBlock({ fixtureId, homeName, awayName, data, balance,
               price={bundle.price}
               balance={balance}
               buttonLabel={`Débloquer le match complet (${formatCredits(bundle.price)})`}
-              className="h-11 rounded-xl bg-linear-to-r from-pronex-pink/85 to-pronex-violet px-5 font-semibold hover:brightness-110"
+              variant="hero"
+              className="h-11 px-5"
             />
           </div>
         </div>
@@ -156,7 +157,7 @@ export function PredictionsBlock({ fixtureId, homeName, awayName, data, balance,
             key={market.code}
             className={cn(
               "flex flex-col gap-4 rounded-2xl border bg-card p-5",
-              market.revealed ? "border-pronex-violet/30" : "border-white/10",
+              market.revealed ? "border-pronex-violet/30" : "border-white/8",
             )}
           >
             <header className="flex items-start justify-between gap-3">
@@ -167,7 +168,7 @@ export function PredictionsBlock({ fixtureId, homeName, awayName, data, balance,
               {market.result && market.result !== "pending" ? (
                 <ResultBadge result={market.result} />
               ) : market.unlocked ? (
-                <Badge variant="outline" className="border-emerald-400/40 text-emerald-300">
+                <Badge variant="outline" className="border-success/40 text-success">
                   Débloqué
                 </Badge>
               ) : !market.revealed && market.price !== null ? (
@@ -187,7 +188,6 @@ export function PredictionsBlock({ fixtureId, homeName, awayName, data, balance,
                     price={market.price}
                     balance={balance}
                     buttonLabel={`Débloquer · ${formatCredits(market.price)}`}
-                    variant="outline"
                     className={unlockClasses}
                   />
                 ) : null}

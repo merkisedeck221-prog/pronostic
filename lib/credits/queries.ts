@@ -124,9 +124,12 @@ export async function listTransactions(
     })
     .eq("user_id", userId);
   // Même règle que matchesTransactionFilter (lib/credits/filters.ts).
-  if (filter === "recus") query = query.gt("amount", 0).neq("type", "refund");
-  else if (filter === "consommes") query = query.lt("amount", 0);
+  if (filter === "achats") query = query.eq("type", "topup");
+  else if (filter === "deblocages") query = query.eq("type", "unlock");
   else if (filter === "remboursements") query = query.eq("type", "refund");
+  else if (filter === "ajustements") query = query.in("type", ["admin_adjustment", "bonus"]);
+  else if (filter === "recus") query = query.gt("amount", 0).neq("type", "refund");
+  else if (filter === "consommes") query = query.lt("amount", 0);
   const { data, count, error } = await query
     .order("created_at", { ascending: false })
     .order("id", { ascending: false })

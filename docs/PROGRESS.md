@@ -797,3 +797,19 @@ Points ouverts (porteur) : domaine, e-mails Resend + modèles français (évite 
 - Nom de domaine : achat reporté par le porteur.
 - **Logo version 2** fourni (plus net, « P » rose et violet) : découpé sans retouche (fond retiré, ballon conservé opaque), déclinaisons `pronex-logo`, `pronex-symbol` (en-tête, pied de page), `pronex-icon` (carré), `pronex-wordmark` en PNG (sources) et WebP (pages), icônes `app/icon.png`, `app/apple-icon.png`, `app/favicon.ico` régénérées. En-tête vérifié de 320 à 1280 px sans chevauchement (nom masqué sous 380 px).
 - Couleurs « rose et violet maintenues » : rose et violet restent les deux accents ; boutons standards en violet plein, dégradé rose → violet pour le bouton principal de chaque écran (à confirmer à l'étape 3).
+
+## Étape 3 — refonte de l'espace utilisateur (26/11/2026)
+
+Fondations du design system validé : couleurs d'état officielles, boutons standards violets (dégradé seulement pour le bouton principal d'un écran), badges teintés, champs 48 px sur mobile, confirmations en feuille du bas sur téléphone, composants `SegmentedNav`, `StatCard`, `SectionHeading`, pied de page professionnel (liens, 18+).
+
+- **Accueil** : hero avec logo et slogan, présentation de PRONEX AI, avantages, types d'analyses (base), aperçu des prochains matchs analysés (seulement s'il en existe), performances réelles, packs de crédits (base), fonctionnement, FAQ (textes conditionnés aux réglages publics `refund_on_cancel`, `reveal_after_match`), appel à l'action.
+- **Tableau de bord** : solde et achat en premier, analyses disponibles, réussite de l'IA, accès rapide (6 entrées), prochains matchs analysés, derniers pronostics, historique récent, notifications, performances.
+- **Matchs** : recherche (équipe ou compétition, sans accents), filtres compétition, statut (à venir, en cours, terminés, reportés), période et jour précis ; regroupement par jour puis compétition ; états vides distincts (aucune donnée / aucun résultat de filtre). Filtres purs testés (`lib/catalog/fixture-filters.ts`).
+- **Fiche match** : séparation « Contenu payant » / « Accès libre », forme avec moyennes de buts, classement (G-N-P), statistiques corners / cartons, absences (si connues), confrontations. Migration `20261126120000_public_context_stats.sql` (lecture seule) appliquée sur la base de test puis en production.
+- **Mes pronostics** : taux personnel, gagnés, perdus, crédits dépensés (match complet compté une fois), filtres À venir / Terminés / Tous, carte détaillée (type, date d'achat, crédits, probabilité, confiance, score final, mi-temps), mention « contenu figé ».
+- **Portefeuille** : solde, totaux, filtres par type (Achats, Déblocages, Remboursements, Ajustements), détail dépliable de chaque mouvement (n°, date, montant, solde après, libellé, lien vers le reçu). Anciens filtres `recus` / `consommes` toujours acceptés.
+- **Performances** : période (depuis le début / 30 jours), taux, gagnés, perdus, annulés, graphique sur 12 semaines (`by_week`), taux par type et par compétition en barres, équivalents textuels accessibles.
+- **Profil** : en-tête du compte, sections Informations et préférences (fuseau), Sécurité (mot de passe), Sessions (déconnexion de cet appareil ou de tous), Compte. **Notifications** : filtre Toutes / Non lues. Mode clair : n'existe pas (thème sombre unique), non ajouté.
+- **Pages d'accès** : carte plus sobre avec logo sur mobile, message clair si un lien est ouvert dans un autre navigateur, confirmation après déconnexion globale ; déclaration 18+ inchangée.
+
+Vérifications : lint, typecheck, 345 tests, build ; 19 pages à 320, 390, 768 et 1366 px sans débordement ni erreur console ; axe-core (WCAG A/AA) sur 25 pages : 0 problème.

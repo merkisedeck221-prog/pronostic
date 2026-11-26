@@ -3,9 +3,9 @@ import type { Database } from "@/types/database";
 type TransactionType = Database["public"]["Enums"]["transaction_type"];
 
 export const TRANSACTION_TYPE_LABELS: Record<TransactionType, string> = {
-  topup: "Recharge",
+  topup: "Achat de crédits",
   unlock: "Déblocage",
-  bonus: "Bonus",
+  bonus: "Bonus (ancienne offre)",
   refund: "Remboursement",
   admin_adjustment: "Ajustement",
 };

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { EmptyState } from "@/components/layout/empty-state";
 import { PageHeader } from "@/components/layout/page-header";
+import { SegmentedNav } from "@/components/layout/segmented-nav";
+import { BellIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { requireUser } from "@/lib/auth/session";
@@ -13,29 +15,42 @@ import { formatDateTime, resolveTimezone } from "@/lib/utils/dates";
 
 export const metadata: Metadata = { title: "Notifications · PRONEX" };
 
-export default async function NotificationsPage() {
+export default async function NotificationsPage({ searchParams }: PageProps<"/notifications">) {
   const user = await requireUser();
   const timezone = resolveTimezone(user.profile.timezone);
-  const notifications = await listNotifications(user.id);
-  const unread = notifications.filter((n) => !n.read_at).length;
+  const onlyUnread = (await searchParams).filtre === "non-lues";
+  const all = await listNotifications(user.id);
+  const unread = all.filter((n) => !n.read_at).length;
+  const notifications = onlyUnread ? all.filter((n) => !n.read_at) : all;
 
   return (
-    <main className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-4 py-8">
+    <main className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-4 py-6 sm:py-8">
       <PageHeader
         title="Notifications"
         description="Recharges, remboursements, ajustements et résultats de vos pronostics."
       />
-      {unread > 0 ? (
-        <form action={markAllNotificationsReadAction}>
-          <Button type="submit" variant="outline" size="sm">
-            Tout marquer comme lu ({unread})
-          </Button>
-        </form>
-      ) : null}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <SegmentedNav
+          label="Filtre"
+          items={[
+            { href: "/notifications", label: "Toutes", active: !onlyUnread, count: all.length },
+            { href: "/notifications?filtre=non-lues", label: "Non lues", active: onlyUnread, count: unread },
+          ]}
+        />
+        {unread > 0 ? (
+          <form action={markAllNotificationsReadAction}>
+            <Button type="submit" variant="outline" size="sm">
+              Tout marquer comme lu
+            </Button>
+          </form>
+        ) : null}
+      </div>
       <Card>
         <CardContent>
           {notifications.length === 0 ? (
-            <EmptyState title="Aucune notification pour le moment." />
+            <EmptyState icon={BellIcon} title={onlyUnread ? "Aucune notification non lue." : "Aucune notification pour le moment."}>
+              Vous serez prévenu ici des achats de crédits, remboursements, ajustements et résultats de vos pronostics.
+            </EmptyState>
           ) : (
             <ul className="divide-y divide-white/5">
               {notifications.map((n) => {

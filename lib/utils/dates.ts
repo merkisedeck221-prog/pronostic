@@ -60,7 +60,7 @@ export function formatNumericDate(value: DateInput, timezone: string): string {
 }
 
 /** Clé du jour décalée de n jours (calcul sur le calendrier, à midi pour éviter les effets d'heure d'été). */
-function shiftDayKey(key: string, days: number): string {
+export function shiftDayKey(key: string, days: number): string {
   const noon = new Date(`${key}T12:00:00Z`);
   return addDays(noon, days).toISOString().slice(0, 10);
 }

@@ -245,6 +245,13 @@ Corrections :
 - Conseiller Supabase (production) : alertes « SECURITY DEFINER exécutable » attendues (fonctions protégées par `auth.uid()` / `is_admin()`, voir § 3) ; protection des mots de passe divulgués toujours désactivée (réglage du porteur, voir § 10).
 - `npm run test:security` et les autres suites d'intégration n'ont pas pu être relancés : la clé secrète du projet de test n'est pas disponible dans la session.
 
+## 9 decies. Refonte de l'espace utilisateur (étape 3, 26/11/2026)
+
+- Partie gratuite de la fiche match : `get_fixture_public_context` expose désormais les **absences** lues dans `match_contexts.summary`. Seuls les éléments texte du tableau `absences` de chaque équipe passent (liste blanche, 120 caractères, 20 au plus) ; tout autre champ du dossier reste inaccessible (règle 1). Vérifié sur la base de test : un objet, un nombre et une clé étrangère placés dans le dossier ne sortent pas ; le schéma Zod `lib/catalog/context.ts` ignore aussi toute clé inattendue (test `lib/catalog/context.test.ts`).
+- Statistiques de corners / cartons : calculées depuis `fixtures` (déjà lisible publiquement pour les matchs publiés), aucun pronostic.
+- Déconnexion de tous les appareils (`signOutEverywhereAction`, `signOut({ scope: "global" })`) depuis le profil.
+- Aucune nouvelle écriture, aucun changement de prix ni de règle de résolution ; l'achat, le déblocage et le remboursement passent par les mêmes fonctions SQL.
+
 ## 10. Points ouverts et risques acceptés
 
 1. ⚠️ **`picomatch`** (outils de développement uniquement) : voir § 8.

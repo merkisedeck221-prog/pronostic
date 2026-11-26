@@ -45,7 +45,7 @@ export function FilterBar({ children, resetHref }: { children: ReactNode; resetH
   return (
     <form method="get" className="flex flex-wrap items-end gap-2 rounded-xl border border-white/10 bg-card p-3">
       {children}
-      <button type="submit" className={cn(buttonVariants({ size: "sm" }), "bg-linear-to-r from-pronex-pink/85 to-pronex-violet text-white hover:brightness-110")}>
+      <button type="submit" className={buttonVariants({ size: "sm" })}>
         Filtrer
       </button>
       <Link href={resetHref} className={buttonVariants({ variant: "ghost", size: "sm" })}>
@@ -96,7 +96,7 @@ const STAT_TONES = {
   default: "border-white/10 bg-card",
   pink: "border-pronex-pink/30 bg-linear-to-br from-pronex-pink/15 to-card",
   violet: "border-pronex-violet/30 bg-linear-to-br from-pronex-violet/15 to-card",
-  warning: "border-amber-400/40 bg-amber-400/10",
+  warning: "border-warning/40 bg-warning/10",
 } as const;
 
 /** Tuile chiffrée (vue d'ensemble, fiches). `tone` : mise en avant néon ou alerte. */
@@ -116,7 +116,7 @@ export function Stat({
   return (
     <div className={cn("min-w-0 space-y-1 rounded-xl border p-4 [overflow-wrap:anywhere]", STAT_TONES[tone])}>
       <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-        {Icon ? <Icon className={cn("size-3.5", tone === "violet" ? "text-pronex-violet" : tone === "warning" ? "text-amber-300" : "text-pronex-pink")} aria-hidden /> : null}
+        {Icon ? <Icon className={cn("size-3.5", tone === "violet" ? "text-pronex-violet" : tone === "warning" ? "text-warning" : "text-pronex-pink")} aria-hidden /> : null}
         {label}
       </p>
       <p className="font-heading text-2xl font-bold tabular-nums">{value}</p>

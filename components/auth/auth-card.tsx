@@ -40,8 +40,9 @@ export function AuthCard({
       </section>
 
       <div className="mx-auto w-full max-w-md">
-        <div className="rounded-2xl bg-linear-to-br from-pronex-pink/50 via-white/10 to-pronex-violet/50 p-px shadow-[0_0_60px_-20px] shadow-pronex-pink/50">
-          <div className="space-y-6 rounded-2xl bg-card p-6 sm:p-8">
+        <div className="rounded-3xl bg-linear-to-br from-pronex-pink/35 via-white/8 to-pronex-violet/35 p-px">
+          <div className="space-y-6 rounded-3xl bg-card p-6 sm:p-8">
+            <Image src="/brand/pronex-symbol.webp" alt="" width={240} height={113} className="h-8 w-auto lg:hidden" />
             <div className="space-y-1.5">
               <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
               {description ? <div className="text-sm text-muted-foreground">{description}</div> : null}

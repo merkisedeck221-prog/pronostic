@@ -42,6 +42,26 @@ describe("matchesTransactionFilter", () => {
   });
 });
 
+describe("filtres par type de mouvement", () => {
+  const txs = [
+    { type: "topup", amount: 10 },
+    { type: "unlock", amount: -2 },
+    { type: "refund", amount: 2 },
+    { type: "admin_adjustment", amount: -445 },
+    { type: "bonus", amount: 5 },
+  ];
+  it("classe chaque mouvement dans exactement un type", () => {
+    for (const t of txs) {
+      const hits = (["achats", "deblocages", "remboursements", "ajustements"] as const).filter((f) => matchesTransactionFilter(f, t));
+      expect(hits).toHaveLength(1);
+    }
+  });
+  it("accepte les nouvelles valeurs d'URL", () => {
+    expect(parseTransactionFilter("achats")).toBe("achats");
+    expect(parseTransactionFilter("ajustements")).toBe("ajustements");
+  });
+});
+
 describe("receiptNumber", () => {
   it("format stable RC-AAAAMMJJ-XXXXXXXX", () => {
     expect(receiptNumber("e2933565-0c4b-4921-a638-18ce5d62b091", "2026-11-23T18:28:03.161+00:00")).toBe(

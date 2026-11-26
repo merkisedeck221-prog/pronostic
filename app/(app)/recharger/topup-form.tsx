@@ -34,7 +34,7 @@ export function TopupForm({
           "focus-visible:ring-3 focus-visible:ring-pronex-pink/60 disabled:cursor-not-allowed disabled:opacity-50",
           featured
             ? "bg-linear-to-r from-pronex-pink/85 to-pronex-violet hover:brightness-110"
-            : "border border-white/15 bg-white/5 hover:border-pronex-pink/70 hover:bg-white/10",
+            : "bg-pronex-violet hover:bg-[#8a00dc]",
         )}
       >
         {pending ? "Redirection…" : label}

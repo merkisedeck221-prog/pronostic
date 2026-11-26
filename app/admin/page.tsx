@@ -152,11 +152,11 @@ function WatchCard({
   children: ReactNode;
 }) {
   return (
-    <div className={`space-y-3 rounded-xl border p-4 text-sm ${count > 0 ? "border-amber-400/40 bg-amber-400/5" : "border-white/10 bg-card"}`}>
+    <div className={`space-y-3 rounded-xl border p-4 text-sm ${count > 0 ? "border-warning/40 bg-warning/5" : "border-white/10 bg-card"}`}>
       <h3 className="flex items-center gap-2 font-semibold">
-        <Icon className={count > 0 ? "size-4 text-amber-300" : "size-4 text-emerald-300"} aria-hidden />
+        <Icon className={count > 0 ? "size-4 text-warning" : "size-4 text-success"} aria-hidden />
         <span className="flex-1">{title}</span>
-        <span className={`rounded-full px-2 py-0.5 text-xs tabular-nums ${count > 0 ? "bg-amber-400/15 text-amber-200" : "bg-emerald-400/10 text-emerald-300"}`}>
+        <span className={`rounded-full px-2 py-0.5 text-xs tabular-nums ${count > 0 ? "bg-warning/15 text-warning" : "bg-success/10 text-success"}`}>
           {count > 0 ? count : "OK"}
         </span>
       </h3>

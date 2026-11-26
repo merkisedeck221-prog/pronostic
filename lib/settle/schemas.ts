@@ -44,6 +44,8 @@ export const performanceStatsSchema = z.object({
   last_30_days: countsSchema,
   by_market: z.array(countsSchema.extend({ code: z.string(), label: z.string() })),
   by_competition: z.array(countsSchema.extend({ id: z.number().int(), name: z.string(), slug: z.string() })),
+  /** 12 dernières semaines (lundi) ; absent avant la migration 20261126120000. */
+  by_week: z.array(countsSchema.extend({ week_start: z.string() })).default([]),
   recent: z.array(
     z.object({
       fixture_id: z.number().int(),

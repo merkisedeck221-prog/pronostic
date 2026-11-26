@@ -172,7 +172,7 @@ export default async function AdminTransactionsPage({ searchParams }: PageProps<
                     <span className="text-xs text-muted-foreground">n° {t.id} · </span>
                     {t.description}
                   </TableCell>
-                  <TableCell className={`text-right tabular-nums ${t.amount > 0 ? "text-emerald-300" : "text-destructive"}`}>
+                  <TableCell className={`text-right tabular-nums ${t.amount > 0 ? "text-success" : "text-destructive"}`}>
                     {formatSignedAmount(t.amount)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">{t.balance_after}</TableCell>

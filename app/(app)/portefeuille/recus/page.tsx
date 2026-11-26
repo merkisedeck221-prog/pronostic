@@ -34,7 +34,7 @@ export default async function RecusPage() {
               {receipts.map((r) => (
                 <li key={r.id}>
                   <Link href={`/portefeuille/recus/${r.id}`} className="flex items-center gap-3 py-3 transition-colors hover:text-pronex-pink">
-                    <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-emerald-400/15 text-emerald-300">
+                    <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-success/15 text-success">
                       <ReceiptIcon className="size-4" aria-hidden />
                     </span>
                     <span className="min-w-0 flex-1">

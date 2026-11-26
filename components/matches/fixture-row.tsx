@@ -51,7 +51,7 @@ export function FixtureRow({
       <div className="flex shrink-0 flex-col items-end gap-1">
         <StatusBadge status={fixture.status_short} />
         {hasPrediction && status.phase === "upcoming" ? (
-          <Badge variant="outline" className="gap-1 border-pronex-pink/40 bg-pronex-pink/10 text-pink-200">
+          <Badge className="gap-1">
             <SparklesIcon className="size-3" aria-hidden />
             <span className="hidden sm:inline">Pronostic disponible</span>
             <span className="sm:hidden">IA</span>
