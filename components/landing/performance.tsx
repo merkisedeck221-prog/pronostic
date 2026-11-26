@@ -85,7 +85,10 @@ export function LandingPerformance({
             })}
           >
             Voir toutes les performances
-            <ArrowRightIcon aria-hidden />
+            <ArrowRightIcon
+              aria-hidden
+              className="transition-transform duration-200 group-hover/button:translate-x-0.5"
+            />
           </Link>
         </div>
 
@@ -135,14 +138,19 @@ export function LandingPerformance({
               />
               <div className="relative grid grid-cols-1 items-center gap-8 lg:grid-cols-[auto_1fr] lg:gap-12">
                 <div className="flex flex-col items-center">
-                  <RateRing won={shown.won} lost={shown.lost} size={196} />
+                  <div key={period} className="pronex-fade">
+                    <RateRing won={shown.won} lost={shown.lost} size={196} />
+                  </div>
                   <p className="mt-4 text-center text-xs text-muted-foreground">
                     {shownResolved === 0
                       ? "Aucun pronostic terminé sur la période"
                       : `Sur ${shownResolved} pronostic${shownResolved > 1 ? "s" : ""} terminé${shownResolved > 1 ? "s" : ""}, hors annulés`}
                   </p>
                 </div>
-                <dl className="grid grid-cols-3 divide-x divide-white/[0.08]">
+                <dl
+                  key={period}
+                  className="pronex-fade grid grid-cols-3 divide-x divide-white/[0.08]"
+                >
                   <ResultStat
                     icon={CircleCheckIcon}
                     label="Gagnés"
@@ -185,27 +193,29 @@ export function LandingPerformance({
                   options={VIEWS}
                 />
               </div>
-              {view === "semaines" ? (
-                <WeeklyChart weeks={stats.by_week} />
-              ) : view === "types" ? (
-                <RateBars
-                  emptyLabel="Aucun type de pronostic résolu."
-                  rows={stats.by_market.map((m) => ({
-                    ...m,
-                    key: m.code,
-                    name: m.label,
-                  }))}
-                />
-              ) : (
-                <RateBars
-                  emptyLabel="Aucune compétition résolue."
-                  rows={stats.by_competition.map((c) => ({
-                    ...c,
-                    key: String(c.id),
-                    name: c.name,
-                  }))}
-                />
-              )}
+              <div key={view} className="pronex-fade">
+                {view === "semaines" ? (
+                  <WeeklyChart weeks={stats.by_week} />
+                ) : view === "types" ? (
+                  <RateBars
+                    emptyLabel="Aucun type de pronostic résolu."
+                    rows={stats.by_market.map((m) => ({
+                      ...m,
+                      key: m.code,
+                      name: m.label,
+                    }))}
+                  />
+                ) : (
+                  <RateBars
+                    emptyLabel="Aucune compétition résolue."
+                    rows={stats.by_competition.map((c) => ({
+                      ...c,
+                      key: String(c.id),
+                      name: c.name,
+                    }))}
+                  />
+                )}
+              </div>
               <p className="text-xs text-muted-foreground">
                 Taux = gagnés ÷ (gagnés + perdus). Les graphiques par type et
                 par compétition portent sur toute la période.

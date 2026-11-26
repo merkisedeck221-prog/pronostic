@@ -23,19 +23,47 @@ import { cn } from "@/lib/utils";
 export function LandingAdvantages({ marketCount }: { marketCount: number }) {
   const markets = marketCount > 0 ? marketCount : 13;
   return (
-    <section id="avantages" aria-labelledby="avantages-titre" className="scroll-mt-16">
+    <section
+      id="avantages"
+      aria-labelledby="avantages-titre"
+      className="scroll-mt-16"
+    >
       <div className="mx-auto w-full max-w-6xl space-y-10 px-4 py-16 sm:py-20">
-        <SectionHeading id="avantages-titre" eyebrow="Pourquoi PRONEX ?" title="Tout ce qu'il faut, rien de superflu" />
+        <Reveal>
+          <SectionHeading
+            id="avantages-titre"
+            eyebrow="Pourquoi PRONEX ?"
+            title="Tout ce qu'il faut, rien de superflu"
+          />
+        </Reveal>
 
         <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <Card index={0} icon={BrainCircuitIcon} title="Analyse assistée par IA" text="Les données disponibles sont étudiées pour produire des analyses structurées." wide>
+          <Card
+            index={0}
+            icon={BrainCircuitIcon}
+            title="Analyse assistée par IA"
+            text="Les données disponibles sont étudiées pour produire des analyses structurées."
+            wide
+          >
             <div className="flex flex-wrap items-center gap-2">
-              {["Forme", "Classement", "Confrontations", "Absences", "Statistiques"].map((item) => (
-                <span key={item} className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] text-muted-foreground">
+              {[
+                "Forme",
+                "Classement",
+                "Confrontations",
+                "Absences",
+                "Statistiques",
+              ].map((item) => (
+                <span
+                  key={item}
+                  className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 text-[11px] text-muted-foreground"
+                >
                   {item}
                 </span>
               ))}
-              <span aria-hidden className="h-px w-6 bg-linear-to-r from-white/20 to-pronex-pink" />
+              <span
+                aria-hidden
+                className="h-px w-6 bg-linear-to-r from-white/20 to-pronex-pink"
+              />
               <span className="inline-flex items-center gap-1.5 rounded-full bg-pronex-pink/15 px-2.5 py-1 text-[11px] font-semibold text-pronex-pink">
                 <BrainCircuitIcon className="size-3" aria-hidden />
                 Analyse PRONEX AI
@@ -43,43 +71,94 @@ export function LandingAdvantages({ marketCount }: { marketCount: number }) {
             </div>
           </Card>
 
-          <Card index={1} icon={LayoutGridIcon} title="Plusieurs marchés football" text={`${markets} types de pronostics sont disponibles sur chaque match.`}>
+          <Card
+            index={1}
+            icon={LayoutGridIcon}
+            title="Plusieurs marchés football"
+            text={`${markets} types de pronostics sont disponibles sur chaque match.`}
+          >
             <div className="grid grid-cols-3 gap-1.5 text-center text-[11px] font-semibold">
-              {["1N2", "BTTS", "Score exact", "Corners", "Mi-temps"].map((m) => (
-                <span key={m} className="flex items-center justify-center rounded-lg border border-white/8 bg-white/[0.03] px-1 py-1.5 leading-tight text-muted-foreground">
-                  {m}
-                </span>
-              ))}
-              <span className="flex items-center justify-center rounded-lg bg-pronex-violet/20 px-1 py-1.5 text-violet-100">+{Math.max(0, markets - 5)}</span>
+              {["1N2", "BTTS", "Score exact", "Corners", "Mi-temps"].map(
+                (m) => (
+                  <span
+                    key={m}
+                    className="flex items-center justify-center rounded-lg border border-white/8 bg-white/[0.03] px-1 py-1.5 leading-tight text-muted-foreground"
+                  >
+                    {m}
+                  </span>
+                ),
+              )}
+              <span className="flex items-center justify-center rounded-lg bg-pronex-violet/20 px-1 py-1.5 text-violet-100">
+                +{Math.max(0, markets - 5)}
+              </span>
             </div>
           </Card>
 
-          <Card index={2} icon={GaugeIcon} title="Probabilités et confiance" text="Chaque analyse présente une estimation et un niveau de confiance.">
+          <Card
+            index={2}
+            icon={GaugeIcon}
+            title="Probabilités et confiance"
+            text="Chaque analyse présente une estimation et un niveau de confiance."
+          >
             <div className="space-y-2 rounded-xl border border-white/8 bg-white/[0.03] p-3">
               <div className="flex items-center justify-between text-[11px]">
-                <span className="text-muted-foreground">Probabilité estimée (exemple)</span>
-                <span className="font-heading font-bold tabular-nums">52 %</span>
+                <span className="text-muted-foreground">
+                  Probabilité estimée (exemple)
+                </span>
+                <span className="font-heading font-bold tabular-nums">
+                  52 %
+                </span>
               </div>
               <div className="h-1.5 overflow-hidden rounded-full bg-white/8">
                 <div className="h-full w-[52%] rounded-full bg-pronex-pink" />
               </div>
               <div className="flex gap-1.5 pt-1 text-[11px] font-semibold">
-                <span className="rounded-full border border-white/10 px-2 py-0.5 text-muted-foreground">Faible</span>
-                <span className="rounded-full bg-pronex-violet/25 px-2 py-0.5 text-violet-100">Moyen</span>
-                <span className="rounded-full border border-white/10 px-2 py-0.5 text-muted-foreground">Élevé</span>
+                <span className="rounded-full border border-white/10 px-2 py-0.5 text-muted-foreground">
+                  Faible
+                </span>
+                <span className="rounded-full bg-pronex-violet/25 px-2 py-0.5 text-violet-100">
+                  Moyen
+                </span>
+                <span className="rounded-full border border-white/10 px-2 py-0.5 text-muted-foreground">
+                  Élevé
+                </span>
               </div>
             </div>
           </Card>
 
-          <Card index={3} icon={EyeIcon} title="Transparence des performances" text="Les résultats sont consultables à partir des données réellement enregistrées, pronostics perdus compris." wide>
+          <Card
+            index={3}
+            icon={EyeIcon}
+            title="Transparence des performances"
+            text="Les résultats sont consultables à partir des données réellement enregistrées, pronostics perdus compris."
+            wide
+          >
             <div className="flex items-end gap-3">
-              <div aria-hidden className="flex h-16 flex-1 items-end gap-1 lg:gap-1.5">
-                {[60, 85, 45, 70, 90, 55, 75, 65, 95, 50, 80, 70].map((h, i) => (
-                  <div key={i} className={cn("flex flex-1 flex-col gap-[2px]", i >= 7 && "hidden lg:flex")} style={{ height: `${h}%` }}>
-                    <div className="rounded-[3px] bg-[#f87171]/70" style={{ flexGrow: 1 }} />
-                    <div className="rounded-[3px] bg-[#4ade80]/80" style={{ flexGrow: 2 }} />
-                  </div>
-                ))}
+              <div
+                aria-hidden
+                className="flex h-16 flex-1 items-end gap-1 lg:gap-1.5"
+              >
+                {[60, 85, 45, 70, 90, 55, 75, 65, 95, 50, 80, 70].map(
+                  (h, i) => (
+                    <div
+                      key={i}
+                      className={cn(
+                        "flex flex-1 flex-col gap-[2px]",
+                        i >= 7 && "hidden lg:flex",
+                      )}
+                      style={{ height: `${h}%` }}
+                    >
+                      <div
+                        className="rounded-[3px] bg-[#f87171]/70"
+                        style={{ flexGrow: 1 }}
+                      />
+                      <div
+                        className="rounded-[3px] bg-[#4ade80]/80"
+                        style={{ flexGrow: 2 }}
+                      />
+                    </div>
+                  ),
+                )}
               </div>
               <div className="space-y-1 text-[11px] text-muted-foreground">
                 <p className="flex items-center gap-1.5">
@@ -92,7 +171,12 @@ export function LandingAdvantages({ marketCount }: { marketCount: number }) {
             </div>
           </Card>
 
-          <Card index={4} icon={SmartphoneIcon} title="Interface moderne" text="Une expérience simple et fluide, sur mobile comme sur ordinateur.">
+          <Card
+            index={4}
+            icon={SmartphoneIcon}
+            title="Interface moderne"
+            text="Une expérience simple et fluide, sur mobile comme sur ordinateur."
+          >
             <div aria-hidden className="flex items-end justify-center gap-3">
               <div className="flex h-16 w-28 flex-col rounded-lg border border-white/15 bg-pronex-night p-1.5">
                 <div className="h-1.5 w-10 rounded-full bg-pronex-pink/70" />
@@ -113,21 +197,44 @@ export function LandingAdvantages({ marketCount }: { marketCount: number }) {
             </div>
           </Card>
 
-          <Card index={5} icon={HistoryIcon} title="Historique personnel" text="Retrouvez tous les pronostics que vous avez débloqués, avec leur statut." wide>
+          <Card
+            index={5}
+            icon={HistoryIcon}
+            title="Historique personnel"
+            text="Retrouvez tous les pronostics que vous avez débloqués, avec leur statut."
+            wide
+          >
             <ul className="space-y-1.5">
               {[
-                { market: "Résultat du match", status: "Gagné", tone: "won" as const },
-                { market: "Les deux équipes marquent", status: "En attente", tone: "pending" as const },
+                {
+                  market: "Résultat du match",
+                  status: "Gagné",
+                  tone: "won" as const,
+                },
+                {
+                  market: "Les deux équipes marquent",
+                  status: "En attente",
+                  tone: "pending" as const,
+                },
               ].map((row) => (
-                <li key={row.market} className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2 text-xs">
+                <li
+                  key={row.market}
+                  className="flex items-center justify-between gap-3 rounded-xl border border-white/8 bg-white/[0.03] px-3 py-2 text-xs"
+                >
                   <span className="min-w-0 leading-snug">{row.market}</span>
                   <span
                     className={cn(
                       "inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold",
-                      row.tone === "won" ? "bg-success/15 text-success" : "bg-white/8 text-muted-foreground",
+                      row.tone === "won"
+                        ? "bg-success/15 text-success"
+                        : "bg-white/8 text-muted-foreground",
                     )}
                   >
-                    {row.tone === "won" ? <CheckIcon className="size-3" aria-hidden /> : <ClockIcon className="size-3" aria-hidden />}
+                    {row.tone === "won" ? (
+                      <CheckIcon className="size-3" aria-hidden />
+                    ) : (
+                      <ClockIcon className="size-3" aria-hidden />
+                    )}
                     {row.status}
                   </span>
                 </li>
@@ -165,10 +272,14 @@ function Card({
             </span>
             <div>
               <h3 className="font-heading text-base font-bold">{title}</h3>
-              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{text}</p>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                {text}
+              </p>
             </div>
           </div>
-          <div className="mt-auto rounded-2xl border border-white/[0.06] bg-pronex-night/60 p-4">{children}</div>
+          <div className="mt-auto rounded-2xl border border-white/[0.06] bg-pronex-night/60 p-4">
+            {children}
+          </div>
         </div>
       </Reveal>
     </li>

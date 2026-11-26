@@ -9,10 +9,17 @@ import {
   TargetIcon,
   type LucideIcon,
 } from "lucide-react";
+import { Reveal } from "@/components/landing/reveal";
 import { SectionHeading } from "@/components/layout/section-heading";
 import { cn } from "@/lib/utils";
 
-type Feature = { icon: LucideIcon; title: string; text: string; wide?: boolean; accent?: "pink" | "violet" };
+type Feature = {
+  icon: LucideIcon;
+  title: string;
+  text: string;
+  wide?: boolean;
+  accent?: "pink" | "violet";
+};
 
 /**
  * Présentation de PRONEX (brief, partie 2) : uniquement des fonctionnalités qui
@@ -35,7 +42,10 @@ function features(marketCount: number): Feature[] {
     },
     {
       icon: TargetIcon,
-      title: marketCount > 0 ? `${marketCount} types de pronostics` : "Plusieurs types de pronostics",
+      title:
+        marketCount > 0
+          ? `${marketCount} types de pronostics`
+          : "Plusieurs types de pronostics",
       text: "Résultat du match, double chance, score exact, nombre de buts, les deux équipes marquent, mi-temps, corners, cartons…",
     },
     {
@@ -66,36 +76,51 @@ function features(marketCount: number): Feature[] {
 
 export function LandingPresentation({ marketCount }: { marketCount: number }) {
   return (
-    <section id="decouvrir" aria-labelledby="decouvrir-title" className="relative scroll-mt-20">
+    <section
+      id="decouvrir"
+      aria-labelledby="decouvrir-title"
+      className="relative scroll-mt-20"
+    >
       <div className="mx-auto w-full max-w-6xl space-y-10 px-4 py-16 sm:py-20">
-        <SectionHeading
-          id="decouvrir-title"
-          eyebrow="La plateforme"
-          title="Tout ce qu'il faut pour analyser un match"
-          description="PRONEX réunit les données du match, l'analyse de l'intelligence artificielle et le suivi des résultats, au même endroit."
-        />
+        <Reveal>
+          <SectionHeading
+            id="decouvrir-title"
+            eyebrow="La plateforme"
+            title="Tout ce qu'il faut pour analyser un match"
+            description="PRONEX réunit les données du match, l'analyse de l'intelligence artificielle et le suivi des résultats, au même endroit."
+          />
+        </Reveal>
 
-        <ul className="pronex-stagger grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {features(marketCount).map(({ icon: Icon, title, text, wide, accent }) => (
-            <li
-              key={title}
-              className={cn(
-                "pronex-lift group relative overflow-hidden rounded-3xl border border-white/8 bg-card p-6",
-                wide && "lg:col-span-2",
-              )}
-            >
-              <span
-                className={cn(
-                  "flex size-11 items-center justify-center rounded-2xl",
-                  accent === "pink" ? "bg-pronex-pink/15 text-pronex-pink" : "bg-pronex-violet/15 text-violet-200",
-                )}
+        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {features(marketCount).map(
+            ({ icon: Icon, title, text, wide, accent }, index) => (
+              <Reveal
+                as="li"
+                key={title}
+                delay={(index % 3) * 90}
+                className={cn(wide && "lg:col-span-2")}
               >
-                <Icon className="size-5" aria-hidden />
-              </span>
-              <h3 className="mt-4 font-heading text-lg font-bold">{title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{text}</p>
-            </li>
-          ))}
+                <div className="pronex-lift group relative h-full overflow-hidden rounded-3xl border border-white/8 bg-card p-6">
+                  <span
+                    className={cn(
+                      "flex size-11 items-center justify-center rounded-2xl",
+                      accent === "pink"
+                        ? "bg-pronex-pink/15 text-pronex-pink"
+                        : "bg-pronex-violet/15 text-violet-200",
+                    )}
+                  >
+                    <Icon className="size-5" aria-hidden />
+                  </span>
+                  <h3 className="mt-4 font-heading text-lg font-bold">
+                    {title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {text}
+                  </p>
+                </div>
+              </Reveal>
+            ),
+          )}
         </ul>
 
         <div className="flex flex-col gap-4 rounded-3xl border border-pronex-violet/30 bg-card p-6 sm:flex-row sm:items-center sm:p-7">
@@ -103,11 +128,15 @@ export function LandingPresentation({ marketCount }: { marketCount: number }) {
             <LayersIcon className="size-6" aria-hidden />
           </span>
           <div className="space-y-1">
-            <p className="font-heading text-lg font-bold">Une analyse par match, construite match par match</p>
+            <p className="font-heading text-lg font-bold">
+              Une analyse par match, construite match par match
+            </p>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Chaque rencontre est étudiée individuellement, une seule fois. Le <strong className="text-foreground">Combiné IA</strong>{" "}
-              associe 2 ou 3 sélections d&apos;un <strong className="text-foreground">même match</strong> : PRONEX ne propose pas de
-              tickets mélangeant plusieurs matchs.
+              Chaque rencontre est étudiée individuellement, une seule fois. Le{" "}
+              <strong className="text-foreground">Combiné IA</strong> associe 2
+              ou 3 sélections d&apos;un{" "}
+              <strong className="text-foreground">même match</strong> : PRONEX
+              ne propose pas de tickets mélangeant plusieurs matchs.
             </p>
           </div>
         </div>

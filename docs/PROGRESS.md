@@ -1146,3 +1146,28 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
   - axe : seuls restent les grands numéros décoratifs (01, 02…), volontairement très pâles, masqués aux lecteurs d'écran et exemptés par le WCAG (texte purement décoratif).
 - **Performances** (Pixel 7, 4G lente simulée, processeur ralenti ×4) : LCP 1,7 s, chargement 3,0 s, CLS 0, environ 500 Ko transférés.
 - Les compteurs animés (partie 5) ne sont pas sur la page, à la demande du porteur.
+
+## Landing — partie 16 du brief : animations et micro-interactions (26/11/2026)
+
+- **Apparition au défilement** (`Reveal`, désormais avec `as="li"` pour les cartes de liste) :
+  - concerne toutes les sections : titres, cartes de la présentation et des 13 marchés l'une après l'autre (au lieu d'une animation au chargement invisible hors écran), panneau FAQ, CTA final ;
+  - une seule fois par élément ;
+  - les éléments dépassés par un saut d'ancre s'affichent aussi ;
+  - l'apparition est portée par l'élément de liste, pour ne pas retarder l'effet de survol de la carte.
+- **Transitions** : fondu court (`.pronex-fade`) au changement de période et de graphique (performances) et à l'apparition du résultat de la démonstration.
+- **Indicateur IA** : un point rose « en direct » discret (pulsation de 2,4 s) devant « Analyse PRONEX AI » dans le haut de page. C'est le seul effet continu.
+- **Boutons** : légère élévation au survol à la souris (bouton principal et bouton standard) et flèche « → » qui glisse ; l'enfoncement au clic existait déjà.
+- **Déjà en place** :
+  - défilement doux ;
+  - accordéons de la FAQ ;
+  - survol des cartes ;
+  - barres de probabilité ;
+  - étapes de la démonstration.
+
+  Les compteurs animés restent retirés (demande du porteur).
+- **Vérifié** :
+  - 43 éléments à faire apparaître → 0 masqué après défilement ;
+  - saut vers `#faq` : rien ne reste masqué ;
+  - mode « réduire les animations » : rien n'est masqué, défilement instantané, pulsation arrêtée ;
+  - 0 débordement ni élément coupé ;
+  - performances inchangées : LCP ≈ 1,8 s sur Pixel 7 en 4G lente, CLS 0, aucune bibliothèque ajoutée (CSS uniquement).

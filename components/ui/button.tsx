@@ -8,9 +8,9 @@ const buttonVariants = cva(
     variants: {
       variant: {
         // Design system PRONEX : bouton standard violet plein (texte blanc 5,3:1).
-        default: "bg-pronex-violet font-semibold text-white hover:bg-[#8a00dc]",
+        default: "bg-pronex-violet font-semibold text-white hover:bg-[#8a00dc] pointer-fine:hover:-translate-y-px",
         // Bouton principal unique d'un écran : dégradé rose → violet, halo discret.
-        hero: "bg-linear-to-r from-pronex-pink/85 to-pronex-violet font-semibold text-white shadow-[0_0_28px_-10px] shadow-pronex-pink/70 hover:brightness-110",
+        hero: "bg-linear-to-r from-pronex-pink/85 to-pronex-violet font-semibold text-white shadow-[0_0_28px_-10px] shadow-pronex-pink/70 hover:brightness-110 pointer-fine:hover:-translate-y-px pointer-fine:hover:shadow-[0_8px_30px_-8px]",
         outline:
           "border-white/15 bg-transparent font-medium hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         secondary:

@@ -403,3 +403,14 @@ main#contenu > * {
     block-size: auto;
   }
 }
+
+/* Fondu court au changement d'onglet ou de période (performances, démonstration). */
+@keyframes pronex-fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+.pronex-fade {
+  animation: pronex-fade 0.35s ease-out both;
+}

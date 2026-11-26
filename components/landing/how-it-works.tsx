@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { ArrowRightIcon, BrainCircuitIcon, CalendarSearchIcon, LineChartIcon, LockOpenIcon, type LucideIcon } from "lucide-react";
+import {
+  ArrowRightIcon,
+  BrainCircuitIcon,
+  CalendarSearchIcon,
+  LineChartIcon,
+  LockOpenIcon,
+  type LucideIcon,
+} from "lucide-react";
 import { Reveal } from "@/components/landing/reveal";
 import { SectionHeading } from "@/components/layout/section-heading";
 import { buttonVariants } from "@/components/ui/button";
@@ -36,34 +43,57 @@ const STEPS: readonly Step[] = [
 
 export function LandingHowItWorks() {
   return (
-    <section id="fonctionnement" aria-labelledby="fonctionnement-titre" className="scroll-mt-16">
+    <section
+      id="fonctionnement"
+      aria-labelledby="fonctionnement-titre"
+      className="scroll-mt-16"
+    >
       <div className="mx-auto w-full max-w-6xl space-y-12 px-4 py-16 sm:py-20">
-        <SectionHeading
-          id="fonctionnement-titre"
-          eyebrow="Fonctionnement"
-          title="Comment ça marche ?"
-          description="Quatre étapes simples, du choix du match au suivi des résultats."
-        />
+        <Reveal>
+          <SectionHeading
+            id="fonctionnement-titre"
+            eyebrow="Fonctionnement"
+            title="Comment ça marche ?"
+            description="Quatre étapes simples, du choix du match au suivi des résultats."
+          />
+        </Reveal>
 
         <ol className="relative grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {/* Ligne de progression entre les étapes (ordinateur) */}
-          <span aria-hidden className="pointer-events-none absolute top-[3.25rem] right-[12.5%] left-[12.5%] hidden h-px bg-linear-to-r from-pronex-pink/50 via-pronex-violet/50 to-pronex-violet/10 lg:block" />
+          <span
+            aria-hidden
+            className="pointer-events-none absolute top-[3.25rem] right-[12.5%] left-[12.5%] hidden h-px bg-linear-to-r from-pronex-pink/50 via-pronex-violet/50 to-pronex-violet/10 lg:block"
+          />
           {STEPS.map(({ icon: Icon, title, text, detail }, index) => (
             <li key={title} className="relative">
               <Reveal delay={index * 120} className="h-full">
                 <div className="pronex-lift group flex h-full flex-col rounded-3xl border border-white/8 bg-card p-6">
                   <div className="flex items-center justify-between">
                     <span className="relative flex size-14 items-center justify-center rounded-2xl border border-white/10 bg-pronex-night">
-                      <Icon className="size-6 text-pronex-pink transition-transform duration-300 group-hover:scale-110" aria-hidden />
+                      <Icon
+                        className="size-6 text-pronex-pink transition-transform duration-300 group-hover:scale-110"
+                        aria-hidden
+                      />
                     </span>
-                    <span className="font-heading text-4xl font-black text-white/[0.07] italic tabular-nums" aria-hidden>
+                    <span
+                      className="font-heading text-4xl font-black text-white/[0.07] italic tabular-nums"
+                      aria-hidden
+                    >
                       0{index + 1}
                     </span>
                   </div>
-                  <p className="mt-5 text-[11px] font-semibold tracking-[0.18em] text-muted-foreground uppercase">Étape {index + 1}</p>
-                  <h3 className="mt-1 font-heading text-lg font-bold">{title}</h3>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{text}</p>
-                  <p className="mt-4 border-t border-white/8 pt-3 text-xs text-violet-200">{detail}</p>
+                  <p className="mt-5 text-[11px] font-semibold tracking-[0.18em] text-muted-foreground uppercase">
+                    Étape {index + 1}
+                  </p>
+                  <h3 className="mt-1 font-heading text-lg font-bold">
+                    {title}
+                  </h3>
+                  <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
+                    {text}
+                  </p>
+                  <p className="mt-4 border-t border-white/8 pt-3 text-xs text-violet-200">
+                    {detail}
+                  </p>
                 </div>
               </Reveal>
             </li>
@@ -71,9 +101,15 @@ export function LandingHowItWorks() {
         </ol>
 
         <div className="flex justify-center">
-          <Link href="/inscription" className={buttonVariants({ size: "lg", className: "px-6" })}>
+          <Link
+            href="/inscription"
+            className={buttonVariants({ size: "lg", className: "px-6" })}
+          >
             Commencer maintenant
-            <ArrowRightIcon aria-hidden />
+            <ArrowRightIcon
+              aria-hidden
+              className="transition-transform duration-200 group-hover/button:translate-x-0.5"
+            />
           </Link>
         </div>
       </div>
