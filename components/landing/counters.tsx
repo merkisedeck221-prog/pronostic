@@ -47,8 +47,8 @@ export function LandingCounters({ counters, demo = false }: { counters: PublicCo
                 <Icon className="size-4 text-pronex-violet" aria-hidden />
                 {label}
               </dt>
-              <dd className="order-1 font-heading text-5xl font-extrabold tracking-tight sm:text-6xl">
-                <CountUp value={counters[key] ?? 0} />
+              <dd className="order-1 font-heading text-5xl font-black tracking-tight italic sm:text-6xl lg:text-7xl">
+                <CountUp value={counters[key] ?? 0} prefix="+" />
               </dd>
               {demo ? (
                 <dd className="order-3 mt-3 rounded-full border border-warning/40 px-2.5 py-0.5 text-[11px] font-semibold text-warning">Exemple</dd>

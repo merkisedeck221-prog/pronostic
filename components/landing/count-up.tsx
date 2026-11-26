@@ -3,16 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
-const DURATION_MS = 2200;
+const DURATION_MS = 3200;
 
-/** Accélération puis ralentissement doux (ease-out exponentiel). */
-export function easeOutExpo(t: number): number {
-  return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t);
+/** Départ en douceur, accélération, puis ralentissement élégant (ease-in-out cubique). */
+export function easeInOutCubic(t: number): number {
+  if (t <= 0) return 0;
+  if (t >= 1) return 1;
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
 /** Valeur affichée à l'instant t (0 → 1) ; arrondie à l'entier, jamais au-delà de la cible. */
 export function countAt(target: number, t: number): number {
-  return Math.min(target, Math.round(target * easeOutExpo(Math.max(0, Math.min(1, t)))));
+  return Math.min(target, Math.round(target * easeInOutCubic(Math.max(0, Math.min(1, t)))));
 }
 
 const FORMAT = new Intl.NumberFormat("fr-FR");
@@ -23,7 +25,7 @@ const FORMAT = new Intl.NumberFormat("fr-FR");
  * (lisible sans JavaScript, référencement) ; avec « réduire les animations »,
  * la valeur finale reste affichée sans animation.
  */
-export function CountUp({ value, className }: { value: number; className?: string }) {
+export function CountUp({ value, prefix = "", className }: { value: number; prefix?: string; className?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const [display, setDisplay] = useState(value);
   const [phase, setPhase] = useState<"idle" | "running" | "done">("idle");
@@ -70,12 +72,17 @@ export function CountUp({ value, className }: { value: number; className?: strin
     <span
       ref={ref}
       className={cn(
-        "tabular-nums transition-[text-shadow] duration-700",
-        phase === "running" && "[text-shadow:0_0_28px_rgb(255_20_147_/_0.45)]",
-        phase !== "running" && "[text-shadow:0_0_22px_rgb(160_0_255_/_0.35)]",
+        // Chiffres en dégradé rose → violet avec halo néon (inspiré de la vidéo de référence).
+        "inline-block bg-linear-to-b from-pronex-pink to-pronex-violet bg-clip-text pr-[0.06em] text-transparent tabular-nums",
+        "transition-[filter,transform] duration-700 ease-out",
+        phase === "running"
+          ? "[filter:drop-shadow(0_0_14px_rgb(255_20_147_/_0.65))_drop-shadow(0_0_32px_rgb(160_0_255_/_0.45))]"
+          : "[filter:drop-shadow(0_0_10px_rgb(255_20_147_/_0.4))_drop-shadow(0_0_24px_rgb(160_0_255_/_0.3))]",
+        phase === "done" && "pronex-settle",
         className,
       )}
     >
+      {prefix}
       {FORMAT.format(display)}
     </span>
   );

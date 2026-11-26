@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { countAt, easeOutExpo } from "./count-up";
+import { countAt, easeInOutCubic } from "./count-up";
 
 describe("compteur animé (Count Up)", () => {
   it("part de zéro et arrive exactement sur la valeur réelle", () => {
@@ -18,9 +18,14 @@ describe("compteur animé (Count Up)", () => {
     }
   });
 
-  it("accélère puis ralentit (ease-out)", () => {
-    expect(easeOutExpo(0)).toBe(0);
-    expect(easeOutExpo(1)).toBe(1);
-    expect(easeOutExpo(0.25) - easeOutExpo(0)).toBeGreaterThan(easeOutExpo(1) - easeOutExpo(0.75));
+  it("démarre en douceur, accélère, puis ralentit avant la valeur finale", () => {
+    expect(easeInOutCubic(0)).toBe(0);
+    expect(easeInOutCubic(1)).toBe(1);
+    expect(easeInOutCubic(0.5)).toBeCloseTo(0.5);
+    const start = easeInOutCubic(0.1) - easeInOutCubic(0);
+    const middle = easeInOutCubic(0.55) - easeInOutCubic(0.45);
+    const end = easeInOutCubic(1) - easeInOutCubic(0.9);
+    expect(middle).toBeGreaterThan(start);
+    expect(middle).toBeGreaterThan(end);
   });
 });

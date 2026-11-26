@@ -350,3 +350,16 @@ main#contenu > * {
 .pronex-fill {
   animation: pronex-fill 1.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+/* Arrivée des compteurs : léger « posé » sur la valeur finale. */
+@keyframes pronex-settle {
+  0% {
+    transform: scale(1.06);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.pronex-settle {
+  animation: pronex-settle 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}

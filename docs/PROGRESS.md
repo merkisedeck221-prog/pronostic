@@ -959,3 +959,9 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
   - valeur finale déjà présente dans le HTML (référencement).
 - Aperçu de développement : `/?apercu=compteurs` (25 000 / 12 500 / 50 000) avec le bandeau « Démonstration · valeurs d'exemple, pas des statistiques réelles ».
 - Décision du porteur (26/11/2026) : l'aperçu animé des compteurs s'affiche directement sur la page d'accueil tant qu'aucun chiffre réel n'atteint son seuil. Il est signalé par le bandeau « Démonstration · valeurs d'exemple, pas des statistiques réelles » et par une mention « Exemple » sur chaque carte. Dès qu'un chiffre réel est disponible, seuls les chiffres réels sont affichés, automatiquement.
+- **Style des compteurs** : inspiré de la vidéo de référence du porteur (compteur 0 → 100 000, chiffres très gras, dégradé vertical, halo néon) et adapté à PRONEX :
+  - chiffres Exo 2 très gras en italique ;
+  - dégradé rose → violet et halo néon, plus intense pendant le comptage ;
+  - signe « + » devant les chiffres (demande du porteur) ;
+  - comptage de 3,2 s avec départ doux, accélération puis ralentissement ;
+  - léger « posé » sur la valeur finale.
