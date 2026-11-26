@@ -23,6 +23,8 @@ export type LandingData = {
   packs: { id: number; name: string; credits: number; price_xof: number; is_featured: boolean }[];
   performance: { global: Counts; last30: Counts } | null;
   fixtures: LandingFixture[];
+  /** Nombre réel de compétitions actives (couverture). */
+  competitionCount: number;
 };
 
 const PREVIEW_HOURS = 72;
@@ -53,16 +55,18 @@ async function upcomingAnalysedFixtures(): Promise<LandingFixture[]> {
 
 export async function getLandingData(): Promise<LandingData> {
   const supabase = await createClient();
-  const [markets, packs, performance, fixtures] = await Promise.all([
+  const [markets, packs, performance, fixtures, competitions] = await Promise.all([
     supabase.from("markets").select("code, label, description").eq("is_active", true).order("sort_order"),
     supabase.from("credit_packs").select("id, name, credits, price_xof, is_featured").eq("is_active", true).order("sort_order"),
     getPerformanceStats().catch(() => null),
     upcomingAnalysedFixtures().catch(() => []),
+    supabase.from("competitions").select("id", { count: "exact", head: true }).eq("is_active", true),
   ]);
   return {
     markets: markets.data ?? [],
     packs: packs.data ?? [],
     performance: performance ? { global: performance.global, last30: performance.last_30_days } : null,
     fixtures,
+    competitionCount: competitions.error ? 0 : (competitions.count ?? 0),
   };
 }

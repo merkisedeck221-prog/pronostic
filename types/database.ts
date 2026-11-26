@@ -1399,6 +1399,7 @@ export type Database = {
       get_my_predictions: { Args: { p_limit?: number }; Returns: Json }
       get_my_wallet_summary: { Args: never; Returns: Json }
       stats_since: { Args: never; Returns: string }
+      get_public_counters: { Args: never; Returns: Json }
       get_performance_stats: { Args: never; Returns: Json }
       get_fixture_public_context: {
         Args: { p_fixture_id: number }

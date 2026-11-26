@@ -940,3 +940,42 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
   Il est marqué « Exemple » (équipes A / B). Une première version avec une carte « moteur » superposée cachait des données sur ordinateur : remplacée par ce pied intégré.
 - **Correctif** : `buttonVariants({ className: "hidden …" })` n'écrase pas `inline-flex` ; il faut utiliser `cn(buttonVariants(…), "hidden …")`.
 - **Vérifié** sans débordement sur iPhone SE, iPhone 14, iPad Mini, 1280 et 1440 px. Ancres de section ajoutées : `#fonctionnement`, `#analyses`, `#performances`, `#tarifs`, `#faq`.
+
+## Landing — partie 5 du brief : compteurs animés (26/11/2026)
+
+- Données vérifiées en production : 0 utilisateur (hors compte admin), 0 pronostic gagnant, 0 analyse IA.
+- Migration `20261126180000_public_counters.sql` (test → essai annulé en production → production) : fonction `get_public_counters()`.
+  - Méthodes de calcul :
+    - utilisateurs : profils `user` non suspendus, hors adresses de test `@example.*` ;
+    - gagnants : `won` et `published` ;
+    - analyses : exécutions IA `success`.
+  - Seuils réglables dans Paramètres. Sous son seuil, une valeur vaut null et l'indicateur est masqué ; la section disparaît si aucun n'est disponible (c'est le cas aujourd'hui en production).
+- Animation (`components/landing/count-up.tsx`, testée) :
+  - départ de 0 dès l'entrée dans l'écran ;
+  - courbe d'accélération puis de ralentissement, 2,2 s ;
+  - une seule fois ;
+  - halo rose pendant le comptage, violet discret à l'arrivée ;
+  - valeur finale directe si l'appareil demande moins d'animations ;
+  - valeur finale déjà présente dans le HTML (référencement).
+- Aperçu de développement : `/?apercu=compteurs` (25 000 / 12 500 / 50 000) avec le bandeau « Démonstration · valeurs d'exemple, pas des statistiques réelles ».
+- Décision du porteur (26/11/2026) : l'aperçu animé des compteurs s'affiche directement sur la page d'accueil tant qu'aucun chiffre réel n'atteint son seuil. Il est signalé par le bandeau « Démonstration · valeurs d'exemple, pas des statistiques réelles » et par une mention « Exemple » sur chaque carte. Dès qu'un chiffre réel est disponible, seuls les chiffres réels sont affichés, automatiquement.
+- **Style des compteurs** : inspiré de la vidéo de référence du porteur (compteur 0 → 100 000, chiffres très gras, dégradé vertical, halo néon) et adapté à PRONEX :
+  - chiffres Exo 2 très gras en italique ;
+  - dégradé rose → violet et halo néon, plus intense pendant le comptage ;
+  - signe « + » devant les chiffres (demande du porteur) ;
+  - comptage de 3,2 s avec départ doux, accélération puis ralentissement ;
+  - léger « posé » sur la valeur finale.
+- **Révision (26/11/2026)** : le porteur a demandé de retirer les mentions « Démonstration / Exemple » tout en gardant 25 000 / 12 500 / 50 000. Refusé : des chiffres inventés présentés comme réels seraient de la publicité trompeuse, et le brief l'interdit (« Ne fabrique jamais de statistiques »).
+  - Option recommandée, appliquée (le porteur n'a pas exprimé de préférence) : même animation néon, sans aucune mention, avec des chiffres VRAIS du produit, sans « + » car ce sont des valeurs exactes :
+    - types de pronostics : 13 ;
+    - championnats actifs : 5 en production ;
+    - étapes d'analyse PRONEX AI : 7.
+  - Les compteurs d'activité réels (utilisateurs, gains, analyses, avec « + ») les remplacent automatiquement dès qu'ils atteignent leur seuil.
+  - L'aperçu de démonstration est supprimé.
+- **Décision finale (26/11/2026)** : le porteur veut garder +25 000 / +12 500 / +50 000, sans mention jaune. Mise en conformité : ces chiffres sont présentés comme ses **objectifs**.
+  - Section « Nos objectifs · L'ambition de PRONEX pour sa communauté ».
+  - Libellés « Objectif : utilisateurs inscrits », « Objectif : pronostics gagnants validés par PRONEX AI », « Objectif : analyses réalisées par PRONEX AI », avec le « + ».
+  - Même animation néon, aucune étiquette jaune.
+  - Dès qu'un vrai chiffre atteint son seuil, la section bascule sur « PRONEX en chiffres » avec les chiffres réels, avec le « + ».
+  - Valeurs dans `GOALS` (`components/landing/counters.tsx`).
+- **Section retirée (26/11/2026)** : à la demande du porteur, la section des compteurs n'est plus affichée sur la page d'accueil, en attente de sa décision. Le code est conservé : `components/landing/counters.tsx`, `count-up.tsx`, `lib/catalog/counters.ts`, la fonction SQL `get_public_counters()` et ses seuils.

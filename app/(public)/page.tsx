@@ -80,6 +80,8 @@ function faqItems({ refundOnCancel, revealAfterMatch }: { refundOnCancel: boolea
 export default async function HomePage() {
   // Un utilisateur connecté va directement à son tableau de bord.
   if (await getCurrentUser()) redirect("/tableau-de-bord");
+  // Section des compteurs animés (components/landing/counters.tsx) retirée de la page
+  // le 26/11/2026 à la demande du porteur, en attente de décision ; code conservé.
   const [{ markets, packs, performance, fixtures }, flags] = await Promise.all([getLandingData(), getPublicFlags()]);
   const timezone = resolveTimezone(null);
   const resolved = performance ? performance.global.won + performance.global.lost : 0;
