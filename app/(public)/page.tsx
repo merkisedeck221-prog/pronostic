@@ -1,21 +1,18 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   BarChart3Icon,
-  BrainCircuitIcon,
   CalendarClockIcon,
-  CheckCircle2Icon,
   CoinsIcon,
-  DatabaseIcon,
   LockOpenIcon,
   SearchIcon,
   ShieldCheckIcon,
   SmartphoneIcon,
-  SparklesIcon,
   TagIcon,
 } from "lucide-react";
+import { LandingHero } from "@/components/landing/hero";
+import { LandingPresentation } from "@/components/landing/presentation";
 import { SectionHeading } from "@/components/layout/section-heading";
 import { TeamLogo } from "@/components/matches/team-logo";
 import { buttonVariants } from "@/components/ui/button";
@@ -31,24 +28,6 @@ export const metadata: Metadata = {
   title: "PRONEX — Prédisez. Analysez. Dominez.",
   description: "Analyses et pronostics football par PRONEX AI : probabilités, niveau de confiance et explication pour chaque match.",
 };
-
-const AI_POINTS = [
-  {
-    icon: DatabaseIcon,
-    title: "Des données réelles",
-    text: "Forme récente, classement, confrontations directes et statistiques, synchronisés depuis un fournisseur de données football.",
-  },
-  {
-    icon: BrainCircuitIcon,
-    title: "Une analyse structurée",
-    text: "PRONEX AI étudie chaque match une seule fois et produit une sélection, une probabilité, un niveau de confiance et une explication.",
-  },
-  {
-    icon: CheckCircle2Icon,
-    title: "Des résultats vérifiés",
-    text: "Après le match, chaque pronostic est contrôlé automatiquement à partir du score officiel : gagné, perdu ou annulé.",
-  },
-] as const;
 
 const ADVANTAGES = [
   { icon: CoinsIcon, title: "Vous payez à l'unité", text: "Un pronostic ou le match complet : vous débloquez seulement ce qui vous intéresse. Aucun abonnement." },
@@ -108,56 +87,8 @@ export default async function HomePage() {
 
   return (
     <main className="flex-1">
-      {/* Hero */}
-      <section className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 pt-10 pb-16 lg:grid-cols-[1.1fr_1fr] lg:pt-16">
-        <div className="space-y-6">
-          <p className="inline-flex items-center gap-2 rounded-full border border-pronex-pink/30 bg-pronex-pink/10 px-3 py-1 text-xs font-semibold tracking-wide text-pronex-pink">
-            <SparklesIcon className="size-3.5" aria-hidden />
-            Pronostics football par PRONEX AI
-          </p>
-          <h1 className="text-4xl leading-tight font-extrabold tracking-tight italic sm:text-5xl">
-            Prédisez.{" "}
-            <span className="bg-linear-to-r from-pronex-pink to-pronex-violet bg-clip-text text-transparent">Analysez.</span>
-            <br />
-            Dominez.
-          </h1>
-          <p className="max-w-xl text-base text-muted-foreground sm:text-lg">
-            Pour chaque match analysé : la sélection de l&apos;IA, sa probabilité, son niveau de confiance et une explication
-            claire, construites à partir de données réelles.
-          </p>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Link href="/inscription" className={buttonVariants({ variant: "hero", size: "lg" })}>
-              Créer mon compte
-            </Link>
-            <Link href="/connexion" className={buttonVariants({ variant: "outline", size: "lg" })}>
-              Se connecter
-            </Link>
-          </div>
-          <p className="text-xs text-muted-foreground">Réservé aux 18 ans et plus. Pronostics sans garantie de résultat.</p>
-        </div>
-        <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-          <div aria-hidden className="absolute inset-0 -z-10 rounded-full bg-pronex-violet/15 blur-3xl" />
-          <Image src="/brand/pronex-logo.webp" alt="Logo PRONEX" width={720} height={339} priority className="w-full" />
-        </div>
-      </section>
-
-      {/* PRONEX AI */}
-      <section aria-labelledby="ia" className="border-y border-white/5 bg-white/[0.02]">
-        <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-14">
-          <SectionHeading id="ia" eyebrow="PRONEX AI" title="Une IA qui explique ses choix" description="Pas une simple prédiction : une analyse que vous pouvez lire et comprendre." />
-          <ul className="pronex-stagger grid gap-4 md:grid-cols-3">
-            {AI_POINTS.map(({ icon: Icon, title, text }) => (
-              <li key={title} className="space-y-3 rounded-2xl border border-white/8 bg-card p-6">
-                <span className="flex size-10 items-center justify-center rounded-xl bg-pronex-violet/15 text-violet-200">
-                  <Icon className="size-5" aria-hidden />
-                </span>
-                <h3 className="text-lg font-semibold">{title}</h3>
-                <p className="text-sm text-muted-foreground">{text}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
+      <LandingHero marketCount={markets.length} />
+      <LandingPresentation marketCount={markets.length} />
 
       {/* Avantages */}
       <section aria-labelledby="avantages" className="mx-auto w-full max-w-6xl space-y-8 px-4 py-14">

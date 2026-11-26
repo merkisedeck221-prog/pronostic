@@ -886,3 +886,15 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
   - les mouvements antérieurs restent consultables dans l'onglet « Avant le lancement » du portefeuille et dans Transactions (admin).
 - Réglage modifiable dans Paramètres → « Date de lancement des statistiques » (heure de Porto-Novo ; vide = tout compter).
 - Production : date fixée au 26/11/2026 à 16:19 (Porto-Novo), action journalisée. Résultat : chiffre d'affaires 0, crédits vendus 0, totaux du portefeuille 0. Les 8 mouvements et les 6 recharges sont conservés.
+
+## Landing ultra premium — parties 1 et 2 du brief (26/11/2026)
+
+- Le porteur envoie le brief de la landing partie par partie ; réalisation au fil de l'eau, validation à chaque étape.
+- Nouveau logotype fourni (PRONEX blanc / rose / violet) : détouré du fond noir (lueur conservée), `public/brand/pronex-wordmark.png/.webp` (995 × 138, 37 Ko). Il remplace l'ancien logotype dans l'en-tête et figure en tête du hero.
+- Hero (`components/landing/hero.tsx`) :
+  - décor de terrain en perspective et halos rose / violet ;
+  - slogan en Exo 2 italique ;
+  - appel « Créer mon compte gratuitement » ;
+  - aperçu animé de l'interface d'une analyse, présenté comme un **exemple** (équipes A / B, valeurs d'exemple, aucune statistique réelle inventée).
+- Présentation (`components/landing/presentation.tsx`) : les 7 fonctionnalités existantes, et le principe « une analyse par match » ; le Combiné IA porte sur 2 ou 3 sélections d'un même match, sans ticket multi-matchs.
+- Animations CSS légères (`pronex-float`, `pronex-fill`, `pronex-glow`, `pronex-sweep`), coupées si l'appareil demande moins d'animations.

@@ -13,8 +13,8 @@ export function Brand({ href = "/", className, compact = false }: { href?: strin
       <Image
         src="/brand/pronex-wordmark.webp"
         alt="PRONEX"
-        width={600}
-        height={96}
+        width={995}
+        height={138}
         priority
         className={cn("h-5 w-auto", compact && "hidden sm:block")}
       />
