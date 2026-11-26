@@ -4,8 +4,8 @@ import { cn } from "@/lib/utils";
 
 /** Couleurs des résultats : vert gagné, rouge perdu, gris annulé, violet en attente. */
 export const RESULT_BADGE_CLASSES: Record<PredictionResult, string> = {
-  won: "border-emerald-400/40 bg-emerald-400/15 text-emerald-300",
-  lost: "border-red-400/40 bg-red-400/15 text-red-300",
+  won: "border-success/40 bg-success/15 text-success",
+  lost: "border-destructive/40 bg-destructive/15 text-red-400",
   void: "border-white/15 bg-white/5 text-muted-foreground",
   pending: "border-pronex-violet/40 bg-pronex-violet/15 text-violet-200",
 };

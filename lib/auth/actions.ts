@@ -186,3 +186,11 @@ export async function signOutAction(): Promise<void> {
   await supabase.auth.signOut();
   redirect("/");
 }
+
+/** Déconnexion de TOUS les appareils (révoque toutes les sessions du compte). */
+export async function signOutEverywhereAction(): Promise<void> {
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signOut({ scope: "global" });
+  if (error) console.error("[auth] signOut global :", error.code, error.message);
+  redirect("/connexion?info=deconnexion-globale");
+}

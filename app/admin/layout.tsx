@@ -24,7 +24,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
             </Link>
           </div>
           <span className="hidden items-center gap-2 text-sm text-muted-foreground sm:flex">
-            <span aria-hidden className="size-2 rounded-full bg-emerald-400" />
+            <span aria-hidden className="size-2 rounded-full bg-success" />
             {admin.profile.display_name}
           </span>
         </div>

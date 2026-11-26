@@ -23,8 +23,8 @@ const TITLES = {
 } as const;
 
 const STATUS_ICONS = {
-  succeeded: { icon: CircleCheckIcon, className: "bg-emerald-400/15 text-emerald-300" },
-  failed: { icon: CircleXIcon, className: "bg-red-400/15 text-red-300" },
+  succeeded: { icon: CircleCheckIcon, className: "bg-success/15 text-success" },
+  failed: { icon: CircleXIcon, className: "bg-destructive/15 text-red-400" },
   cancelled: { icon: CircleSlashIcon, className: "bg-white/10 text-muted-foreground" },
   pending: { icon: LoaderCircleIcon, className: "bg-pronex-violet/15 text-violet-200 [&_svg]:animate-spin" },
 } as const;

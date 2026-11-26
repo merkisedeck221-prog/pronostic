@@ -3,9 +3,11 @@ import Link from "next/link";
 import { BarChart3Icon } from "lucide-react";
 import { EmptyState } from "@/components/layout/empty-state";
 import { PageHeader } from "@/components/layout/page-header";
+import { SegmentedNav } from "@/components/layout/segmented-nav";
+import { StatCard } from "@/components/layout/stat-card";
+import { RateBars, WeeklyChart } from "@/components/performance/charts";
 import { PredictionResultBadge } from "@/components/settle/result-badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getCurrentUser } from "@/lib/auth/session";
 import { formatRate, isSmallSample } from "@/lib/settle/labels";
 import { getPerformanceStats } from "@/lib/settle/queries";
@@ -17,47 +19,6 @@ export const metadata: Metadata = {
   description: "Taux de réussite des pronostics de l'IA : global, par type de pronostic, par compétition et sur 30 jours.",
 };
 
-function RateCard({ title, counts }: { title: string; counts: Counts }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardDescription>{title}</CardDescription>
-        <CardTitle className="bg-linear-to-r from-pronex-pink/85 to-pronex-violet bg-clip-text font-heading text-4xl font-extrabold text-transparent tabular-nums">
-          {formatRate(counts.won, counts.lost)}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="text-sm text-muted-foreground">
-        {counts.won} gagnés · {counts.lost} perdus{counts.void > 0 ? ` · ${counts.void} annulés` : ""}
-      </CardContent>
-    </Card>
-  );
-}
-
-function BreakdownTable({ rows, label }: { rows: Array<Counts & { key: string; name: string }>; label: string }) {
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>{label}</TableHead>
-          <TableHead className="text-right">Gagnés</TableHead>
-          <TableHead className="text-right">Perdus</TableHead>
-          <TableHead className="text-right">Réussite</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {rows.map((row) => (
-          <TableRow key={row.key}>
-            <TableCell className="whitespace-normal">{row.name}</TableCell>
-            <TableCell className="text-right tabular-nums">{row.won}</TableCell>
-            <TableCell className="text-right tabular-nums">{row.lost}</TableCell>
-            <TableCell className="text-right font-medium tabular-nums">{formatRate(row.won, row.lost)}</TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-}
-
 /** Page PUBLIQUE (sans compte). Chiffres sur TOUS les pronostics publiés, achetés ou non (RG-F8-1). */
 async function loadStats() {
   try {
@@ -68,8 +29,9 @@ async function loadStats() {
   }
 }
 
-export default async function PerformancesPage() {
-  const [stats, user] = await Promise.all([loadStats(), getCurrentUser()]);
+export default async function PerformancesPage({ searchParams }: PageProps<"/performances">) {
+  const [stats, user, params] = await Promise.all([loadStats(), getCurrentUser(), searchParams]);
+  const period = params.periode === "30-jours" ? "30-jours" : "tout";
   if (!stats) {
     return (
       <main className="mx-auto w-full max-w-4xl flex-1 space-y-6 px-4 py-8">
@@ -81,6 +43,9 @@ export default async function PerformancesPage() {
   const timezone = resolveTimezone(user?.profile.timezone);
   const { global } = stats;
   const resolved = global.won + global.lost;
+  const shown: Counts = period === "30-jours" ? stats.last_30_days : global;
+  const shownResolved = shown.won + shown.lost;
+  const weeksWithData = stats.by_week.some((w) => w.won + w.lost + w.void > 0);
 
   return (
     <main className="mx-auto w-full max-w-4xl flex-1 space-y-6 px-4 py-8">
@@ -103,28 +68,58 @@ export default async function PerformancesPage() {
             </p>
           ) : null}
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <RateCard title={`Global · ${resolved} pronostics résolus`} counts={global} />
-            <RateCard title="30 derniers jours" counts={stats.last_30_days} />
+          <SegmentedNav
+            label="Période"
+            items={[
+              { href: "/performances", label: "Depuis le début", active: period === "tout" },
+              { href: "/performances?periode=30-jours", label: "30 derniers jours", active: period === "30-jours" },
+            ]}
+          />
+
+          <section aria-label="Chiffres clés" className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <StatCard
+              label="Taux de réussite"
+              value={formatRate(shown.won, shown.lost)}
+              hint={shownResolved > 0 ? `Sur ${shownResolved} pronostic${shownResolved > 1 ? "s" : ""} décidé${shownResolved > 1 ? "s" : ""}` : "Aucun pronostic décidé"}
+              tone="violet"
+            />
+            <StatCard label="Gagnés" value={shown.won} tone="success" />
+            <StatCard label="Perdus" value={shown.lost} tone="danger" />
+            <StatCard label="Annulés" value={shown.void} hint="Exclus du taux de réussite" />
+          </section>
+
+          {weeksWithData ? (
+            <Card>
+              <CardHeader>
+                <CardTitle>Évolution sur 12 semaines</CardTitle>
+                <CardDescription>Pronostics résolus chaque semaine, selon la date du match.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <WeeklyChart weeks={stats.by_week} />
+              </CardContent>
+            </Card>
+          ) : null}
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Par type de pronostic</CardTitle>
+                <CardDescription>Depuis le début · trié par nombre de pronostics.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RateBars emptyLabel="Aucun type de pronostic résolu." rows={stats.by_market.map((m) => ({ ...m, key: m.code, name: m.label }))} />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Par compétition</CardTitle>
+                <CardDescription>Depuis le début · trié par nombre de pronostics.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RateBars emptyLabel="Aucune compétition résolue." rows={stats.by_competition.map((c) => ({ ...c, key: String(c.id), name: c.name }))} />
+              </CardContent>
+            </Card>
           </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Par type de pronostic</CardTitle>
-            </CardHeader>
-            <CardContent className="overflow-x-auto">
-              <BreakdownTable label="Type" rows={stats.by_market.map((m) => ({ ...m, key: m.code, name: m.label }))} />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Par compétition</CardTitle>
-            </CardHeader>
-            <CardContent className="overflow-x-auto">
-              <BreakdownTable label="Compétition" rows={stats.by_competition.map((c) => ({ ...c, key: String(c.id), name: c.name }))} />
-            </CardContent>
-          </Card>
 
           {stats.reveal_after_match ? (
             <Card>
@@ -136,7 +131,7 @@ export default async function PerformancesPage() {
                 {stats.recent.length === 0 ? (
                   <p className="text-sm text-muted-foreground">Aucun pour le moment.</p>
                 ) : (
-                  <ul className="divide-y text-sm">
+                  <ul className="divide-y divide-white/5 text-sm">
                     {stats.recent.map((p) => (
                       <li key={`${p.fixture_id}-${p.market_code}`} className="space-y-1 py-2">
                         <div className="flex flex-wrap items-center justify-between gap-2">

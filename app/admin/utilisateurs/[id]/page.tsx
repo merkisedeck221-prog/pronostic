@@ -160,7 +160,7 @@ export default async function AdminUserPage({ params }: PageProps<"/admin/utilis
                   <TableCell className="whitespace-nowrap text-muted-foreground">{formatDateTime(t.created_at, tz)}</TableCell>
                   <TableCell>{transactionTypeLabel(t.type)}</TableCell>
                   <TableCell className="whitespace-normal">{t.description}</TableCell>
-                  <TableCell className={`text-right tabular-nums ${t.amount > 0 ? "text-emerald-300" : "text-destructive"}`}>
+                  <TableCell className={`text-right tabular-nums ${t.amount > 0 ? "text-success" : "text-destructive"}`}>
                     {formatSignedAmount(t.amount)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums">{t.balance_after}</TableCell>

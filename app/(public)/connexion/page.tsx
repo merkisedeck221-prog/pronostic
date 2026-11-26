@@ -10,7 +10,12 @@ import { getCurrentUser } from "@/lib/auth/session";
 export const metadata: Metadata = { title: "Connexion · PRONEX" };
 
 const ERRORS: Record<string, string> = {
-  "lien-invalide": "Ce lien n'est plus valide (expiré ou déjà utilisé). Reconnectez-vous ou demandez un nouveau lien.",
+  "lien-invalide":
+    "Ce lien n'est plus valide (expiré, déjà utilisé ou ouvert dans un autre navigateur que celui de la demande). Reconnectez-vous ou demandez un nouveau lien.",
+};
+
+const INFOS: Record<string, string> = {
+  "deconnexion-globale": "Vous êtes déconnecté de tous vos appareils.",
 };
 
 export default async function SignInPage({ searchParams }: PageProps<"/connexion">) {
@@ -23,6 +28,8 @@ export default async function SignInPage({ searchParams }: PageProps<"/connexion
 
   const errorKey = typeof params.erreur === "string" ? params.erreur : undefined;
   const errorMessage = errorKey ? ERRORS[errorKey] : undefined;
+  const infoKey = typeof params.info === "string" ? params.info : undefined;
+  const infoMessage = infoKey ? INFOS[infoKey] : undefined;
 
   return (
     <AuthCard
@@ -38,6 +45,7 @@ export default async function SignInPage({ searchParams }: PageProps<"/connexion
     >
       <div className="space-y-4">
         <FormMessage status="error" message={errorMessage} />
+        <FormMessage status="success" message={infoMessage} />
         <SignInForm next={nextParam ? next : undefined} />
       </div>
     </AuthCard>

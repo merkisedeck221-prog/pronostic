@@ -12,15 +12,15 @@ export function HealthPanel({ report, anomalies, timezone }: { report: { created
   const stale = isReportStale(report?.created_at ?? null);
   const alert = anomalies.length > 0 || stale;
   return (
-    <Card className={alert ? "border-destructive/60 bg-destructive/5" : "border-emerald-400/30 bg-linear-to-r from-emerald-400/10 to-card"}>
+    <Card className={alert ? "border-destructive/60 bg-destructive/5" : "border-success/30 bg-linear-to-r from-success/10 to-card"}>
       <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
           <CardTitle className="flex flex-wrap items-center gap-2">
-            <ActivityIcon className={alert ? "size-4 text-destructive" : "size-4 text-emerald-300"} aria-hidden />
+            <ActivityIcon className={alert ? "size-4 text-destructive" : "size-4 text-success"} aria-hidden />
             Surveillance
             <Badge
               variant={anomalies.length > 0 ? "destructive" : "outline"}
-              className={anomalies.length > 0 || !report ? undefined : "border-emerald-400/40 text-emerald-300"}
+              className={anomalies.length > 0 || !report ? undefined : "border-success/40 text-success"}
             >
               {report ? (anomalies.length > 0 ? `${anomalies.length} anomalie(s)` : "Aucune anomalie") : "Jamais lancée"}
             </Badge>

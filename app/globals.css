@@ -51,11 +51,15 @@
   --color-pronex-pink: #ff1493;
   --color-pronex-violet: #a000ff;
   --color-pronex-gray: #9ca3af;
+  /* États officiels (design system PRONEX, 26/11/2026). */
+  --color-success: var(--success);
+  --color-warning: var(--warning);
 }
 
 /*
  * Charte PRONEX (thème sombre unique) : noir nuit #080B20, rose néon #FF1493,
- * violet #A000FF, blanc #FFFFFF, gris secondaire #9CA3AF. Les mêmes valeurs
+ * violet #A000FF, blanc #FFFFFF, gris secondaire #9CA3AF ; états : vert #22C55E,
+ * orange #F59E0B, rouge #EF4444. Surfaces : #0E1230 (cartes), #151A3D, #1C2250. Les mêmes valeurs
  * servent pour :root et .dark (la classe dark active les variantes dark: des
  * composants shadcn/ui).
  */
@@ -66,7 +70,7 @@
   --foreground: #ffffff;
   --card: #0e1230;
   --card-foreground: #ffffff;
-  --popover: #121738;
+  --popover: #1c2250;
   --popover-foreground: #ffffff;
   --primary: #ff1493;
   --primary-foreground: #ffffff;
@@ -74,10 +78,12 @@
   --secondary-foreground: #ffffff;
   --muted: #151a3d;
   --muted-foreground: #9ca3af;
-  --accent: #1d2352;
+  --accent: #1c2250;
   --accent-foreground: #ffffff;
-  --destructive: #ff4d6d;
-  --border: rgb(255 255 255 / 10%);
+  --destructive: #ef4444;
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --border: rgb(255 255 255 / 8%);
   --input: rgb(255 255 255 / 14%);
   --ring: #ff1493;
   --chart-1: #ff1493;

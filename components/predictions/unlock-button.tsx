@@ -27,7 +27,7 @@ type Props = {
   price: number;
   balance: number;
   buttonLabel: string;
-  variant?: "default" | "outline";
+  variant?: "default" | "outline" | "hero";
   /** Classes du bouton déclencheur (mise en forme uniquement). */
   className?: string;
 };

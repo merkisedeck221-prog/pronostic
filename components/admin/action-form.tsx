@@ -53,7 +53,7 @@ export function AdminActionForm({
         {pending ? pendingLabel : submitLabel}
       </Button>
       {state ? (
-        <p role={state.ok ? "status" : "alert"} className={cn("text-sm", state.ok ? "text-emerald-300" : "text-destructive")}>
+        <p role={state.ok ? "status" : "alert"} className={cn("text-sm", state.ok ? "text-success" : "text-destructive")}>
           {state.ok ? state.message : state.error}
         </p>
       ) : null}
