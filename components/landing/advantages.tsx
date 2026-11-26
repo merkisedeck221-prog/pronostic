@@ -10,8 +10,11 @@ import {
   SmartphoneIcon,
   type LucideIcon,
 } from "lucide-react";
+import Link from "next/link";
+import { PlayIcon } from "lucide-react";
 import { Reveal } from "@/components/landing/reveal";
 import { SectionHeading } from "@/components/layout/section-heading";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 /**
@@ -242,6 +245,20 @@ export function LandingAdvantages({ marketCount }: { marketCount: number }) {
             </ul>
           </Card>
         </ul>
+
+        <div className="flex justify-center">
+          <Link
+            href="#analyses"
+            className={buttonVariants({
+              variant: "outline",
+              size: "lg",
+              className: "px-6",
+            })}
+          >
+            <PlayIcon aria-hidden />
+            Voir PRONEX AI en action
+          </Link>
+        </div>
       </div>
     </section>
   );

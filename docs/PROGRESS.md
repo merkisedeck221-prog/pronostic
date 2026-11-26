@@ -1171,3 +1171,30 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
   - mode « réduire les animations » : rien n'est masqué, défilement instantané, pulsation arrêtée ;
   - 0 débordement ni élément coupé ;
   - performances inchangées : LCP ≈ 1,8 s sur Pixel 7 en 4G lente, CLS 0, aucune bibliothèque ajoutée (CSS uniquement).
+
+## Landing — partie 17 du brief : conversion et stratégie (26/11/2026)
+
+- **Ordre des sections aligné sur le parcours du brief** :
+  1. Hero, Présentation ;
+  2. Pourquoi PRONEX ? (valeur de l'IA, remontée avant la démonstration) ;
+  3. Démonstration, Comment ça marche ? ;
+  4. 13 types de pronostics, puis prochains matchs analysés (réels, seulement s'il y en a ; déplacés juste après les marchés) ;
+  5. Performances ;
+  6. Tarifs, puis FAQ (réponses aux hésitations) ;
+  7. CTA final.
+- **Un CTA par étape**, vers de vraies pages ou des ancres existantes (vérifié : aucun lien défaillant) :
+  - hero : inscription, découvrir ;
+  - avantages : « Voir PRONEX AI en action » (#analyses) ;
+  - démonstration : accès aux vraies analyses ;
+  - fonctionnement : commencer ;
+  - marchés : « Voir les performances réelles » (#performances) et « Combien coûte un pronostic ? » (#tarifs) ;
+  - performances : `/performances` ;
+  - tarifs : inscription ;
+  - CTA final : inscription et `/performances`.
+- **Barre d'inscription mobile** (`components/landing/mobile-cta.tsx`) :
+  - cachée sur le haut de page ;
+  - visible ensuite ;
+  - cachée à nouveau au CTA final et au pied de page (pas de doublon) ;
+  - mobile uniquement ;
+  - contenu factuel (« Inscription gratuite · Paiement à l'unité, sans abonnement »).
+- **Vérifié** : aucun faux témoignage, avis, notification d'achat, utilisateur connecté ou message du type « X personnes viennent de gagner ». La persuasion repose sur la démonstration, la transparence (performances réelles, perdus compris), les prix clairs et la FAQ.
