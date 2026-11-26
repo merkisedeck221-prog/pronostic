@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { LandingAdvantages } from "@/components/landing/advantages";
 import { LandingDemo } from "@/components/landing/demo-section";
+import { LandingFaq } from "@/components/landing/faq";
 import { LandingHero } from "@/components/landing/hero";
 import { LandingHowItWorks } from "@/components/landing/how-it-works";
 import { LandingMarkets } from "@/components/landing/markets";
@@ -25,41 +26,6 @@ export const metadata: Metadata = {
   title: "PRONEX — Prédisez. Analysez. Dominez.",
   description: "Analyses et pronostics football par PRONEX AI : probabilités, niveau de confiance et explication pour chaque match.",
 };
-
-function faqItems({ refundOnCancel, revealAfterMatch }: { refundOnCancel: boolean; revealAfterMatch: boolean }) {
-  return [
-    {
-      q: "Qu'est-ce que PRONEX ?",
-      a: "PRONEX est une plateforme d'analyses et de pronostics football générés par intelligence artificielle (PRONEX AI). Chaque analyse s'appuie sur des données réelles et indique une probabilité, un niveau de confiance et une explication.",
-    },
-    {
-      q: "Les pronostics sont-ils garantis ?",
-      a: "Non. Un pronostic est une estimation : il peut être perdu. PRONEX publie son taux de réussite réel, pronostics perdus compris, pour que vous puissiez juger par vous-même.",
-    },
-    {
-      q: "Comment fonctionnent les crédits ?",
-      a: "Vous achetez un pack de crédits, puis vous dépensez ces crédits pour débloquer des pronostics. Chaque pack donne exactement les crédits annoncés, le prix d'un déblocage est affiché avant confirmation, et les crédits n'expirent pas. Ils ne sont ni remboursables en argent ni convertibles.",
-    },
-    {
-      q: "Quand mes crédits sont-ils ajoutés ?",
-      a: "Uniquement après la confirmation du paiement par le prestataire. Un reçu est disponible pour chaque achat réussi.",
-    },
-    {
-      q: "Que se passe-t-il si un match est annulé ?",
-      a: refundOnCancel
-        ? "Si un match est annulé ou reporté de plus de 48 heures, les crédits dépensés sur ce match vous sont rendus automatiquement."
-        : "Les cas d'annulation sont traités selon les conditions générales d'utilisation.",
-    },
-    {
-      q: "Comment est calculé le taux de réussite ?",
-      a: "Gagnés ÷ (gagnés + perdus), sur tous les pronostics publiés et terminés. Les pronostics annulés (par exemple un match interrompu) ne comptent ni comme gagnés ni comme perdus.",
-    },
-    ...(revealAfterMatch
-      ? [{ q: "Puis-je voir un pronostic après le match ?", a: "Oui : une fois le match terminé, ses pronostics deviennent visibles par tous, sans crédit." }]
-      : []),
-    { q: "Qui peut s'inscrire ?", a: "PRONEX est réservé aux personnes âgées de 18 ans ou plus. L'âge est déclaré à l'inscription." },
-  ];
-}
 
 export default async function HomePage() {
   // Un utilisateur connecté va directement à son tableau de bord.
@@ -112,23 +78,13 @@ export default async function HomePage() {
         </section>
       ) : null}
 
-      {/* FAQ */}
-      <section id="faq" aria-labelledby="faq-titre" className="mx-auto w-full max-w-3xl scroll-mt-16 space-y-6 px-4 py-14">
-        <SectionHeading id="faq-titre" eyebrow="FAQ" title="Questions fréquentes" align="center" />
-        <div className="divide-y divide-white/8 rounded-2xl border border-white/8 bg-card">
-          {faqItems(flags).map(({ q, a }) => (
-            <details key={q} className="group px-5 py-4">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold [&::-webkit-details-marker]:hidden">
-                {q}
-                <span aria-hidden className="text-xl leading-none text-pronex-pink transition-transform group-open:rotate-45">
-                  +
-                </span>
-              </summary>
-              <p className="pt-3 text-sm leading-relaxed text-muted-foreground">{a}</p>
-            </details>
-          ))}
-        </div>
-      </section>
+      <LandingFaq
+        marketLabels={markets.map((m) => m.label)}
+        pricing={pricing}
+        packs={packs}
+        refundOnCancel={flags.refundOnCancel}
+        revealAfterMatch={flags.revealAfterMatch}
+      />
 
       {/* Appel à l'action final */}
       <section className="mx-auto w-full max-w-6xl px-4 pb-16">

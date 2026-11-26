@@ -1074,3 +1074,16 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
 - Le bouton « Découvrir les packs » mène à `/inscription` (parcours existant : la landing n'est vue que sans être connecté ; on recharge ensuite depuis `/recharger`).
 - Aucun prestataire réel ; mentions exactes (crédits ajoutés après confirmation du paiement, sans expiration, reçu) et rappel « sans garantie de résultat, 18+ ».
 - Tests `pricing.test.tsx` : prix et crédits exacts des 5 packs, un seul pack mis en avant, aucun bonus ni promesse de gain, prix des pronostics, lien vers l'inscription.
+
+## Landing — partie 12 du brief : FAQ (26/11/2026)
+
+- `components/landing/faq.tsx` (section `#faq`) remplace l'ancienne FAQ : les 10 questions du brief, dans l'ordre.
+- Réponses conformes au fonctionnement réel, calculées à partir :
+  - des marchés actifs ;
+  - des prix (`pricing_rules`) ;
+  - des packs ;
+  - des réglages `refund_on_cancel` et `reveal_after_match` (la phrase sur le remboursement n'apparaît que si le réglage est actif).
+- La mention « estimations, aucun gain garanti » apparaît trois fois : dans l'encadré orange du panneau de gauche, dans la question 8 mise en avant (bordure orange) et dans la réponse 1.
+- Accordéons natifs `<details name="faq">` : une seule réponse ouverte à la fois, sans JavaScript ; ouverture fluide via `::details-content` sur les navigateurs compatibles ; « + » qui pivote en « × ».
+- Données structurées `FAQPage` (JSON-LD) pour le référencement.
+- Tests `faq.test.tsx` : les 10 questions, la réponse « Non… ne garantit aucun gain », les vrais prix et packs, le réglage de remboursement, le JSON-LD.
