@@ -56,7 +56,7 @@ export default async function RecuPage({ params }: PageProps<"/portefeuille/recu
       {receipt.provider === "mock" ? <TestPaymentBanner /> : null}
       <Card>
         <CardHeader className="flex flex-row items-center gap-3">
-          <Image src="/brand/pronex-icon.png" alt="" width={44} height={44} className="size-11 print:hidden" />
+          <Image src="/brand/pronex-icon.webp" alt="" width={44} height={44} className="size-11 print:hidden" />
           <div>
             <CardDescription className="font-heading font-bold tracking-widest">PRONEX</CardDescription>
             <CardTitle>

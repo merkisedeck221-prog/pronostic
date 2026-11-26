@@ -6,7 +6,7 @@ export function StatusScreen({ code, title, children, actions }: { code: string;
   return (
     <main id="contenu" className="relative mx-auto flex w-full max-w-lg flex-1 flex-col items-center justify-center gap-5 px-4 py-16 text-center">
       <div aria-hidden className="absolute inset-x-0 top-1/4 -z-10 mx-auto h-56 w-56 rounded-full bg-pronex-violet/20 blur-3xl" />
-      <Image src="/brand/pronex-icon.png" alt="" width={72} height={72} className="size-16 drop-shadow-[0_0_18px_rgb(255_20_147/0.45)]" />
+      <Image src="/brand/pronex-icon.webp" alt="" width={72} height={72} className="size-16 drop-shadow-[0_0_18px_rgb(255_20_147/0.45)]" />
       <p className="bg-linear-to-r from-pronex-pink to-pronex-violet bg-clip-text font-heading text-7xl font-extrabold tracking-tight text-transparent italic">
         {code}
       </p>

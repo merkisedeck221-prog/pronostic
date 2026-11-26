@@ -12,6 +12,7 @@ const MESSAGES: Record<string, string> = {
   over_email_send_rate_limit:
     "Trop d'e-mails envoyés pour le moment. Patientez quelques minutes avant de réessayer.",
   over_request_rate_limit: "Trop de tentatives. Patientez quelques minutes avant de réessayer.",
+  email_address_invalid: "Cette adresse e-mail n'est pas acceptée. Vérifiez-la ou utilisez une autre adresse.",
   weak_password: "Ce mot de passe est trop faible. Choisissez-en un plus long ou plus varié.",
   same_password: "Le nouveau mot de passe doit être différent de l'ancien.",
   signup_disabled: "Les inscriptions sont momentanément fermées.",
