@@ -199,6 +199,11 @@ export default async function AdminOverviewPage() {
         <h2 id="kpi-sales" className="text-sm font-semibold tracking-[0.2em] text-muted-foreground uppercase">
           Revenus et crédits <span className="normal-case tracking-normal">(paiement simulé)</span>
         </h2>
+        {o.stats_since ? (
+          <p className="text-xs text-muted-foreground">
+            Ventes comptées depuis le {formatDateTime(o.stats_since, tz)} (date de lancement, modifiable dans Paramètres). Les essais antérieurs restent dans Transactions.
+          </p>
+        ) : null}
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <Stat icon={WalletIcon} tone="pink" label="Chiffre d'affaires simulé" value={formatXof(o.revenue_xof)} hint="Recharges réussies" />
           <Stat icon={ShoppingCartIcon} tone="violet" label="Crédits vendus" value={n(o.credits_sold)} hint="Crédits des packs payés" />

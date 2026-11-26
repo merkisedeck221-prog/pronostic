@@ -27,8 +27,9 @@ const TYPE_ICONS: Record<string, LucideIcon> = {
   bonus: GiftIcon,
 };
 
-function pageHref(filter: TransactionFilter, page = 1): string {
+function pageHref(filter: TransactionFilter, page = 1, before = false): string {
   const params = new URLSearchParams();
+  if (before) params.set("periode", "avant");
   if (filter !== "tous") params.set("filtre", filter);
   if (page > 1) params.set("page", String(page));
   const query = params.toString();
@@ -42,16 +43,17 @@ export default async function PortefeuillePage({ searchParams }: PageProps<"/por
   const page = parsePage(params.page);
   const filter = parseTransactionFilter(params.filtre);
 
-  const [balance, summary, history] = await Promise.all([
-    getWalletBalance(user.id),
-    getWalletSummary(),
-    listTransactions(user.id, page, filter),
-  ]);
+  const [balance, summary] = await Promise.all([getWalletBalance(user.id), getWalletSummary()]);
+  // Date de lancement : les totaux et l'historique courant partent de là ; avant, section à part.
+  const since = summary?.since ?? null;
+  const before = since !== null && params.periode === "avant";
+  const history = await listTransactions(user.id, page, filter, { since, before });
+  const sinceHint = since ? ` · depuis le ${formatDateTime(since, timezone)}` : "";
 
   const totals = [
-    { label: "Crédits reçus", value: summary?.received, hint: "Achats et ajustements" },
-    { label: "Crédits consommés", value: summary?.consumed, hint: "Déblocages, débits de l'administration" },
-    { label: "Crédits remboursés", value: summary?.refunded, hint: "Matchs annulés ou reportés" },
+    { label: "Crédits reçus", value: summary?.received, hint: `Achats et ajustements${sinceHint}` },
+    { label: "Crédits consommés", value: summary?.consumed, hint: `Déblocages, débits de l'administration${sinceHint}` },
+    { label: "Crédits remboursés", value: summary?.refunded, hint: `Matchs annulés ou reportés${sinceHint}` },
   ];
 
   return (
@@ -84,14 +86,25 @@ export default async function PortefeuillePage({ searchParams }: PageProps<"/por
 
       <Card>
         <CardHeader>
-          <CardTitle>Historique</CardTitle>
+          <CardTitle>{before ? "Avant le lancement" : "Historique"}</CardTitle>
           <CardDescription>
             {history.total} mouvement{history.total > 1 ? "s" : ""}
+            {before && since ? ` antérieur${history.total > 1 ? "s" : ""} au ${formatDateTime(since, timezone)} (essais), hors totaux` : ""}
           </CardDescription>
+          {since && (before || (summary?.before_count ?? 0) > 0) ? (
+            <SegmentedNav
+              label="Période"
+              className="pt-2"
+              items={[
+                { href: pageHref(filter), label: "Depuis le lancement", active: !before },
+                { href: pageHref(filter, 1, true), label: "Avant le lancement", active: before, count: summary?.before_count },
+              ]}
+            />
+          ) : null}
           <SegmentedNav
             label="Filtrer l'historique"
             className="pt-2"
-            items={DISPLAYED_TRANSACTION_FILTERS.map((f) => ({ href: pageHref(f.value), label: f.label, active: f.value === filter }))}
+            items={DISPLAYED_TRANSACTION_FILTERS.map((f) => ({ href: pageHref(f.value, 1, before), label: f.label, active: f.value === filter }))}
           />
         </CardHeader>
         <CardContent>
@@ -160,7 +173,7 @@ export default async function PortefeuillePage({ searchParams }: PageProps<"/por
           {history.pageCount > 1 ? (
             <nav className="mt-4 flex items-center justify-between text-sm" aria-label="Pagination">
               {page > 1 ? (
-                <Link href={pageHref(filter, page - 1)} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                <Link href={pageHref(filter, page - 1, before)} className={buttonVariants({ variant: "outline", size: "sm" })}>
                   Précédent
                 </Link>
               ) : (
@@ -170,7 +183,7 @@ export default async function PortefeuillePage({ searchParams }: PageProps<"/por
                 Page {Math.min(page, history.pageCount)} sur {history.pageCount}
               </span>
               {page < history.pageCount ? (
-                <Link href={pageHref(filter, page + 1)} className={buttonVariants({ variant: "outline", size: "sm" })}>
+                <Link href={pageHref(filter, page + 1, before)} className={buttonVariants({ variant: "outline", size: "sm" })}>
                   Suivant
                 </Link>
               ) : (

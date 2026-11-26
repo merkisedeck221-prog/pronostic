@@ -1,6 +1,6 @@
 /** Paramètres connus de app_settings : type de champ, description, validation. */
 
-export type SettingKind = "boolean" | "integer" | "enum" | "list" | "json";
+export type SettingKind = "boolean" | "integer" | "enum" | "list" | "json" | "datetime";
 
 export type SettingGroup = "general" | "ia" | "competitions" | "synchronisation" | "paiement";
 
@@ -38,6 +38,13 @@ export const SETTING_DEFINITIONS: readonly SettingDefinition[] = [
   { key: "prediction_window_hours", group: "ia", label: "Fenêtre de génération (heures)", description: "Délai avant le coup d'envoi à partir duquel le pronostic est généré.", kind: "integer", min: 1, max: 168 },
   { key: "fixtures_window_days", group: "competitions", label: "Fenêtre des matchs (jours)", description: "Période affichée par défaut sur la page Matchs (RG-F2-4).", kind: "integer", min: 1, max: 14 },
   { key: "refund_on_cancel", group: "general", label: "Remboursement automatique", description: "Rembourse les matchs annulés ou reportés de plus de 48 h.", kind: "boolean" },
+  {
+    key: "stats_since",
+    group: "general",
+    label: "Date de lancement des statistiques",
+    description: "Les ventes et les totaux du portefeuille sont comptés à partir de cette date (heure de Porto-Novo). Les mouvements antérieurs restent consultables. Vide : tout compter.",
+    kind: "datetime",
+  },
   { key: "reveal_after_match", group: "general", label: "Pronostics publics après le match", description: "Rend visibles par tous les pronostics d'un match terminé (RG-F4-4).", kind: "boolean" },
   {
     key: "pricing_mode",
@@ -92,6 +99,11 @@ export function parseSettingInput(definition: SettingDefinition, raw: string | n
       return definition.options?.some((o) => o.value === text) ? { ok: true, value: text } : { ok: false, error: "Valeur non autorisée." };
     case "list":
       return { ok: true, value: text.split(",").map((s) => s.trim()).filter(Boolean) };
+    case "datetime": {
+      if (text === "") return { ok: true, value: null };
+      const iso = portoNovoInputToIso(text);
+      return iso ? { ok: true, value: iso } : { ok: false, error: "Date et heure attendues (AAAA-MM-JJ HH:MM)." };
+    }
     default:
       try {
         return { ok: true, value: JSON.parse(text) };
@@ -108,4 +120,26 @@ export function bundleWarning(bundlePrice: number | null, marketPrices: number[]
   return bundlePrice > sum
     ? `Le match complet (${bundlePrice} crédits) coûte plus cher que la somme des marchés (${sum} crédits).`
     : null;
+}
+
+/** Porto-Novo (Bénin) : UTC+1 toute l'année, sans heure d'été. */
+const PORTO_NOVO_OFFSET_MS = 60 * 60 * 1000;
+
+/** « 2026-11-26T14:30 » (heure de Porto-Novo, champ datetime-local) → ISO UTC, ou null si invalide. */
+export function portoNovoInputToIso(text: string): string | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})$/.exec(text.trim());
+  if (!m) return null;
+  const [year, month, day, hour, minute] = m.slice(1).map(Number);
+  const utc = Date.UTC(year, month - 1, day, hour, minute);
+  const check = new Date(utc);
+  if (check.getUTCMonth() !== month - 1 || check.getUTCDate() !== day || hour > 23 || minute > 59) return null;
+  return new Date(utc - PORTO_NOVO_OFFSET_MS).toISOString();
+}
+
+/** Valeur stockée (ISO) → valeur du champ datetime-local à l'heure de Porto-Novo ; "" si vide ou illisible. */
+export function isoToPortoNovoInput(value: unknown): string {
+  if (typeof value !== "string") return "";
+  const time = Date.parse(value);
+  if (Number.isNaN(time)) return "";
+  return new Date(time + PORTO_NOVO_OFFSET_MS).toISOString().slice(0, 16);
 }

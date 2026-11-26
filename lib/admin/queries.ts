@@ -13,6 +13,8 @@ export async function adminRpc<T>(fn: Parameters<Awaited<ReturnType<typeof creat
 }
 
 export type AdminOverview = {
+  /** Début des statistiques de ventes (réglage stats_since), null = depuis toujours. */
+  stats_since?: string | null;
   users_total: number;
   users_7d: number;
   credits_sold: number;
