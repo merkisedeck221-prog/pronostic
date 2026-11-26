@@ -274,8 +274,8 @@ Corrections :
 
 ## 9 quaterdecies. Compteurs publics de la landing (26/11/2026)
 
-- `get_public_counters()` est appelable sans compte, mais ne renvoie que trois totaux agrégés : aucune donnée personnelle, aucun contenu de pronostic. Sous son seuil d'affichage, une valeur est renvoyée à `null`, donc le chiffre réel reste privé tant qu'il est faible. Toute erreur renvoie `null`, jamais un chiffre faux.
-- Aucun chiffre n'est fabriqué : il n'y a ni compteur artificiel ni augmentation automatique. Tant qu'aucun chiffre réel n'atteint son seuil (ou avec `?apercu=compteurs`), la page montre un aperçu de démonstration (25 000 / 12 500 / 50 000) sous le bandeau « Démonstration · valeurs d'exemple, pas des statistiques réelles », avec « Exemple » sur chaque carte (décision du porteur).
+- `get_public_counters()` est appelable sans compte, mais ne renvoie que trois totaux agrégés : aucune donnée personnelle, aucun contenu de pronostic. Sous son seuil d'affichage, une valeur est renvoyée à `null`, donc le chiffre réel reste privé tant qu'il est faible. Toute erreur renvoie `null`.
+- Aucun chiffre n'est fabriqué : ni valeur d'exemple, ni compteur artificiel. Tant que l'activité réelle n'atteint pas les seuils, la landing anime des chiffres exacts du produit : types de pronostics actifs, championnats actifs (lus en base) et étapes du moteur.
 
 ## 10. Points ouverts et risques acceptés
 

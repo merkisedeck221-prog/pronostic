@@ -11,7 +11,7 @@ import {
   SmartphoneIcon,
   TagIcon,
 } from "lucide-react";
-import { DEMO_COUNTERS, LandingCounters } from "@/components/landing/counters";
+import { activityItems, LandingCounters, productItems } from "@/components/landing/counters";
 import { LandingHero } from "@/components/landing/hero";
 import { LandingPresentation } from "@/components/landing/presentation";
 import { SectionHeading } from "@/components/layout/section-heading";
@@ -20,6 +20,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getPublicCounters } from "@/lib/catalog/counters";
 import { getLandingData } from "@/lib/catalog/landing";
+import { VISUAL_STEPS } from "@/lib/generation/stages";
 import { getPublicFlags } from "@/lib/catalog/settings";
 import { formatRate } from "@/lib/settle/labels";
 import { cn } from "@/lib/utils";
@@ -79,19 +80,19 @@ function faqItems({ refundOnCancel, revealAfterMatch }: { refundOnCancel: boolea
   ];
 }
 
-export default async function HomePage({ searchParams }: PageProps<"/">) {
+export default async function HomePage() {
   // Un utilisateur connecté va directement à son tableau de bord.
   if (await getCurrentUser()) redirect("/tableau-de-bord");
-  const [{ markets, packs, performance, fixtures }, flags, realCounters] = await Promise.all([
+  const [{ markets, packs, performance, fixtures, competitionCount }, flags, realCounters] = await Promise.all([
     getLandingData(),
     getPublicFlags(),
     getPublicCounters(),
   ]);
-  // Aperçu de l'animation tant qu'aucun chiffre réel n'atteint son seuil (ou ?apercu=compteurs) :
-  // valeurs d'exemple, toujours signalées « Démonstration ». Dès qu'un chiffre réel est
-  // disponible, seuls les chiffres réels sont affichés.
-  const hasRealCounters = Object.values(realCounters).some((value) => value !== null);
-  const demoCounters = (await searchParams).apercu === "compteurs" || !hasRealCounters;
+  // Compteurs animés : uniquement des chiffres vrais. Activité réelle (utilisateurs, gains,
+  // analyses) dès qu'elle atteint son seuil ; d'ici là, chiffres réels du produit.
+  const activity = activityItems(realCounters);
+  const counterItems =
+    activity.length > 0 ? activity : productItems({ markets: markets.length, competitions: competitionCount, steps: VISUAL_STEPS.length });
   const timezone = resolveTimezone(null);
   const resolved = performance ? performance.global.won + performance.global.lost : 0;
   const resolved30 = performance ? performance.last30.won + performance.last30.lost : 0;
@@ -99,7 +100,7 @@ export default async function HomePage({ searchParams }: PageProps<"/">) {
   return (
     <main className="flex-1">
       <LandingHero marketCount={markets.length} />
-      <LandingCounters counters={demoCounters ? DEMO_COUNTERS : realCounters} demo={demoCounters} />
+      <LandingCounters items={counterItems} />
       <LandingPresentation marketCount={markets.length} />
 
       {/* Avantages */}

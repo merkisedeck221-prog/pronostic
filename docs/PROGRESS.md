@@ -965,3 +965,10 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
   - signe « + » devant les chiffres (demande du porteur) ;
   - comptage de 3,2 s avec départ doux, accélération puis ralentissement ;
   - léger « posé » sur la valeur finale.
+- **Révision (26/11/2026)** : le porteur a demandé de retirer les mentions « Démonstration / Exemple » tout en gardant 25 000 / 12 500 / 50 000. Refusé : des chiffres inventés présentés comme réels seraient de la publicité trompeuse, et le brief l'interdit (« Ne fabrique jamais de statistiques »).
+  - Option recommandée, appliquée (le porteur n'a pas exprimé de préférence) : même animation néon, sans aucune mention, avec des chiffres VRAIS du produit, sans « + » car ce sont des valeurs exactes :
+    - types de pronostics : 13 ;
+    - championnats actifs : 5 en production ;
+    - étapes d'analyse PRONEX AI : 7.
+  - Les compteurs d'activité réels (utilisateurs, gains, analyses, avec « + ») les remplacent automatiquement dès qu'ils atteignent leur seuil.
+  - L'aperçu de démonstration est supprimé.
