@@ -1005,3 +1005,16 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
   - coupée si l'appareil demande moins d'animations.
 - Vérifié sur ordinateur, iPhone 14, iPhone SE et en mode « moins d'animations ».
 - Partie 6 vérifiée en production : démonstration complète, 0 requête réseau.
+
+## Landing — partie 8 du brief : les 13 types de pronostics (26/11/2026)
+
+- `components/landing/markets.tsx` (section `#types-pronostics`) remplace l'ancienne liste. Les 13 marchés figurent dans l'ordre du brief, avec les noms du brief :
+  - 1N2, Double chance, Handicap ±1,5 ;
+  - Over/Under 1,5 / 2,5 / 3,5 buts, BTTS, Score exact ;
+  - Résultat à la mi-temps, Mi-temps / fin de match ;
+  - Over/Under 9,5 corners, Over/Under 4,5 cartons ;
+  - Combiné IA.
+- Chaque carte comporte une icône, le nom, une explication courte fidèle aux règles de résolution et une catégorie (Résultat / Buts / Statistiques / Combiné). Au survol, la carte se soulève et l'icône passe en rose.
+- Seuls les marchés actifs en base s'affichent (vérifié en production : exactement ces 13 codes).
+- Le Combiné IA est en pleine largeur, avec le badge « Même match » et la mention « Ce n'est pas un ticket multi-matchs ».
+- Test `components/landing/markets.test.ts` : exactement les 13 codes, dans l'ordre, et le libellé du Combiné « même match ».
