@@ -787,3 +787,11 @@ Rapidité (production, mesures depuis un serveur européen) :
 Tests automatiques : sélecteurs périmés de `tests/e2e/*.spec.ts` corrigés (cartes `article`, encadrés `rounded-xl`, case CGU cochée directement). Lint, typecheck, 332 tests, build : OK.
 
 Points ouverts (porteur) : domaine, e-mails Resend + modèles français (évite l'erreur « lien ouvert dans un autre navigateur »), confirmation d'e-mail, protection des mots de passe divulgués, offre API-Football Pro, décisions `refund_on_cancel` et prix du match complet. Conseiller performance : index en double sur `admin_audit_log` (à supprimer par une migration, avec accord).
+
+## Décisions du porteur (26/11/2026)
+
+- **Direction artistique validée** (étape 2 : design system PRONEX, couleurs d'état officielles #22C55E / #F59E0B / #EF4444, néon avec modération). Planche visuelle remise ; choix de la couleur des boutons standards (violet plein recommandé, ou rose plein) en attente.
+- **Remboursement automatique des matchs annulés activé** en production (`app_settings.refund_on_cancel = true`), journalisé (`update_setting`).
+- **Crédits de test retirés** en production : 5 paiements simulés du 26/11 (445 crédits) annulés par `admin_adjust_balance(-445)` au nom du compte admin du porteur, journalisé ; solde 455 → 10 (les 10 restants viennent aussi d'un paiement simulé du 25/11). Les recharges simulées restent dans l'historique (registre immuable).
+- Logo vectoriel : non fourni ; une vectorisation automatique de l'image déformerait les dégradés et halos du logo (interdit par la charte) ; à demander au créateur du logo.
+- Nom de domaine : achat reporté par le porteur.
