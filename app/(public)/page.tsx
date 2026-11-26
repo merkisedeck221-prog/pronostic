@@ -106,9 +106,9 @@ export default async function HomePage() {
 
       {/* Types d'analyses (lus en base) */}
       {markets.length > 0 ? (
-        <section aria-labelledby="analyses" className="mx-auto w-full max-w-6xl space-y-8 px-4 pb-14">
+        <section id="analyses" aria-labelledby="analyses-titre" className="mx-auto w-full max-w-6xl scroll-mt-20 space-y-8 px-4 pb-14">
           <SectionHeading
-            id="analyses"
+            id="analyses-titre"
             eyebrow="Analyses"
             title={`${markets.length} types de pronostics par match`}
             description="Débloquez-les un par un, ou tous ensemble avec le match complet."
@@ -157,7 +157,7 @@ export default async function HomePage() {
 
       {/* Performances réelles + crédits */}
       <section className="mx-auto grid w-full max-w-6xl gap-4 px-4 pb-14 lg:grid-cols-2">
-        <div aria-labelledby="perfs" className="space-y-4 rounded-2xl border border-white/8 bg-card p-6">
+        <div id="performances" aria-labelledby="perfs" className="scroll-mt-20 space-y-4 rounded-2xl border border-white/8 bg-card p-6">
           <p className="text-xs font-semibold tracking-[0.2em] text-pronex-pink uppercase">Performances</p>
           <h2 id="perfs" className="text-xl font-bold">
             Des résultats publics
@@ -194,7 +194,7 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        <div aria-labelledby="credits" className="space-y-4 rounded-2xl border border-white/8 bg-card p-6">
+        <div id="tarifs" aria-labelledby="credits" className="scroll-mt-20 space-y-4 rounded-2xl border border-white/8 bg-card p-6">
           <p className="text-xs font-semibold tracking-[0.2em] text-pronex-pink uppercase">Crédits</p>
           <h2 id="credits" className="text-xl font-bold">
             Des crédits, sans abonnement
@@ -224,7 +224,7 @@ export default async function HomePage() {
       </section>
 
       {/* Comment ça marche */}
-      <section aria-labelledby="etapes" className="border-y border-white/5 bg-white/[0.02]">
+      <section id="fonctionnement" aria-labelledby="etapes" className="scroll-mt-16 border-y border-white/5 bg-white/[0.02]">
         <div className="mx-auto w-full max-w-6xl space-y-8 px-4 py-14">
           <SectionHeading id="etapes" eyebrow="Fonctionnement" title="Comment ça marche" />
           <ol className="grid gap-4 md:grid-cols-3">
@@ -245,8 +245,8 @@ export default async function HomePage() {
       </section>
 
       {/* FAQ */}
-      <section aria-labelledby="faq" className="mx-auto w-full max-w-3xl space-y-6 px-4 py-14">
-        <SectionHeading id="faq" eyebrow="FAQ" title="Questions fréquentes" align="center" />
+      <section id="faq" aria-labelledby="faq-titre" className="mx-auto w-full max-w-3xl scroll-mt-16 space-y-6 px-4 py-14">
+        <SectionHeading id="faq-titre" eyebrow="FAQ" title="Questions fréquentes" align="center" />
         <div className="divide-y divide-white/8 rounded-2xl border border-white/8 bg-card">
           {faqItems(flags).map(({ q, a }) => (
             <details key={q} className="group px-5 py-4">
@@ -264,7 +264,7 @@ export default async function HomePage() {
 
       {/* Appel à l'action final */}
       <section className="mx-auto w-full max-w-6xl px-4 pb-16">
-        <div className="flex flex-col items-start gap-6 rounded-3xl border border-pronex-violet/30 bg-linear-to-br from-pronex-violet/15 via-card to-pronex-pink/10 p-8 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col items-start gap-6 rounded-3xl border border-pronex-violet/30 bg-card p-8 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-2">
             <h2 className="text-2xl font-bold">Prêt à analyser votre prochain match ?</h2>
             <p className="flex items-center gap-2 text-sm text-muted-foreground">

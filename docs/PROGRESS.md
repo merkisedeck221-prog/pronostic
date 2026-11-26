@@ -898,3 +898,45 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
   - aperçu animé de l'interface d'une analyse, présenté comme un **exemple** (équipes A / B, valeurs d'exemple, aucune statistique réelle inventée).
 - Présentation (`components/landing/presentation.tsx`) : les 7 fonctionnalités existantes, et le principe « une analyse par match » ; le Combiné IA porte sur 2 ou 3 sélections d'un même match, sans ticket multi-matchs.
 - Animations CSS légères (`pronex-float`, `pronex-fill`, `pronex-glow`, `pronex-sweep`), coupées si l'appareil demande moins d'animations.
+
+## Landing — partie 3 du brief : identité visuelle officielle (26/11/2026)
+
+- Palette vérifiée : les jetons de `app/globals.css` correspondent exactement à la palette officielle (#080B20, #FF1493, #A000FF, #FFFFFF, #9CA3AF, #22C55E, #F59E0B, #EF4444). Les deux couleurs hors palette du hero ont été retirées.
+- Logos : ceux fournis par le porteur, jamais redessinés, proportions d'origine (aucun halo ajouté au logotype).
+- Sobriété (« éviter dégradés excessifs, effets lumineux, animations inutiles ») :
+  - retirés :
+    - deux halos pulsants ;
+    - le reflet balayant et le flottement de la carte ;
+    - le halo dégradé autour de la carte ;
+    - le texte en dégradé (« Analysez. » est désormais en rose plein) ;
+    - les lueurs des cartes de présentation ;
+    - les fonds dégradés des encadrés ;
+  - conservés :
+    - un seul halo violet fixe, atténué sur mobile ;
+    - un terrain discret ;
+    - le remplissage des barres de probabilité, seule animation, car elle montre une donnée ;
+    - le dégradé du bouton principal unique (règle du design system).
+
+## Landing — partie 4 du brief : le hero (26/11/2026)
+
+- **En-tête public** (`components/layout/public-header.tsx`, toutes les pages publiques) :
+  - logo à gauche ;
+  - navigation Accueil / Fonctionnement / Analyses IA / Performances / Tarifs / FAQ (ancres `/#…`, défilement fluide sauf si l'appareil demande moins d'animations) ;
+  - boutons « Se connecter » et « Commencer gratuitement » ;
+  - menu compact sur mobile : panneau en 2 colonnes, fermeture par Échap ou au clic, cibles de 44 px.
+- **Hero** :
+  - titre « Le football analysé par l'intelligence artificielle. » ;
+  - sous-titre du brief ;
+  - boutons « Créer mon compte » (principal) et « Découvrir PRONEX » ;
+  - mention « L'analyse intelligente du football commence ici. » ;
+  - slogan en surtitre.
+- **Visuel** : il reprend des éléments RÉELS de l'application :
+  - forme récente (composant `FormBadges` de la fiche match, nouvelle taille `sm`) ;
+  - probabilités 1N2 et niveau de confiance ;
+  - marchés verrouillés, dont le Combiné IA « même match » ;
+  - nombre réel de types de pronostics ;
+  - pied « Moteur PRONEX AI » avec les 7 étapes réelles (`VISUAL_STEPS`).
+
+  Il est marqué « Exemple » (équipes A / B). Une première version avec une carte « moteur » superposée cachait des données sur ordinateur : remplacée par ce pied intégré.
+- **Correctif** : `buttonVariants({ className: "hidden …" })` n'écrase pas `inline-flex` ; il faut utiliser `cn(buttonVariants(…), "hidden …")`.
+- **Vérifié** sans débordement sur iPhone SE, iPhone 14, iPad Mini, 1280 et 1440 px. Ancres de section ajoutées : `#fonctionnement`, `#analyses`, `#performances`, `#tarifs`, `#faq`.
