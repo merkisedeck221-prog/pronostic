@@ -9,7 +9,7 @@ export default function PublicLayout({ children }: LayoutProps<"/">) {
       <div id="contenu" tabIndex={-1} className="flex flex-1 flex-col outline-none">
         {children}
       </div>
-      <SiteFooter />
+      <SiteFooter variant="public" />
     </>
   );
 }

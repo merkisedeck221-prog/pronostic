@@ -1108,3 +1108,19 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
   - Le fichier `pronex-symbol-lg.webp`, devenu inutile, est retiré.
   - La photo montre un stade réel ; les inscriptions des tribunes restent à peine lisibles sous le voile. Les droits d'utilisation de la photo relèvent du porteur.
 - CTA final plus clair (demande du porteur) : photo à pleine opacité, voile allégé (sombre seulement à gauche sur ordinateur, léger sur mobile), teinte violette retirée, ombres portées discrètes sur le texte pour la lisibilité.
+
+## Landing — partie 14 du brief : pied de page professionnel (26/11/2026)
+
+- `components/layout/site-footer.tsx` refait. Il contient :
+  - logo (symbole + logotype) ;
+  - slogan (« Analysez. » en rose) et présentation courte ;
+  - encadré 18+ et « sans garantie de gain » ;
+  - colonnes de navigation ;
+  - bas de page : © année en cours (calculée au rendu), « Pronostics à titre informatif : aucun gain n'est garanti », lien « Haut de page ».
+- Deux variantes :
+  - `variant="public"` (pages publiques) : Découvrir (sections de la landing), Accès rapide (performances, connexion, inscription, mot de passe oublié), Informations ;
+  - par défaut (espace connecté et admin) : Plateforme (matchs, mes pronostics, portefeuille, recharger), Résultats, Informations.
+
+  Les ancres de la landing ne sont pas proposées aux utilisateurs connectés : la landing les renvoie au tableau de bord.
+- **Rien n'est inventé** : pas de politique de confidentialité (aucune page), pas de contact (aucune adresse officielle), pas de réseaux sociaux (aucun lien fourni). Tous les liens ont été vérifiés (statut 200).
+- À prévoir par le porteur avant le lancement public : une **politique de confidentialité** (obligation légale : données des comptes, paiements) et une **adresse de contact officielle**, après l'achat du domaine. Le pied de page les accueillera dès qu'elles existeront.
