@@ -45,6 +45,9 @@ export const SETTING_DEFINITIONS: readonly SettingDefinition[] = [
     description: "Les ventes et les totaux du portefeuille sont comptés à partir de cette date (heure de Porto-Novo). Les mouvements antérieurs restent consultables. Vide : tout compter.",
     kind: "datetime",
   },
+  { key: "counters_min_users", group: "general", label: "Compteur « utilisateurs » : seuil d'affichage", description: "La page d'accueil affiche le nombre réel d'utilisateurs inscrits à partir de ce nombre (en dessous, l'indicateur est masqué).", kind: "integer", min: 1, max: 100000000 },
+  { key: "counters_min_won", group: "general", label: "Compteur « pronostics gagnants » : seuil d'affichage", description: "Nombre réel de pronostics publiés et gagnés, affiché à partir de ce nombre.", kind: "integer", min: 1, max: 100000000 },
+  { key: "counters_min_analyses", group: "general", label: "Compteur « analyses IA » : seuil d'affichage", description: "Nombre réel d'analyses PRONEX AI terminées et validées, affiché à partir de ce nombre.", kind: "integer", min: 1, max: 100000000 },
   { key: "reveal_after_match", group: "general", label: "Pronostics publics après le match", description: "Rend visibles par tous les pronostics d'un match terminé (RG-F4-4).", kind: "boolean" },
   {
     key: "pricing_mode",

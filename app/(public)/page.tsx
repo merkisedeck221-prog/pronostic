@@ -11,12 +11,14 @@ import {
   SmartphoneIcon,
   TagIcon,
 } from "lucide-react";
+import { DEMO_COUNTERS, LandingCounters } from "@/components/landing/counters";
 import { LandingHero } from "@/components/landing/hero";
 import { LandingPresentation } from "@/components/landing/presentation";
 import { SectionHeading } from "@/components/layout/section-heading";
 import { TeamLogo } from "@/components/matches/team-logo";
 import { buttonVariants } from "@/components/ui/button";
 import { getCurrentUser } from "@/lib/auth/session";
+import { getPublicCounters } from "@/lib/catalog/counters";
 import { getLandingData } from "@/lib/catalog/landing";
 import { getPublicFlags } from "@/lib/catalog/settings";
 import { formatRate } from "@/lib/settle/labels";
@@ -77,10 +79,16 @@ function faqItems({ refundOnCancel, revealAfterMatch }: { refundOnCancel: boolea
   ];
 }
 
-export default async function HomePage() {
+export default async function HomePage({ searchParams }: PageProps<"/">) {
   // Un utilisateur connecté va directement à son tableau de bord.
   if (await getCurrentUser()) redirect("/tableau-de-bord");
-  const [{ markets, packs, performance, fixtures }, flags] = await Promise.all([getLandingData(), getPublicFlags()]);
+  const [{ markets, packs, performance, fixtures }, flags, realCounters] = await Promise.all([
+    getLandingData(),
+    getPublicFlags(),
+    getPublicCounters(),
+  ]);
+  // Aperçu de l'animation pendant le développement : valeurs d'exemple, signalées « Démonstration ».
+  const demoCounters = (await searchParams).apercu === "compteurs";
   const timezone = resolveTimezone(null);
   const resolved = performance ? performance.global.won + performance.global.lost : 0;
   const resolved30 = performance ? performance.last30.won + performance.last30.lost : 0;
@@ -88,6 +96,7 @@ export default async function HomePage() {
   return (
     <main className="flex-1">
       <LandingHero marketCount={markets.length} />
+      <LandingCounters counters={demoCounters ? DEMO_COUNTERS : realCounters} demo={demoCounters} />
       <LandingPresentation marketCount={markets.length} />
 
       {/* Avantages */}

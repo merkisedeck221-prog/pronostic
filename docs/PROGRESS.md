@@ -940,3 +940,21 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
   Il est marqué « Exemple » (équipes A / B). Une première version avec une carte « moteur » superposée cachait des données sur ordinateur : remplacée par ce pied intégré.
 - **Correctif** : `buttonVariants({ className: "hidden …" })` n'écrase pas `inline-flex` ; il faut utiliser `cn(buttonVariants(…), "hidden …")`.
 - **Vérifié** sans débordement sur iPhone SE, iPhone 14, iPad Mini, 1280 et 1440 px. Ancres de section ajoutées : `#fonctionnement`, `#analyses`, `#performances`, `#tarifs`, `#faq`.
+
+## Landing — partie 5 du brief : compteurs animés (26/11/2026)
+
+- Données vérifiées en production : 0 utilisateur (hors compte admin), 0 pronostic gagnant, 0 analyse IA.
+- Migration `20261126180000_public_counters.sql` (test → essai annulé en production → production) : fonction `get_public_counters()`.
+  - Méthodes de calcul :
+    - utilisateurs : profils `user` non suspendus, hors adresses de test `@example.*` ;
+    - gagnants : `won` et `published` ;
+    - analyses : exécutions IA `success`.
+  - Seuils réglables dans Paramètres. Sous son seuil, une valeur vaut null et l'indicateur est masqué ; la section disparaît si aucun n'est disponible (c'est le cas aujourd'hui en production).
+- Animation (`components/landing/count-up.tsx`, testée) :
+  - départ de 0 dès l'entrée dans l'écran ;
+  - courbe d'accélération puis de ralentissement, 2,2 s ;
+  - une seule fois ;
+  - halo rose pendant le comptage, violet discret à l'arrivée ;
+  - valeur finale directe si l'appareil demande moins d'animations ;
+  - valeur finale déjà présente dans le HTML (référencement).
+- Aperçu de développement : `/?apercu=compteurs` (25 000 / 12 500 / 50 000) avec le bandeau « Démonstration · valeurs d'exemple, pas des statistiques réelles ».
