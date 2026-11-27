@@ -130,7 +130,7 @@ export default async function FixturePage({ params }: PageProps<"/matchs/[id]">)
       </nav>
 
       {/* En-tête du match */}
-      <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-linear-to-br from-pronex-pink/15 via-card to-pronex-violet/20 px-4 py-6 sm:px-8 sm:py-8">
+      <section className="relative overflow-hidden pxa-dark rounded-[20px] bg-[#042644] px-4 py-6 sm:px-8 sm:py-8">
         <div className="space-y-1 text-center">
           <p className="inline-flex items-center gap-2 rounded-full bg-white/5 px-3 py-1 text-xs font-semibold">
             <TeamLogo name={fixture.competition.name} src={fixture.competition.logo_url} size={16} />

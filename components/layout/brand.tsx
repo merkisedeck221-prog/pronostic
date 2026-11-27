@@ -1,17 +1,13 @@
-import Image from "next/image";
 import Link from "next/link";
-import { Wordmark } from "@/components/layout/wordmark";
+import { PronexMark } from "@/components/layout/pronex-mark";
 import { cn } from "@/lib/utils";
 
-/**
- * Logo PRONEX : icône (« P » au ballon) + logotype. Images issues du logo
- * fourni par le porteur (public/brand/, fond transparent).
- */
+/** Logo PRONEX : symbole « P + ballon » et nom, dans la police du design. */
 export function Brand({ href = "/", className, compact = false }: { href?: string; className?: string; compact?: boolean }) {
   return (
-    <Link href={href} className={cn("flex min-h-11 shrink-0 items-center gap-2", className)} aria-label="PRONEX, accueil">
-      <Image src="/brand/pronex-symbol.webp" alt="" width={240} height={113} priority className="h-6 w-auto sm:h-7" />
-      <Wordmark priority className={cn("h-5 w-auto", compact && "hidden sm:block")} />
+    <Link href={href} className={cn("flex min-h-11 shrink-0 items-center gap-2 text-foreground", className)} aria-label="PRONEX, accueil">
+      <PronexMark className="h-7 w-auto" accent="currentColor" />
+      <span className={cn("font-[family-name:var(--font-inter-tight)] text-xl font-semibold tracking-[-0.04em]", compact && "hidden sm:inline")}>PRONEX</span>
     </Link>
   );
 }

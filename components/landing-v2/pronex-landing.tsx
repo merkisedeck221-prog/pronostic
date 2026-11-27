@@ -4,6 +4,7 @@ import "./landing.css";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { PronexMark } from "@/components/layout/pronex-mark";
 import { MARKET_CARDS } from "@/components/landing/markets";
 import type { LandingData } from "@/lib/catalog/landing";
 
@@ -44,19 +45,9 @@ const UP_RIGHT = (
   </svg>
 );
 
-/** Symbole PRONEX : « P » massif, ballon dans la boucle. */
+/** Symbole PRONEX (composant partagé). */
 function Symbol({ body, ball, accent, height }: { body: string; ball: string; accent: string; height: number }) {
-  return (
-    <svg className="pxsym" viewBox="0 0 100 120" height={height} aria-hidden>
-      <path
-        fill={body}
-        fillRule="evenodd"
-        d="M0 14A14 14 0 0 1 14 0H54A48 48 0 0 1 54 96H38V106A14 14 0 0 1 24 120H14A14 14 0 0 1 0 106ZM54 24A24 24 0 1 0 54 72A24 24 0 1 0 54 24Z"
-      />
-      <circle cx="54" cy="48" r="12" fill={ball} />
-      <path d="M54 40.5l7 5.1-2.7 8.2h-8.6l-2.7-8.2z" fill={accent} />
-    </svg>
-  );
+  return <PronexMark className="pxsym" body={body} ball={ball} accent={accent} height={height} />;
 }
 
 /* Photos générées pour PRONEX (Higgsfield, 27/11/2026) : public/landing/v2/. */

@@ -33,7 +33,7 @@ export function TopupForm({
           "h-11 w-full rounded-lg px-4 text-sm font-semibold text-on-accent transition outline-none",
           "focus-visible:ring-3 focus-visible:ring-pronex-pink/60 disabled:cursor-not-allowed disabled:opacity-50",
           featured
-            ? "bg-linear-to-r from-pronex-pink/85 to-pronex-violet hover:brightness-110"
+            ? "btn-hero bg-[#c9f13e] text-[#000] hover:bg-[#d6f84f]"
             : "bg-pronex-violet hover:bg-pronex-violet/85",
         )}
       >

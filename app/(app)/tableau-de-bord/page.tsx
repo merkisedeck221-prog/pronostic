@@ -94,10 +94,11 @@ export default async function DashboardPage() {
     <main className="mx-auto w-full max-w-6xl flex-1 space-y-6 px-4 py-6 sm:py-8">
       {/* Essentiel visible immédiatement : solde, analyses disponibles, action principale. */}
       <section className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-        <div className="relative overflow-hidden rounded-3xl border border-white/8 bg-linear-to-br from-pronex-violet/20 via-card to-pronex-pink/10 p-6 sm:p-8">
+        <div className="pxa-dark relative overflow-hidden rounded-[20px] bg-[#042644] p-6 sm:p-8">
+          <div aria-hidden className="pointer-events-none absolute -top-40 -right-24 size-[26rem] rounded-full border-[40px] border-[#fff]/[0.04]" />
           <h1 className="text-sm font-normal text-muted-foreground">Bonjour {user.profile.display_name}<span className="sr-only"> · tableau de bord</span></h1>
-          <p className="mt-4 text-xs tracking-wider text-muted-foreground uppercase">Votre solde</p>
-          <p className="font-heading text-5xl font-extrabold tabular-nums">{balance !== null ? balance : "—"}</p>
+          <p className="mt-4 text-xs tracking-wider text-[#c9f13e] uppercase">Votre solde</p>
+          <p className="font-heading text-6xl font-extrabold tabular-nums">{balance !== null ? balance : "—"}</p>
           <p className="text-sm text-muted-foreground">crédit{balance !== null && Math.abs(balance) > 1 ? "s" : ""} disponible{balance !== null && Math.abs(balance) > 1 ? "s" : ""}</p>
           <div className="mt-6 flex flex-wrap gap-2">
             <Link href="/recharger?next=/tableau-de-bord" className={buttonVariants({ variant: "hero" })}>

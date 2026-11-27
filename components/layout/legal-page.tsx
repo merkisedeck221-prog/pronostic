@@ -5,7 +5,7 @@ export function LegalPage({ title, updatedAt, children }: { title: string; updat
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-10">
       <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
-      <div aria-hidden className="mt-2 h-1 w-12 rounded-full bg-linear-to-r from-pronex-pink/85 to-pronex-violet" />
+      <div aria-hidden className="mt-2 h-1 w-12 rounded-full bg-[#c9f13e]" />
       <p className="mt-1 text-sm text-muted-foreground">
         Version provisoire — mise à jour le {updatedAt}. Ce texte sera complété avant le lancement commercial.
       </p>

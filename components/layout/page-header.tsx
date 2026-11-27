@@ -5,7 +5,7 @@ export function PageHeader({ title, description, children }: { title: ReactNode;
   return (
     <div className="space-y-2">
       <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
-      <div aria-hidden className="h-1 w-12 rounded-full bg-linear-to-r from-pronex-pink/85 to-pronex-violet" />
+      <div aria-hidden className="h-1 w-12 rounded-full bg-[#c9f13e]" />
       {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
       {children}
     </div>

@@ -46,7 +46,7 @@ export default async function ProfilePage() {
     <main className="mx-auto w-full max-w-2xl flex-1 space-y-6 px-4 py-6 sm:py-8">
       <PageHeader title="Mon profil" description="Vos informations, vos préférences, la sécurité et les sessions de votre compte." />
 
-      <div className="flex items-center gap-4 rounded-2xl border border-white/8 bg-linear-to-br from-pronex-violet/15 via-card to-card p-5">
+      <div className="flex items-center gap-4 pxa-dark rounded-[20px] bg-[#042644] p-5">
         <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-pronex-violet/25 font-heading text-xl font-bold text-violet-100">
           {profile.display_name.slice(0, 1).toUpperCase()}
         </span>

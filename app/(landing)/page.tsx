@@ -36,7 +36,7 @@ function structuredData() {
       "@type": "Organization",
       name: SITE_NAME,
       url: base.origin,
-      logo: new URL("/brand/pronex-logo.png", base).toString(),
+      logo: new URL("/icon.png", base).toString(),
       slogan: SITE_TAGLINE,
     },
     {

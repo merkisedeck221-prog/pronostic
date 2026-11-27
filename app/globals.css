@@ -514,3 +514,154 @@ html.light .pronex-pitch {
     box-shadow: 0 14px 32px -22px rgb(0 0 0 / 0.45);
   }
 }
+
+/*
+ * Design PRONEX (27/11/2026) : connexion, pages publiques et espace utilisateur,
+ * dans le style de la landing (blanc, gris clair #F4F6F8, bleu nuit #042644,
+ * citron #C9F13E, police Inter Tight). Limité à `.pxa` : l'administration garde
+ * son thème. Même principe que l'ancien thème clair (couleurs « texte clair sur
+ * fond sombre » inversées), avec la palette de la landing.
+ */
+.pxa,
+.pxa-body {
+  color-scheme: light;
+  --background: #f4f6f8;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
+  --primary: #042644;
+  --primary-foreground: #ffffff;
+  --secondary: #eef1f4;
+  --secondary-foreground: #000000;
+  --muted: #eef1f4;
+  --muted-foreground: #56606b;
+  --accent: #e9edf1;
+  --accent-foreground: #000000;
+  --destructive: #b91c1c;
+  --success: #166534;
+  --warning: #b45309;
+  --border: rgb(4 38 68 / 10%);
+  --input: rgb(4 38 68 / 18%);
+  --ring: #042644;
+  --chart-1: #042644;
+  --chart-2: #1d57c9;
+  --chart-3: #6c8aa8;
+  --chart-4: #a9bccc;
+  --chart-5: #d6dfe7;
+  --pronex-night: #ffffff;
+  --pronex-pink: #042644;
+  --pronex-violet: #042644;
+  --pronex-gray: #56606b;
+  --color-white: #000000;
+  --color-violet-100: #042644;
+  --color-violet-200: #0b3a63;
+  --color-pink-200: #042644;
+  --color-pink-300: #0b3a63;
+  --color-red-400: #991b1b;
+  --font-heading: var(--font-inter-tight);
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter-tight), system-ui, sans-serif;
+}
+:is(.pxa, .pxa-body) h1,
+:is(.pxa, .pxa-body) h2,
+:is(.pxa, .pxa-body) h3 {
+  font-family: var(--font-inter-tight), system-ui, sans-serif;
+  letter-spacing: -0.035em;
+}
+/* Bouton principal unique d'un écran : citron, texte noir (comme la landing). */
+:is(.pxa, .pxa-body) .btn-hero {
+  background: #c9f13e !important;
+  color: #000 !important;
+  box-shadow: none !important;
+}
+:is(.pxa, .pxa-body) .btn-hero:hover {
+  background: #d6f84f !important;
+  filter: none;
+}
+/* Pas de lueurs néon ni d'ombres colorées. */
+:is(.pxa, .pxa-body) [class*="drop-shadow-["],
+:is(.pxa, .pxa-body) [class*="[filter:drop-shadow"] {
+  filter: none !important;
+}
+:is(.pxa, .pxa-body) [class*="[text-shadow:"] {
+  text-shadow: none !important;
+}
+:is(.pxa, .pxa-body) [class*="shadow-[0_0"] {
+  box-shadow: none !important;
+}
+:is(.pxa, .pxa-body) .theme-dark-only {
+  display: none !important;
+}
+:is(.pxa, .pxa-body) .theme-light-only {
+  display: block !important;
+}
+:is(.pxa, .pxa-body) .pronex-panel {
+  background: #fff;
+  border: 1px solid rgb(4 38 68 / 8%);
+}
+:is(.pxa, .pxa-body) .pronex-panel {
+  border-radius: 20px;
+  box-shadow: 0 18px 40px -30px rgb(4 38 68 / 0.35);
+}
+:is(.pxa, .pxa-body) .pronex-pitch {
+  background-image:
+    linear-gradient(to right, rgb(4 38 68 / 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(4 38 68 / 0.06) 1px, transparent 1px);
+}
+@media (hover: hover) and (pointer: fine) {
+  :is(.pxa, .pxa-body) .pronex-lift:hover {
+    border-color: rgb(4 38 68 / 0.25);
+    box-shadow: 0 14px 32px -22px rgb(4 38 68 / 0.45);
+  }
+}
+/* Cartes : coins plus ronds, comme la landing. */
+:is(.pxa, .pxa-body) [data-slot="card"] {
+  border-radius: 20px;
+}
+
+body.pxa-body {
+  background-image: none;
+}
+/* Zone sombre (barres bleu nuit) : texte clair, comme le menu de la landing. */
+.pxa-dark {
+  --background: rgb(255 255 255 / 6%);
+  --muted: rgb(255 255 255 / 10%);
+  --input: rgb(255 255 255 / 22%);
+  --card: #042644;
+  --card-foreground: #ffffff;
+  --foreground: #ffffff;
+  --muted-foreground: rgb(255 255 255 / 72%);
+  --border: rgb(255 255 255 / 14%);
+  --color-white: #ffffff;
+  --accent: rgb(255 255 255 / 10%);
+  --accent-foreground: #ffffff;
+  color: #fff;
+}
+/* Formes de la landing : boutons en pilule, champs blancs arrondis. */
+:is(.pxa, .pxa-body) [data-slot="button"] {
+  border-radius: 9999px;
+}
+:is(.pxa, .pxa-body) [data-slot="input"],
+:is(.pxa, .pxa-body) [data-slot="select-trigger"],
+:is(.pxa, .pxa-body) [data-slot="textarea"] {
+  background: #fff;
+  border-color: rgb(4 38 68 / 16%);
+  border-radius: 14px;
+}
+:is(.pxa, .pxa-body) [data-slot="input"]:focus-visible {
+  border-color: #042644;
+  --tw-ring-color: rgb(201 241 62 / 55%);
+}
+:is(.pxa, .pxa-body) .group\/button {
+  border-radius: 9999px;
+}
+/* Chiffres et titres « font-heading » : police de la landing, sans gras ni italique. */
+:is(.pxa, .pxa-body) .font-heading {
+  font-family: var(--font-inter-tight), system-ui, sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+}

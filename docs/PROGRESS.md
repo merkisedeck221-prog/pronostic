@@ -1265,3 +1265,11 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
 - Photos (27/11/2026) : 5 images générées avec Higgsfield (modèle Nano Banana Pro, offre gratuite ; GPT Image réservé aux abonnés), style de l'original (bleu profond, accents citron, sans logo ni joueur réel) : `public/landing/v2/{hero,cta,sprint,aerial,net}.webp` (85 à 215 Ko, WebP), réutilisées sur 20 emplacements. Une génération bloquée par le filtre (faux positif) a été reformulée ; crédits Higgsfield restants : 0.
 - Logos des championnats (27/11/2026) : lus en base (`competitions.logo_url`, API-Football, ajoutés à `getLandingData`), repli sur la même adresse API-Football par identifiant de ligue ; pastilles dans l'en-tête et grandes tuiles blanches dans les cartes « Compétitions ». Cartes des 13 types de pronostics illustrées par les photos générées (en alternance, voile bleu pour la lisibilité) ; des images propres à chaque type demandent de nouveaux crédits Higgsfield (13 × 2 crédits).
 
+## Design unique : connexion et espace utilisateur (27/11/2026)
+
+- Décision du porteur : le design de la landing s'applique à la connexion et à tout l'espace utilisateur, l'ancien design est abandonné (plus de bouton de thème) ; nouveau logo « P + ballon » partout ; l'administration reste telle quelle.
+- Mise en œuvre par jetons limités à `.pxa` (pas de réécriture page par page) : toutes les pages publiques et connectées changent ensemble ; finitions ciblées (carte de solde, portefeuille, fiche match, profil en bleu nuit ; pack recommandé et action principale en citron ; filet des titres en citron).
+- Connexion / inscription / mot de passe : carte photo bleu nuit (photo de l'en-tête de la landing, slogan, 3 engagements) + formulaire blanc, bouton citron.
+- Icônes du site et image de partage refaites avec le nouveau logo.
+- Contrôles : 13 pages (connexion, inscription, mot de passe oublié, performances, CGU, tableau de bord, matchs, compétitions, mes pronostics, portefeuille, recharge, notifications, profil) sur ordinateur et iPhone 14, aucun débordement ; axe WCAG A/AA sans violation ; 399 tests, lint, typecheck, build.
+

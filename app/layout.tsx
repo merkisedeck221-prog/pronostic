@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Exo_2, Geist, Geist_Mono } from "next/font/google";
+import { Exo_2, Geist, Geist_Mono, Inter_Tight } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import { THEME_SCRIPT } from "@/lib/theme";
@@ -19,6 +19,9 @@ const exo2 = Exo_2({
 });
 
 // Utilisée seulement dans quelques tableaux admin : pas de préchargement sur chaque page.
+/** Police du design PRONEX (landing, connexion, espace utilisateur). */
+const interTight = Inter_Tight({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-inter-tight" });
+
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
@@ -51,7 +54,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="fr"
       suppressHydrationWarning
-      className={`dark ${geistSans.variable} ${geistMono.variable} ${exo2.variable} h-full font-sans antialiased`}
+      className={`dark ${geistSans.variable} ${geistMono.variable} ${exo2.variable} ${interTight.variable} h-full font-sans antialiased`}
     >
       <head>
         {/* Thème choisi sur l'appareil, appliqué avant l'affichage (aucun flash) */}

@@ -30,7 +30,7 @@ export function ForgotPasswordForm() {
         <TextField name="email" label="Adresse e-mail" type="email" autoComplete="email" inputMode="email"
           required defaultValue={state.values?.email} errors={errors.email} />
       </FieldGroup>
-      <Button type="submit" size="lg" className="w-full" disabled={pending}>
+      <Button type="submit" variant="hero" size="lg" className="w-full" disabled={pending}>
         {pending ? "Envoi…" : "Recevoir un lien"}
       </Button>
     </form>
@@ -58,7 +58,7 @@ export function ResetPasswordForm() {
     <form action={formAction} onSubmit={onSubmit} noValidate className="space-y-4">
       <FormMessage status={state.status} message={formMessage} />
       <NewPasswordFields errors={errors} />
-      <Button type="submit" size="lg" className="w-full" disabled={pending}>
+      <Button type="submit" variant="hero" size="lg" className="w-full" disabled={pending}>
         {pending ? "Enregistrement…" : "Enregistrer le mot de passe"}
       </Button>
     </form>
