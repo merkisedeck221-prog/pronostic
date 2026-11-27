@@ -411,3 +411,22 @@
 @media (max-width:360px){.pxl .pxwm{display:none}}
 .pxl .author{opacity:.62}.pxl .author.on{opacity:1}.pxl .author span:not(.badge){color:#222}
 .pxl .author .badge{font-size:19px;font-weight:700}
+/* ---------- Photos (Higgsfield) ---------- */
+.pxl .ph.has-img:before{display:none}
+.pxl .has-img img{object-fit:cover}
+.pxl .shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,38,68,.05) 30%,rgba(4,38,68,.72));pointer-events:none}
+.pxl .why-row .card .shade{background:rgba(4,38,68,.45)}
+.pxl .coach .glass,.pxl .coach .country,.pxl .faq .img>div,.pxl .photo-card .chips,.pxl .photo-card .glass,.pxl .photo-card .big{z-index:2}
+.pxl .why-row .card h4,.pxl .why-row .card p{z-index:2}
+.pxl .cta .ctabg{object-fit:cover;object-position:center}
+.pxl .cta:before{z-index:1}
+.pxl .hero img.bg{object-position:70% 20%}
+.pxl .plan.photo>img.bg{object-fit:cover}
+.pxl .slides .ph img,.pxl .step-img .ph img{opacity:1!important;transform:none!important}
+.pxl .why-row .card .shade{background:rgba(4,38,68,.55)}
+.pxl .why-row .card h4,.pxl .why-row .card p,.pxl .coach .glass h4,.pxl .faq .img h4{text-shadow:0 2px 16px rgba(0,0,0,.45)}
+.pxl .plan.photo.has-img:before{display:block!important;content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,38,68,.6),rgba(4,38,68,.92) 55%);z-index:1}
+.pxl .plan.photo>*{z-index:2}
+.pxl .plan.photo>img.bg{z-index:0}
+.pxl .cta .ctabg{object-position:72% 50%}
+.pxl .why-row .card:not(.wide) .shade{background:rgba(4,38,68,.66)}

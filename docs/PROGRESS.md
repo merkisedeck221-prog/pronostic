@@ -1262,4 +1262,5 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
 - Contenus réels uniquement : 13 types de pronostics (`MARKET_CARDS`), 4 étapes, packs et prix lus en base, FAQ ; les témoignages du modèle deviennent 3 engagements, les réseaux sociaux des liens existants, « exemple d'analyse » explicitement marqué.
 - Dette : photos libres de droits à fournir (accès Unsplash bloqué depuis l'environnement) ; le bouton de thème clair n'apparaît pas sur la landing (charte propre) ; anciens composants de landing à supprimer après validation.
 - Contrôles : lint, typecheck, 399 tests, build ; axe WCAG A/AA sur la landing ; interactions vérifiées (carrousels, FAQ, packs).
+- Photos (27/11/2026) : 5 images générées avec Higgsfield (modèle Nano Banana Pro, offre gratuite ; GPT Image réservé aux abonnés), style de l'original (bleu profond, accents citron, sans logo ni joueur réel) : `public/landing/v2/{hero,cta,sprint,aerial,net}.webp` (85 à 215 Ko, WebP), réutilisées sur 20 emplacements. Une génération bloquée par le filtre (faux positif) a été reformulée ; crédits Higgsfield restants : 0.
 
