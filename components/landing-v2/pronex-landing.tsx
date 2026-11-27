@@ -1,6 +1,7 @@
 "use client";
 
 import "./landing.css";
+import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
 import { MARKET_CARDS } from "@/components/landing/markets";
@@ -55,6 +56,20 @@ function Symbol({ body, ball, accent, height }: { body: string; ball: string; ac
       <path d="M54 40.5l7 5.1-2.7 8.2h-8.6l-2.7-8.2z" fill={accent} />
     </svg>
   );
+}
+
+/* Photos générées pour PRONEX (Higgsfield, 27/11/2026) : public/landing/v2/. */
+const IMG = {
+  hero: "/landing/v2/hero.webp",
+  cta: "/landing/v2/cta.webp",
+  sprint: "/landing/v2/sprint.webp",
+  aerial: "/landing/v2/aerial.webp",
+  net: "/landing/v2/net.webp",
+} as const;
+
+/** Photo de fond (remplit son parent, positionné). */
+function Photo({ src, className = "bgimg", sizes = "(min-width: 1140px) 560px, 100vw", priority = false }: { src: string; className?: string; sizes?: string; priority?: boolean }) {
+  return <Image src={src} alt="" fill sizes={sizes} className={className} priority={priority} />;
 }
 
 const fr = (n: number) => new Intl.NumberFormat("fr-FR").format(n).replace(/ /g, " ");
@@ -239,7 +254,8 @@ export function PronexLanding({ marketCodes, packs, pricing }: Props) {
   return (
     <div className="pxl">
       {/* ================= EN-TÊTE ================= */}
-      <section className="hero ph">
+      <section className="hero ph has-img">
+        <Photo src={IMG.hero} className="bg" sizes="100vw" priority />
         <nav className="nav" aria-label="Navigation principale">
           <Link className="logo" href="/" aria-label="PRONEX, accueil">
             <Symbol body="#fff" ball="#c9f13e" accent="#fff" height={30} />
@@ -279,9 +295,9 @@ export function PronexLanding({ marketCodes, packs, pricing }: Props) {
           <div className="wrap">
             <h2 data-a="up56">
               Chez PRONEX, un pronostic n&apos;est pas une intuition.{" "}
-              <span className="inl racket ph" data-a="pop" style={{ width: 124, height: 51, borderRadius: 99, overflow: "hidden" }} aria-hidden />{" "}
+              <span className="inl racket ph has-img" data-a="pop" style={{ width: 124, height: 51, borderRadius: 99, overflow: "hidden" }} aria-hidden><Photo src={IMG.net} sizes="140px" /></span>{" "}
               C&apos;est une analyse fondée sur les données, expliquée{" "}
-              <span className="inl racket ph" data-a="pop" style={{ width: 131, height: 51, borderRadius: 99, overflow: "hidden" }} aria-hidden />{" "}
+              <span className="inl racket ph has-img" data-a="pop" style={{ width: 131, height: 51, borderRadius: 99, overflow: "hidden" }} aria-hidden><Photo src={IMG.aerial} sizes="140px" /></span>{" "}
               clairement et vérifiée après chaque match.
             </h2>
 
@@ -295,7 +311,9 @@ export function PronexLanding({ marketCodes, packs, pricing }: Props) {
                 </div>
                 <a className="about" href="#fonctionnement">FONCTIONNEMENT</a>
               </div>
-              <div className="card photo-card ph" data-a="scale">
+              <div className="card photo-card ph has-img" data-a="scale">
+                <Photo src={IMG.net} className="bg" sizes="(min-width: 1140px) 361px, 100vw" />
+                <i className="shade" aria-hidden />
                 <div className="chips">Analyse &nbsp;•&nbsp; Probabilités &nbsp;•&nbsp; Confiance</div>
                 <div className="glass">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9f13e" strokeWidth="1.8" aria-hidden><circle cx="12" cy="12" r="9" /><path d="M12 7l3 2-1 4h-4l-1-4z" /></svg>
@@ -378,7 +396,7 @@ export function PronexLanding({ marketCodes, packs, pricing }: Props) {
             </div>
             <div className="step-img" aria-hidden>
               {STEPS.map(([t], i) => (
-                <div key={t} className="ph" style={{ position: "absolute", inset: 0, opacity: step === i ? 1 : 0, transition: "opacity .8s var(--ease)" }} />
+                <div key={t} className="ph has-img" style={{ position: "absolute", inset: 0, opacity: step === i ? 1 : 0, transition: "opacity .8s var(--ease)" }}><Photo src={[IMG.sprint, IMG.aerial, IMG.net, IMG.hero][i]} /></div>
               ))}
             </div>
           </div>
@@ -391,7 +409,7 @@ export function PronexLanding({ marketCodes, packs, pricing }: Props) {
             <div className="why-grid">
               <div className="slides" data-a="left" aria-hidden>
                 {[0, 1, 2].map((i) => (
-                  <div key={i} className="ph" style={{ position: "absolute", inset: 0, opacity: slide === i ? 1 : 0, transition: "opacity 1s var(--ease)" }} />
+                  <div key={i} className="ph has-img" style={{ position: "absolute", inset: 0, opacity: slide === i ? 1 : 0, transition: "opacity 1s var(--ease)" }}><Photo src={[IMG.aerial, IMG.sprint, IMG.net][i]} sizes="(min-width: 1140px) 720px, 100vw" /></div>
                 ))}
                 <div className="dots">{[0, 1, 2].map((i) => <i key={i} className={slide === i ? "on" : ""} />)}</div>
               </div>
@@ -407,8 +425,8 @@ export function PronexLanding({ marketCodes, packs, pricing }: Props) {
               </div>
             </div>
             <div className="why-row">
-              <div className="card ph" data-a="up"><h4>Sans abonnement</h4><p>Payez à l&apos;unité.</p></div>
-              <div className="card wide ph" data-a="right"><h4>Résultats publics</h4><p>Gagnés, perdus et annulés&nbsp;: tout est compté.</p></div>
+              <div className="card ph has-img" data-a="up"><Photo src={IMG.sprint} sizes="(min-width: 1140px) 318px, 100vw" /><i className="shade" aria-hidden /><h4>Sans abonnement</h4><p>Payez à l&apos;unité.</p></div>
+              <div className="card wide ph has-img" data-a="right"><Photo src={IMG.aerial} sizes="(min-width: 1140px) 802px, 100vw" /><i className="shade" aria-hidden /><h4>Résultats publics</h4><p>Gagnés, perdus et annulés&nbsp;: tout est compté.</p></div>
             </div>
           </div>
         </section>
@@ -434,7 +452,9 @@ export function PronexLanding({ marketCodes, packs, pricing }: Props) {
             <div className="co-view" data-a="up">
               <div className="co-track" ref={coTrack} style={co.style} onTransitionEnd={co.onEnd}>
                 {[...COMPETITIONS, ...COMPETITIONS, ...COMPETITIONS].map(([n, c], i) => (
-                  <article key={i} className="coach ph" aria-hidden={i < COMPETITIONS.length || i >= COMPETITIONS.length * 2}>
+                  <article key={i} className="coach ph has-img" aria-hidden={i < COMPETITIONS.length || i >= COMPETITIONS.length * 2}>
+                    <Photo src={[IMG.sprint, IMG.aerial, IMG.net, IMG.hero, IMG.cta][i % COMPETITIONS.length]} sizes="(min-width: 1140px) 373px, 300px" />
+                    <i className="shade" aria-hidden />
                     <span className="country">{c}</span>
                     <div className="glass"><h4>{n}</h4><p>Matchs analysés par PRONEX AI</p></div>
                   </article>
@@ -459,7 +479,8 @@ export function PronexLanding({ marketCodes, packs, pricing }: Props) {
                     {packs.map((p, i) => {
                       const k = STYLES[i % STYLES.length];
                       return (
-                        <article key={p.id} className={`plan ${k}${k === "photo" ? " ph" : ""}`}>
+                        <article key={p.id} className={`plan ${k}${k === "photo" ? " ph has-img" : ""}`}>
+                          {k === "photo" ? <Photo src={IMG.aerial} className="bg" sizes="367px" /> : null}
                           <div className="top">
                             <div className="tags"><span>{p.is_featured ? "Recommandé" : p.name}</span><span>Paiement unique</span></div>
                             <div className="trust">≈&nbsp;{fr(Math.round(p.price_xof / p.credits))}&nbsp;FCFA<br />par crédit</div>
@@ -508,7 +529,9 @@ export function PronexLanding({ marketCodes, packs, pricing }: Props) {
             <div data-a="up56">
               <Pill>FAQ</Pill>
               <h2 className="h2" id="faq-titre">Des questions&nbsp;? Nous avons les réponses.</h2>
-              <div className="img ph">
+              <div className="img ph has-img">
+                <Photo src={IMG.aerial} sizes="(min-width: 1140px) 487px, 100vw" />
+                <i className="shade" aria-hidden />
                 <div><h4>Plus qu&apos;un pronostic.<br /><em>Une analyse.</em></h4><p>Prédisez. Analysez. Dominez.</p></div>
               </div>
             </div>
@@ -526,7 +549,8 @@ export function PronexLanding({ marketCodes, packs, pricing }: Props) {
         </section>
 
         {/* ================= APPEL FINAL ================= */}
-        <section className="cta ph" aria-labelledby="cta-titre">
+        <section className="cta ph has-img" aria-labelledby="cta-titre">
+          <Photo src={IMG.cta} className="ctabg" sizes="100vw" />
           <div className="wrap">
             <h2 data-a="up56" id="cta-titre">Prêt à analyser le football autrement&nbsp;?</h2>
             <p data-a="up56">Rejoignez PRONEX et découvrez les analyses de notre intelligence artificielle. Inscription gratuite, paiement à l&apos;unité, sans abonnement.</p>
@@ -535,7 +559,7 @@ export function PronexLanding({ marketCodes, packs, pricing }: Props) {
               <Link className="btn btn-glass" href="/performances">Voir les performances <span className="dot">{ARROW}</span></Link>
             </div>
             <div className="cta-card" data-a="up">
-              <div className="ph" style={{ position: "relative", height: 210, borderRadius: 12, overflow: "hidden" }} aria-hidden />
+              <div className="ph has-img" style={{ position: "relative", height: 210, borderRadius: 12, overflow: "hidden" }} aria-hidden><Photo src={IMG.sprint} sizes="260px" /></div>
               <p>Inscription gratuite. Réservé aux personnes de 18 ans et plus.</p>
               <Link href="/inscription">Commencer</Link>
             </div>
