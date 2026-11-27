@@ -1254,3 +1254,12 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
 - 👤 À faire par le porteur : Supabase → projet `pronostics` → *Authentication* → *URL Configuration* : Site URL `https://pronex.vercel.app`, ajouter `https://pronex.vercel.app/auth/callback` aux Redirect URLs.
 - Redirection (demande du porteur) : `pronostic-brown.vercel.app`, `pronostic-merkisedeck.vercel.app` et `pronostic-git-main-merkisedeck.vercel.app` renvoient (308) vers `https://pronex.vercel.app` en gardant le chemin (`lib/seo/canonical-host.ts`, appelé par `proxy.ts`, testé). Exceptions : `/api/*` (Supabase Cron, webhooks) et `/auth/*` (liens d'e-mail déjà envoyés).
 
+## Nouvelle landing (27/11/2026)
+
+- Étape 1 : duplicata privé d'un modèle Framer (étude, jamais versionné ni publié). Étape 2 : adaptation à PRONEX validée par le porteur, puis intégration (« fusionne et pousse »).
+- `app/(public)/page.tsx` déplacé vers `app/(landing)/page.tsx` (groupe sans en-tête ni pied de page publics) ; mêmes métadonnées, Open Graph, JSON-LD et redirection des utilisateurs connectés.
+- `components/landing-v2/` : composant client (apparitions au défilement, compteurs, carrousels infinis à pas mesuré, étapes, diaporama, engagements, packs, FAQ) et CSS limité à `.pxl` ; mise en page mobile dédiée (iPhone SE, iPhone 14, Galaxy S9+ : aucun débordement).
+- Contenus réels uniquement : 13 types de pronostics (`MARKET_CARDS`), 4 étapes, packs et prix lus en base, FAQ ; les témoignages du modèle deviennent 3 engagements, les réseaux sociaux des liens existants, « exemple d'analyse » explicitement marqué.
+- Dette : photos libres de droits à fournir (accès Unsplash bloqué depuis l'environnement) ; le bouton de thème clair n'apparaît pas sur la landing (charte propre) ; anciens composants de landing à supprimer après validation.
+- Contrôles : lint, typecheck, 399 tests, build ; axe WCAG A/AA sur la landing ; interactions vérifiées (carrousels, FAQ, packs).
+
