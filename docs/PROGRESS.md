@@ -1273,3 +1273,11 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
 - Icônes du site et image de partage refaites avec le nouveau logo.
 - Contrôles : 13 pages (connexion, inscription, mot de passe oublié, performances, CGU, tableau de bord, matchs, compétitions, mes pronostics, portefeuille, recharge, notifications, profil) sur ordinateur et iPhone 14, aucun débordement ; axe WCAG A/AA sans violation ; 399 tests, lint, typecheck, build.
 - Pied de page retiré de la connexion, des pages publiques, de l'espace utilisateur et de l'administration (demande du porteur : il reste uniquement sur la landing) ; `components/layout/site-footer.tsx` supprimé.
+
+## Correctif : tâche planifiée sync-fixtures (27/11/2026)
+
+- Symptôme : `sync-fixtures` (05:07 et 17:07 UTC) n'aboutissait jamais depuis le 23/11 (aucune ligne `sync_runs`), alors que Supabase Cron la marquait « succeeded ».
+- Diagnostic (lancement de 17:07 observé) : `net._http_response` = « Error in the HTTP2 framing layer » en 22 ms, sans réponse ; seul échec sur 67 appels. La tâche part exactement 2 minutes après `settle-predictions` (:05) : pg_net réutilise la connexion HTTP/2 au moment où le serveur la ferme pour inactivité.
+- Correction (migration `20261127190000_cron_avoid_idle_race.sql`, base de test puis essai annulé puis production) : `sync-fixtures` à :06, `sync-standings` à :36, `sync-competitions` à :16 (1 minute après un autre appel, connexion encore active). Même fréquence, même budget d'appels.
+- À vérifier : lancement de 05:06 UTC du 28/11 (ligne `sync_runs` attendue, statut « partial » tant que l'offre API-Football est gratuite).
+
