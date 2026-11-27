@@ -29,7 +29,7 @@ function NavList({ pathname }: { pathname: string }) {
     <div className="space-y-4">
       {ADMIN_NAV_GROUPS.map((group) => (
         <div key={group.title ?? "root"} className="space-y-1">
-          {group.title ? <p className="px-3 text-[11px] font-semibold tracking-[0.2em] text-muted-foreground/70 uppercase">{group.title}</p> : null}
+          {group.title ? <p className="px-3 text-[11px] font-semibold tracking-[0.2em] text-muted-foreground/70 uppercase [html.light_&]:text-muted-foreground">{group.title}</p> : null}
           {group.items.map((item) => (
             <NavLink key={item.href} item={item} active={isAdminNavActive(item.href, pathname)} />
           ))}

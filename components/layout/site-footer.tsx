@@ -1,3 +1,4 @@
+import { Wordmark } from "@/components/layout/wordmark";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpIcon, ShieldAlertIcon } from "lucide-react";
@@ -80,7 +81,7 @@ export function SiteFooter({
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative border-t border-white/8 bg-[#06081a]">
+    <footer className="relative border-t border-white/8 bg-black/20 [html.light_&]:bg-card">
       <div
         aria-hidden
         className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-pronex-pink/60 to-transparent"
@@ -99,13 +100,7 @@ export function SiteFooter({
               height={113}
               className="h-9 w-auto"
             />
-            <Image
-              src="/brand/pronex-wordmark.webp"
-              alt="PRONEX"
-              width={995}
-              height={138}
-              className="h-5 w-auto"
-            />
+            <Wordmark className="h-5 w-auto" />
           </Link>
           <p className="font-heading text-lg font-bold italic">
             Prédisez. <span className="text-pronex-pink">Analysez.</span>{" "}

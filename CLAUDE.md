@@ -99,7 +99,7 @@
 
 ## Recette et sécurité (phase 11)
 
-- Rapports : [docs/RECETTE.md](docs/RECETTE.md) (conformité) et [docs/SECURITE.md](docs/SECURITE.md) (audit), [docs/RAPPORT-FINAL.md](docs/RAPPORT-FINAL.md) (bilan de la refonte, étapes 1 à 8) : les tenir à jour à chaque nouvelle règle ou correction.
+- Rapports : [docs/RECETTE.md](docs/RECETTE.md) (conformité) et [docs/SECURITE.md](docs/SECURITE.md) (audit), [docs/RAPPORT-FINAL.md](docs/RAPPORT-FINAL.md) (bilan de la refonte, étapes 1 à 8), [docs/RAPPORT-LANDING.md](docs/RAPPORT-LANDING.md) (landing, parties 1 à 19) : les tenir à jour à chaque nouvelle règle ou correction.
 - Attaques rejouées en CI : `tests/security/audit.test.ts` (clé publique seule). Parcours Playwright : `tests/e2e/` (`npm run test:e2e`, application compilée + Supabase DEV).
 - En-têtes HTTP de sécurité dans `next.config.ts`. Pages `app/not-found.tsx`, `app/error.tsx`, `app/global-error.tsx` en français.
 - `loading.tsx` uniquement sur des segments dont la page n'appelle pas `notFound()` (sinon le 404 devient un 200).
@@ -124,7 +124,8 @@
 
 ## Design PRONEX (phase design ouverte le 25/11/2026)
 
-- Identité : **PRONEX**, slogan « Prédisez. Analysez. Dominez. ». Thème **sombre unique** : noir nuit #080B20, rose néon #FF1493, violet #A000FF, blanc, gris #9CA3AF (jetons dans `app/globals.css`, classe `dark` sur `<html>`). Titres en Exo 2 (`--font-display`), texte en Geist.
+- Identité : **PRONEX**, slogan « Prédisez. Analysez. Dominez. ». Thème **sombre** par défaut : noir nuit #080B20, rose néon #FF1493, violet #A000FF, blanc, gris #9CA3AF (jetons dans `app/globals.css`, classe `dark` sur `<html>`). Titres en Exo 2 (`--font-display`), texte en Geist.
+- **Thème clair « noir et blanc »** (27/11/2026) : bouton `ThemeToggle` (`components/layout/theme-toggle.tsx`) dans les en-têtes public, application et admin ; choix mémorisé sur l'appareil (`localStorage` « pronex-theme »), appliqué avant l'affichage par `THEME_SCRIPT` (`lib/theme.ts`, `<head>` de `app/layout.tsx`). Bloc `html.light` de `app/globals.css` : fond blanc, texte et boutons noirs, rose/violet remplacés par du noir, couleurs d'état assombries ; logo et logotype restent en couleur (`components/layout/wordmark.tsx` choisit la version claire). Règles : texte posé sur un aplat d'accent = `text-on-accent` (jamais `text-white`), couleurs PRONEX via `bg-pronex-*` / `text-pronex-*` (jamais de code hexadécimal en dur) ; `bg-white` devient noir en clair (utiliser `bg-card`), forcer un style clair avec `[html.light_&]:…`.
 - Logotype « PRONEX » (blanc / rose / violet) fourni le 26/11/2026 : `public/brand/pronex-wordmark.*` (détouré du fond noir, lueur conservée), en-tête et hero de la landing. Landing en cours de refonte partie par partie : `components/landing/*`.
 - Logo (version 2 fournie le 26/11/2026, plus nette) : `public/brand/` (logo complet, symbole recadré `pronex-symbol` pour l'en-tête et le pied de page, icône carrée, logotype ; fond transparent, découpés du fichier fourni sans retouche ; les `.png` sont les sources, les pages utilisent les `.webp` allégés car l'optimisation d'images Vercel est désactivée) et `components/layout/brand.tsx` ; icônes `app/icon.png`, `app/apple-icon.png`, `app/favicon.ico`. Remplacer par la version vectorielle dès qu'elle est fournie.
 - Navigation : en-tête collant (`components/layout/app-header.tsx`), barre fixe en bas sur mobile (`BottomNav` dans `components/layout/app-nav.tsx`).

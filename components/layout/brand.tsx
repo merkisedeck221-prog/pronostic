@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Wordmark } from "@/components/layout/wordmark";
 import { cn } from "@/lib/utils";
 
 /**
@@ -10,14 +11,7 @@ export function Brand({ href = "/", className, compact = false }: { href?: strin
   return (
     <Link href={href} className={cn("flex min-h-11 shrink-0 items-center gap-2", className)} aria-label="PRONEX, accueil">
       <Image src="/brand/pronex-symbol.webp" alt="" width={240} height={113} priority className="h-6 w-auto sm:h-7" />
-      <Image
-        src="/brand/pronex-wordmark.webp"
-        alt="PRONEX"
-        width={995}
-        height={138}
-        priority
-        className={cn("h-5 w-auto", compact && "hidden sm:block")}
-      />
+      <Wordmark priority className={cn("h-5 w-auto", compact && "hidden sm:block")} />
     </Link>
   );
 }

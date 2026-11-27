@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BellIcon, CoinsIcon } from "lucide-react";
 import { AppNav } from "@/components/layout/app-nav";
 import { Brand } from "@/components/layout/brand";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { UserMenu } from "@/components/layout/user-menu";
 import { cn } from "@/lib/utils";
 import { formatCredits } from "@/lib/utils/format";
@@ -35,6 +36,7 @@ export function AppHeader({
             {balance === null ? "—" : balance}
             <span className="hidden font-normal text-muted-foreground sm:inline lg:hidden xl:inline">{balance !== null && Math.abs(balance) <= 1 ? "crédit" : "crédits"}</span>
           </Link>
+          <ThemeToggle className="size-9 rounded-full border-0 text-muted-foreground hover:text-foreground pointer-coarse:size-11" />
           <Link
             href="/notifications"
             className={cn("relative flex size-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground")}
@@ -42,7 +44,7 @@ export function AppHeader({
           >
             <BellIcon className="size-5" aria-hidden />
             {unreadCount > 0 ? (
-              <span className="absolute top-0.5 right-0.5 min-w-[1.125rem] rounded-full bg-pronex-pink/85 px-1 text-center text-[11px] leading-[1.125rem] font-semibold text-white">
+              <span className="absolute top-0.5 right-0.5 min-w-[1.125rem] rounded-full bg-pronex-pink/85 px-1 text-center text-[11px] leading-[1.125rem] font-semibold text-on-accent">
                 {unreadCount > 99 ? "99+" : unreadCount}
               </span>
             ) : null}

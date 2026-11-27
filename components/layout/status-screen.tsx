@@ -18,6 +18,6 @@ export function StatusScreen({ code, title, children, actions }: { code: string;
 }
 
 export const statusPrimaryCta =
-  "inline-flex h-11 items-center justify-center rounded-xl bg-linear-to-r from-pronex-pink/85 to-pronex-violet px-5 text-sm font-semibold text-white shadow-[0_0_28px_-8px] shadow-pronex-pink/70 transition hover:brightness-110";
+  "inline-flex h-11 items-center justify-center rounded-xl bg-linear-to-r from-pronex-pink/85 to-pronex-violet px-5 text-sm font-semibold text-on-accent shadow-[0_0_28px_-8px] shadow-pronex-pink/70 transition hover:brightness-110";
 export const statusSecondaryCta =
   "inline-flex h-11 items-center justify-center rounded-xl border border-white/15 bg-white/5 px-5 text-sm font-semibold text-white transition hover:border-white/30 hover:bg-white/10";

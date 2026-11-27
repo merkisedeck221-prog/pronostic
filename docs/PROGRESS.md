@@ -1232,3 +1232,18 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
 - **Dépendances** : aucune ajoutée pendant toute la refonte de la landing (next/og fait partie de Next).
 - **Accessibilité** : axe sans violation sur le texte réel ; débordements et coupures contrôlés sur 6 appareils.
 - **À faire après l'achat du domaine** : définir `NEXT_PUBLIC_APP_URL=https://<domaine>` dans Vercel ; les URL canoniques, Open Graph, robots et sitemap suivront automatiquement.
+
+## Landing — partie 19 : méthode et phase D (26/11/2026)
+
+- Les phases A à C ont été réalisées partie par partie et validées par fusion.
+- Phase D exécutée en production : 12 contrôles, tous réussis. Le seul échec initial venait du test lui-même : il cliquait le lien « Tarifs » du pied de page au lieu de celui du menu. Le menu fonctionne.
+- Rapport complet : [RAPPORT-LANDING.md](RAPPORT-LANDING.md).
+
+## Thème clair « noir et blanc » (27/11/2026)
+
+- Demande du porteur : un bouton pour passer la plateforme en couleurs claires. Choix validés : « Noir et blanc pur » (fond blanc, texte et boutons noirs, logo et couleurs d'état conservés), sur toute la plateforme (landing, pages publiques, application, administration).
+- Bouton soleil / lune dans les trois en-têtes (dans le menu sur les écrans de moins de 360 px) ; choix mémorisé sur l'appareil, appliqué avant l'affichage (aucun flash) ; thème sombre PRONEX par défaut, inchangé.
+- Mise en œuvre : couleurs PRONEX rendues variables (`--pronex-*`), bloc `html.light` dans `app/globals.css`, jeton `text-on-accent`, logotype clair `public/brand/pronex-wordmark-light.*`.
+- Contrôles : 10 pages × 2 formats en clair sans débordement ; axe (WCAG A/AA) sans violation sur 14 pages hors numéros décoratifs masqués aux lecteurs d'écran (01-04, numérotation de la FAQ, déjà pâles en sombre) ; 396 tests Vitest, lint, typecheck, build OK.
+- Aucune migration, aucune donnée, aucun changement de permission.
+

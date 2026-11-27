@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { AdminContent } from "@/components/admin/table-labels";
 import { Brand } from "@/components/layout/brand";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { requireAdmin } from "@/lib/auth/session";
 
@@ -19,14 +20,17 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
         <div className="mx-auto flex h-14 w-full max-w-7xl items-center justify-between gap-3 px-4">
           <div className="flex items-center gap-3">
             <Brand href="/admin" compact />
-            <Link href="/admin" className="rounded-md border border-pronex-violet/40 bg-pronex-violet/15 px-2 py-0.5 text-xs font-semibold tracking-wider text-white uppercase">
+            <Link href="/admin" className="rounded-md border border-pronex-violet/40 bg-pronex-violet/15 px-2 py-0.5 text-xs font-semibold tracking-wider text-foreground uppercase">
               Administration
             </Link>
           </div>
-          <span className="hidden items-center gap-2 text-sm text-muted-foreground sm:flex">
-            <span aria-hidden className="size-2 rounded-full bg-success" />
-            {admin.profile.display_name}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="hidden items-center gap-2 text-sm text-muted-foreground sm:flex">
+              <span aria-hidden className="size-2 rounded-full bg-success" />
+              {admin.profile.display_name}
+            </span>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
       <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-6 md:flex-row">
