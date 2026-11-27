@@ -1,4 +1,5 @@
-import type { NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
+import { canonicalRedirect } from "@/lib/seo/canonical-host";
 import { updateSession } from "@/lib/supabase/proxy";
 
 /**
@@ -6,6 +7,9 @@ import { updateSession } from "@/lib/supabase/proxy";
  * chaque requête de page. La protection des pages reste dans les mises en page.
  */
 export async function proxy(request: NextRequest) {
+  // Anciennes adresses Vercel → https://pronex.vercel.app (sauf /api, voir lib/seo/canonical-host.ts)
+  const target = canonicalRedirect(request.headers.get("host"), request.nextUrl.pathname, request.nextUrl.search);
+  if (target) return NextResponse.redirect(target, 308);
   return updateSession(request);
 }
 

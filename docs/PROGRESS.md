@@ -1252,4 +1252,5 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
 - Demande du porteur : l'adresse de la plateforme devient **https://pronex.vercel.app** (domaine ajouté au projet Vercel `pronostic`, `NEXT_PUBLIC_APP_URL` mis à jour en production puis redéploiement : adresse canonique, Open Graph, sitemap, robots, liens des e-mails).
 - L'ancienne adresse `pronostic-brown.vercel.app` reste active (même déploiement) ; Supabase Cron l'utilise encore (secret Vault `app_url`), aucun changement en base.
 - 👤 À faire par le porteur : Supabase → projet `pronostics` → *Authentication* → *URL Configuration* : Site URL `https://pronex.vercel.app`, ajouter `https://pronex.vercel.app/auth/callback` aux Redirect URLs.
+- Redirection (demande du porteur) : `pronostic-brown.vercel.app`, `pronostic-merkisedeck.vercel.app` et `pronostic-git-main-merkisedeck.vercel.app` renvoient (308) vers `https://pronex.vercel.app` en gardant le chemin (`lib/seo/canonical-host.ts`, appelé par `proxy.ts`, testé). Exceptions : `/api/*` (Supabase Cron, webhooks) et `/auth/*` (liens d'e-mail déjà envoyés).
 
