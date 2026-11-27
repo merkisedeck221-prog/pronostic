@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BellIcon, CoinsIcon } from "lucide-react";
 import { AppNav } from "@/components/layout/app-nav";
 import { Brand } from "@/components/layout/brand";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { UserMenu } from "@/components/layout/user-menu";
 import { cn } from "@/lib/utils";
 import { formatCredits } from "@/lib/utils/format";
@@ -35,6 +36,7 @@ export function AppHeader({
             {balance === null ? "—" : balance}
             <span className="hidden font-normal text-[#000]/70 sm:inline lg:hidden xl:inline">{balance !== null && Math.abs(balance) <= 1 ? "crédit" : "crédits"}</span>
           </Link>
+          <ThemeToggle />
           <Link
             href="/notifications"
             className={cn("relative flex size-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground")}

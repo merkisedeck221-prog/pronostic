@@ -3,6 +3,7 @@ import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { AdminContent } from "@/components/admin/table-labels";
 import { Brand } from "@/components/layout/brand";
 import { DesignScope } from "@/components/layout/design-scope";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { requireAdmin } from "@/lib/auth/session";
 
 /**
@@ -31,6 +32,7 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
               <span aria-hidden className="size-2 rounded-full bg-[#c9f13e]" />
               {admin.profile.display_name}
             </span>
+            <ThemeToggle />
             <Link
               href="/tableau-de-bord"
               className="flex h-[42px] items-center rounded-full bg-[#fff] px-4 text-sm font-medium text-[#000] transition-colors hover:bg-[#c9f13e]"

@@ -1288,3 +1288,9 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
 - Thème clair et bouton de thème supprimés (`lib/theme.ts`, `components/layout/theme-toggle.tsx`, script de démarrage) : un seul design sur tout le site.
 - Contrôles : 14 pages admin sur ordinateur et iPhone 14 sans débordement ni erreur ; axe WCAG A/AA sans violation (admin et pages utilisateur) ; 399 tests, lint, typecheck, build.
 
+## Thème sombre « Carbone » (27/11/2026)
+
+- 3 propositions montrées sur les vraies pages (Nuit bleue, Carbone, Bleu nuit profond) ; le porteur choisit **B — Carbone**.
+- Bouton soleil/lune dans les en-têtes public, application et admin ; choix mémorisé sur l'appareil, sinon réglage de l'appareil ; appliqué avant l'affichage. Le design clair reste le thème clair ; la landing n'est pas concernée.
+- Contrôles : 14 pages en sombre (connexion, inscription, performances, espace utilisateur, administration) sans violation axe WCAG A/AA ; bascule et mémorisation vérifiées ; thème de l'appareil respecté ; 399 tests, lint, typecheck, build.
+

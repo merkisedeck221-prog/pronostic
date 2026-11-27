@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Exo_2, Geist, Geist_Mono, Inter_Tight } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
+import { THEME_SCRIPT } from "@/lib/theme";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, siteUrl } from "@/lib/seo/site";
 
 const geistSans = Geist({
@@ -52,8 +53,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="fr"
+      suppressHydrationWarning
       className={`dark ${geistSans.variable} ${geistMono.variable} ${exo2.variable} ${interTight.variable} h-full font-sans antialiased`}
     >
+      <head>
+        {/* Thème clair / sombre choisi sur l'appareil, appliqué avant l'affichage */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="min-h-full flex flex-col">
         <a
           href="#contenu"
