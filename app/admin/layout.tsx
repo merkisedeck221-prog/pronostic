@@ -3,7 +3,6 @@ import { AdminSidebar } from "@/components/admin/admin-sidebar";
 import { AdminContent } from "@/components/admin/table-labels";
 import { Brand } from "@/components/layout/brand";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
-import { SiteFooter } from "@/components/layout/site-footer";
 import { requireAdmin } from "@/lib/auth/session";
 
 /**
@@ -39,7 +38,6 @@ export default async function AdminLayout({ children }: LayoutProps<"/admin">) {
         </aside>
         <AdminContent>{children}</AdminContent>
       </div>
-      <SiteFooter />
     </>
   );
 }

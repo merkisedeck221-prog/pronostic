@@ -1,7 +1,6 @@
 import { DesignScope } from "@/components/layout/design-scope";
 import { AppHeader } from "@/components/layout/app-header";
 import { BottomNav } from "@/components/layout/app-nav";
-import { SiteFooter } from "@/components/layout/site-footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { signOutAction } from "@/lib/auth/actions";
@@ -62,9 +61,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
         {children}
       </div>
       {/* Espace réservé à la barre de navigation mobile (fixe en bas). */}
-      <div className="pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0">
-        <SiteFooter />
-      </div>
+      <div aria-hidden className="pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-0" />
       <BottomNav />
     </div>
   );

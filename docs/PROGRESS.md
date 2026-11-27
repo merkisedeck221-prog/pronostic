@@ -1272,4 +1272,4 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
 - Connexion / inscription / mot de passe : carte photo bleu nuit (photo de l'en-tête de la landing, slogan, 3 engagements) + formulaire blanc, bouton citron.
 - Icônes du site et image de partage refaites avec le nouveau logo.
 - Contrôles : 13 pages (connexion, inscription, mot de passe oublié, performances, CGU, tableau de bord, matchs, compétitions, mes pronostics, portefeuille, recharge, notifications, profil) sur ordinateur et iPhone 14, aucun débordement ; axe WCAG A/AA sans violation ; 399 tests, lint, typecheck, build.
-
+- Pied de page retiré de la connexion, des pages publiques, de l'espace utilisateur et de l'administration (demande du porteur : il reste uniquement sur la landing) ; `components/layout/site-footer.tsx` supprimé.
