@@ -4,6 +4,7 @@ import "./landing.css";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type ReactNode, type RefObject } from "react";
+import { PronexMark } from "@/components/layout/pronex-mark";
 import { MARKET_CARDS } from "@/components/landing/markets";
 import type { LandingData } from "@/lib/catalog/landing";
 
@@ -20,6 +21,7 @@ type Props = {
   marketCodes: string[];
   packs: LandingData["packs"];
   pricing: LandingData["pricing"];
+  competitions: LandingData["competitions"];
 };
 
 const ARROW = (
@@ -43,19 +45,9 @@ const UP_RIGHT = (
   </svg>
 );
 
-/** Symbole PRONEX : « P » massif, ballon dans la boucle. */
+/** Symbole PRONEX (composant partagé). */
 function Symbol({ body, ball, accent, height }: { body: string; ball: string; accent: string; height: number }) {
-  return (
-    <svg className="pxsym" viewBox="0 0 100 120" height={height} aria-hidden>
-      <path
-        fill={body}
-        fillRule="evenodd"
-        d="M0 14A14 14 0 0 1 14 0H54A48 48 0 0 1 54 96H38V106A14 14 0 0 1 24 120H14A14 14 0 0 1 0 106ZM54 24A24 24 0 1 0 54 72A24 24 0 1 0 54 24Z"
-      />
-      <circle cx="54" cy="48" r="12" fill={ball} />
-      <path d="M54 40.5l7 5.1-2.7 8.2h-8.6l-2.7-8.2z" fill={accent} />
-    </svg>
-  );
+  return <PronexMark className="pxsym" body={body} ball={ball} accent={accent} height={height} />;
 }
 
 /* Photos générées pour PRONEX (Higgsfield, 27/11/2026) : public/landing/v2/. */
@@ -167,19 +159,36 @@ const STEPS: [string, string][] = [
   ["Suivez les résultats", "Retrouvez vos pronostics, leur statut et les performances. Gagné, perdu ou annulé : vérifié automatiquement après le match."],
 ];
 
-const COMPETITIONS: [string, string][] = [
-  ["Premier League", "Angleterre"],
-  ["LaLiga", "Espagne"],
-  ["Serie A", "Italie"],
-  ["Bundesliga", "Allemagne"],
-  ["Ligue 1", "France"],
+/* Nom, pays et identifiant API-Football (logo de repli si la base n'en fournit pas). */
+const COMPETITIONS: [string, string, number][] = [
+  ["Premier League", "Angleterre", 39],
+  ["LaLiga", "Espagne", 140],
+  ["Serie A", "Italie", 135],
+  ["Bundesliga", "Allemagne", 78],
+  ["Ligue 1", "France", 61],
 ];
 
 function Pill({ children }: { children: ReactNode }) {
   return <span className="pill-tag">{children}</span>;
 }
 
-export function PronexLanding({ marketCodes, packs, pricing }: Props) {
+/** Logo d'une compétition (API-Football, lu en base) sur pastille blanche. */
+function LeagueLogo({ src, name, size }: { src: string | null; name: string; size: number }) {
+  if (!src) return null;
+  return <Image src={src} alt={name} width={size} height={size} className="league-logo" />;
+}
+
+const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+/* Photo de fond de chaque type de pronostic (5 photos générées, en alternance). */
+const MARKET_PHOTOS = [IMG.hero, IMG.sprint, IMG.aerial, IMG.net, IMG.cta];
+
+export function PronexLanding({ marketCodes, packs, pricing, competitions }: Props) {
+  const comps = COMPETITIONS.map(([name, country, apiId]) => ({
+    name,
+    country,
+    logo: competitions.find((c) => norm(c.name) === norm(name))?.logo_url ?? `https://media.api-sports.io/football/leagues/${apiId}.png`,
+  }));
   useReveal();
 
   const markets = MARKET_CARDS.filter((m) => marketCodes.length === 0 || marketCodes.includes(m.code));
@@ -275,7 +284,13 @@ export function PronexLanding({ marketCodes, packs, pricing }: Props) {
         </nav>
         <div className="hero-in">
           <div className="hero-avatars hero-anim">
-            Premier League <i /> LaLiga <i /> Serie A <i /> Bundesliga <i /> Ligue 1
+            {comps.map((c, i) => (
+              <span key={c.name} className="lg-item">
+                {i > 0 ? <i /> : null}
+                <span className="lg-dot"><LeagueLogo src={c.logo} name="" size={18} /></span>
+                {c.name}
+              </span>
+            ))}
           </div>
           <p className="hero-small hero-anim d1">Prédisez. Analysez. Dominez. Des pronostics football expliqués par l&apos;intelligence artificielle.</p>
           <div className="hero-bottom">
@@ -367,7 +382,9 @@ export function PronexLanding({ marketCodes, packs, pricing }: Props) {
               <div className="svc-viewport">
                 <div className="svc-track" ref={mkTrack} style={mk.style} onTransitionEnd={mk.onEnd}>
                   {[...markets, ...markets, ...markets].map((m, i) => (
-                    <article key={i} className={`svc-card mk${i === mk.index ? " on" : ""}${i === mk.index + 1 ? " on2" : ""}`} aria-hidden={i < markets.length || i >= markets.length * 2}>
+                    <article key={i} className={`svc-card mk has-img${i === mk.index ? " on" : ""}${i === mk.index + 1 ? " on2" : ""}`} aria-hidden={i < markets.length || i >= markets.length * 2}>
+                      <Photo src={MARKET_PHOTOS[(i % markets.length) % MARKET_PHOTOS.length]} sizes="(min-width: 1140px) 378px, 300px" />
+                      <i className="mk-shade" aria-hidden />
                       <span className="code">{SHORT[m.code] ?? m.name}</span>
                       <span className="num">{String((i % markets.length) + 1).padStart(2, "0")}&nbsp;/&nbsp;{markets.length}</span>
                       <div className="glass"><h4>{m.name}</h4><p>{m.text}</p></div>
@@ -451,12 +468,13 @@ export function PronexLanding({ marketCodes, packs, pricing }: Props) {
             <div data-a="up56"><Pill>Compétitions</Pill><h2 className="h2" id="competitions-titre">Les plus grands championnats.</h2></div>
             <div className="co-view" data-a="up">
               <div className="co-track" ref={coTrack} style={co.style} onTransitionEnd={co.onEnd}>
-                {[...COMPETITIONS, ...COMPETITIONS, ...COMPETITIONS].map(([n, c], i) => (
+                {[...comps, ...comps, ...comps].map((comp, i) => (
                   <article key={i} className="coach ph has-img" aria-hidden={i < COMPETITIONS.length || i >= COMPETITIONS.length * 2}>
                     <Photo src={[IMG.sprint, IMG.aerial, IMG.net, IMG.hero, IMG.cta][i % COMPETITIONS.length]} sizes="(min-width: 1140px) 373px, 300px" />
                     <i className="shade" aria-hidden />
-                    <span className="country">{c}</span>
-                    <div className="glass"><h4>{n}</h4><p>Matchs analysés par PRONEX AI</p></div>
+                    <span className="country">{comp.country}</span>
+                    {comp.logo ? <span className="lg-tile"><LeagueLogo src={comp.logo} name={`Logo ${comp.name}`} size={72} /></span> : null}
+                    <div className="glass"><h4>{comp.name}</h4><p>Matchs analysés par PRONEX AI</p></div>
                   </article>
                 ))}
               </div>

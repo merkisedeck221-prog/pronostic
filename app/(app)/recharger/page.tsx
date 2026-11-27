@@ -71,15 +71,15 @@ export default async function RechargerPage({ searchParams }: PageProps<"/rechar
               <li
                 key={pack.id}
                 className={cn(
-                  "pronex-lift relative rounded-2xl p-px",
-                  pack.is_featured ? "bg-linear-to-br from-pronex-pink/85 to-pronex-violet shadow-[0_0_32px_-8px] shadow-pronex-pink/60" : "bg-white/10",
+                  "pronex-lift relative rounded-[20px] p-[2px]",
+                  pack.is_featured ? "bg-[#c9f13e]" : "bg-white/10",
                 )}
               >
-                <article className="flex h-full flex-col gap-5 rounded-2xl bg-pronex-night p-6">
+                <article className="flex h-full flex-col gap-5 rounded-[18px] bg-pronex-night p-6">
                   <div className="flex min-h-7 items-center justify-between gap-2">
                     <h2 className="text-sm font-semibold tracking-[0.2em] uppercase">{pack.name}</h2>
                     {pack.is_featured ? (
-                      <span className="rounded-full bg-linear-to-r from-pronex-pink/85 to-pronex-violet px-3 py-1 text-xs font-semibold">
+                      <span className="rounded-full bg-[#c9f13e] px-3 py-1 text-xs font-semibold text-[#000]">
                         Recommandé
                       </span>
                     ) : null}

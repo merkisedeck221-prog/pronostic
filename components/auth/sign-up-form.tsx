@@ -65,7 +65,7 @@ export function SignUpForm() {
           }
         />
       </FieldGroup>
-      <Button type="submit" size="lg" className="w-full" disabled={pending}>
+      <Button type="submit" variant="hero" size="lg" className="w-full" disabled={pending}>
         {pending ? "Création du compte…" : "Créer mon compte"}
       </Button>
     </form>

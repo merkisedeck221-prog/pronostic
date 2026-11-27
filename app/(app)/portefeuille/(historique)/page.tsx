@@ -60,7 +60,7 @@ export default async function PortefeuillePage({ searchParams }: PageProps<"/por
     <main className="mx-auto w-full max-w-3xl flex-1 space-y-6 px-4 py-6 sm:py-8">
       <PageHeader title="Portefeuille" description="Votre solde de crédits et l'historique de vos mouvements." />
 
-      <section className="flex flex-col gap-5 rounded-3xl border border-white/8 bg-linear-to-br from-pronex-violet/20 via-card to-pronex-pink/10 p-6 sm:flex-row sm:items-end sm:justify-between sm:p-8">
+      <section className="flex flex-col gap-5 pxa-dark rounded-[20px] bg-[#042644] p-6 sm:flex-row sm:items-end sm:justify-between sm:p-8">
         <div>
           <p className="text-xs tracking-wider text-muted-foreground uppercase">Solde disponible</p>
           <p className="font-heading text-5xl font-extrabold tabular-nums">{balance ?? 0}</p>

@@ -26,6 +26,8 @@ export type LandingData = {
   fixtures: LandingFixture[];
   /** Nombre réel de compétitions actives (couverture). */
   competitionCount: number;
+  /** Compétitions actives (nom et logo API-Football), pour la landing. */
+  competitions: { id: number; name: string; logo_url: string | null }[];
   /** Prix réels en crédits (pricing_rules actives, règles générales) ; null si illisibles. */
   pricing: { marketMin: number; marketMax: number; bundle: number | null } | null;
 };
@@ -63,7 +65,7 @@ export async function getLandingData(): Promise<LandingData> {
     supabase.from("credit_packs").select("id, name, credits, price_xof, is_featured").eq("is_active", true).order("sort_order"),
     getPerformanceStats().catch(() => null),
     upcomingAnalysedFixtures().catch(() => []),
-    supabase.from("competitions").select("id", { count: "exact", head: true }).eq("is_active", true),
+    supabase.from("competitions").select("id, name, logo_url", { count: "exact" }).eq("is_active", true).order("id"),
     supabase.from("pricing_rules").select("scope, credits").eq("is_active", true).is("competition_id", null),
   ]);
   const marketPrices = (rules.data ?? []).filter((r) => r.scope === "market").map((r) => r.credits);
@@ -74,6 +76,7 @@ export async function getLandingData(): Promise<LandingData> {
     performance: performance ?? null,
     fixtures,
     competitionCount: competitions.error ? 0 : (competitions.count ?? 0),
+    competitions: competitions.error ? [] : (competitions.data ?? []),
     pricing:
       rules.error || marketPrices.length === 0
         ? null

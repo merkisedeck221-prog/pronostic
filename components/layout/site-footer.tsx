@@ -1,5 +1,4 @@
-import { Wordmark } from "@/components/layout/wordmark";
-import Image from "next/image";
+import { PronexMark } from "@/components/layout/pronex-mark";
 import Link from "next/link";
 import { ArrowUpIcon, ShieldAlertIcon } from "lucide-react";
 
@@ -11,8 +10,7 @@ const DISCOVER: Column = {
   title: "Découvrir",
   links: [
     { href: "/#fonctionnement", label: "Fonctionnement" },
-    { href: "/#analyses", label: "Analyses IA" },
-    { href: "/#types-pronostics", label: "Types de pronostics" },
+    { href: "/#pronostics", label: "Types de pronostics" },
     { href: "/#tarifs", label: "Tarifs" },
     { href: "/#faq", label: "FAQ" },
   ],
@@ -81,85 +79,51 @@ export function SiteFooter({
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative border-t border-white/8 bg-black/20 [html.light_&]:bg-card">
-      <div
-        aria-hidden
-        className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-pronex-pink/60 to-transparent"
-      />
-      <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 pt-14 pb-10 lg:grid-cols-[1.5fr_2fr]">
-        <div className="space-y-5">
-          <Link
-            href="/"
-            aria-label="PRONEX, accueil"
-            className="inline-flex min-h-11 items-center gap-3"
-          >
-            <Image
-              src="/brand/pronex-symbol.webp"
-              alt=""
-              width={240}
-              height={113}
-              className="h-9 w-auto"
-            />
-            <Wordmark className="h-5 w-auto" />
-          </Link>
-          <p className="font-heading text-lg font-bold italic">
-            Prédisez. <span className="text-pronex-pink">Analysez.</span>{" "}
-            Dominez.
-          </p>
-          <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-            Plateforme de pronostics football assistés par intelligence
-            artificielle : analyses match par match, probabilités, niveaux de
-            confiance et résultats publiés en toute transparence.
-          </p>
-          <div className="flex max-w-sm gap-3 rounded-2xl border border-white/8 bg-white/[0.02] p-3.5">
-            <span className="flex h-7 shrink-0 items-center rounded-lg border border-white/20 px-2 text-xs font-bold text-foreground">
-              18+
-            </span>
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              Réservé aux personnes majeures. Les pronostics sont des
-              estimations, sans garantie de gain. Jouez de façon responsable.
+    <footer className="bg-[#c9f13e] text-[#000] [--muted-foreground:rgb(0_0_0/68%)]">
+      <div className="mx-auto w-full max-w-[1140px] px-4 pt-6">
+        <Link href="/" aria-label="PRONEX, accueil" className="flex items-center gap-4 sm:gap-8">
+          <PronexMark body="#000" ball="#000" accent="#c9f13e" className="h-[18vw] w-auto max-h-36" />
+          <span className="text-[22vw] leading-[0.85] font-medium tracking-[-0.05em] lg:text-[200px]">PRONEX</span>
+        </Link>
+        <div className="grid gap-8 pt-10 pb-12 lg:grid-cols-[1.4fr_2fr]">
+          <div className="space-y-4">
+            <p className="max-w-sm text-[17px] leading-relaxed">
+              Plateforme de pronostics football assistés par intelligence
+              artificielle&nbsp;: analyses match par match, probabilités, niveaux
+              de confiance et résultats publiés en toute transparence.
+            </p>
+            <p className="flex max-w-sm items-start gap-3 text-sm leading-relaxed text-[#000]/75">
+              <span className="flex h-7 shrink-0 items-center rounded-lg border border-[#000]/30 px-2 text-xs font-bold text-[#000]">18+</span>
+              Réservé aux personnes majeures. Les pronostics sont des estimations,
+              sans garantie de gain. Jouez de façon responsable.
             </p>
           </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3">
-          {columns.map((column) => (
-            <nav
-              key={column.title}
-              aria-label={column.title}
-              className="space-y-4"
-            >
-              <p className="text-xs font-semibold tracking-[0.2em] text-foreground/80 uppercase">
-                {column.title}
-              </p>
-              <ul className="space-y-1">
-                {column.links.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="tap-target text-sm text-muted-foreground transition-colors hover:text-pronex-pink"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          ))}
+          <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-3">
+            {columns.map((column) => (
+              <nav key={column.title} aria-label={column.title} className="space-y-3">
+                <p className="text-xs font-semibold tracking-[0.2em] text-[#000]/70 uppercase">{column.title}</p>
+                <ul className="space-y-1">
+                  {column.links.map((link) => (
+                    <li key={link.href}>
+                      <Link href={link.href} className="tap-target text-[17px] font-medium text-[#000] underline-offset-4 hover:underline">
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            ))}
+          </div>
         </div>
       </div>
-
-      <div className="border-t border-white/5">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-5 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+      <div className="bg-[#000] text-[#fff]">
+        <div className="mx-auto flex w-full max-w-[1140px] flex-col gap-2 px-4 py-4 text-xs sm:flex-row sm:items-center sm:justify-between">
           <p>© {year} PRONEX. Tous droits réservés.</p>
-          <p className="flex items-center gap-1.5">
-            <ShieldAlertIcon className="size-3.5 text-warning" aria-hidden />
-            Pronostics à titre informatif : aucun gain n&apos;est garanti.
+          <p className="flex items-center gap-1.5 text-[#fff]/80">
+            <ShieldAlertIcon className="size-3.5 text-[#c9f13e]" aria-hidden />
+            Pronostics à titre informatif&nbsp;: aucun gain n&apos;est garanti.
           </p>
-          <a
-            href="#"
-            className="tap-target inline-flex items-center gap-1.5 hover:text-foreground"
-          >
+          <a href="#" className="tap-target inline-flex items-center gap-1.5 text-[#fff]/80 hover:text-[#fff]">
             <ArrowUpIcon className="size-3.5" aria-hidden />
             Haut de page
           </a>

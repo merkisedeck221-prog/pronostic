@@ -1,3 +1,4 @@
+import { DesignScope } from "@/components/layout/design-scope";
 import { AppHeader } from "@/components/layout/app-header";
 import { BottomNav } from "@/components/layout/app-nav";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -18,7 +19,7 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
 
   if (user.profile.is_banned) {
     return (
-      <main className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-10">
+      <main className="pxa mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-10">
         <Card>
           <CardHeader>
             <CardTitle>
@@ -49,7 +50,8 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
   ]);
 
   return (
-    <>
+    <div className="pxa flex min-h-full flex-1 flex-col">
+      <DesignScope />
       <AppHeader
         displayName={user.profile.display_name}
         balance={wallet?.balance ?? null}
@@ -64,6 +66,6 @@ export default async function AppLayout({ children }: LayoutProps<"/">) {
         <SiteFooter />
       </div>
       <BottomNav />
-    </>
+    </div>
   );
 }

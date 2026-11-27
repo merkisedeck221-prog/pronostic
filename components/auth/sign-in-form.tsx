@@ -27,7 +27,7 @@ export function SignInForm({ next }: { next?: string }) {
           Mot de passe oublié ?
         </Link>
       </div>
-      <Button type="submit" size="lg" className="w-full" disabled={pending}>
+      <Button type="submit" variant="hero" size="lg" className="w-full" disabled={pending}>
         {pending ? "Connexion…" : "Se connecter"}
       </Button>
     </form>
