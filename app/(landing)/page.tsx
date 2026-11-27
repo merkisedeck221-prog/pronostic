@@ -54,11 +54,11 @@ export default async function HomePage() {
   // Un utilisateur connecté va directement à son tableau de bord.
   if (await getCurrentUser()) redirect("/tableau-de-bord");
   // Packs, prix et marchés réels (lus en base) : aucune valeur inventée.
-  const { markets, packs, pricing } = await getLandingData();
+  const { markets, packs, pricing, competitions } = await getLandingData();
 
   return (
     <>
-      <PronexLanding marketCodes={markets.map((m) => m.code)} packs={packs} pricing={pricing} />
+      <PronexLanding marketCodes={markets.map((m) => m.code)} packs={packs} pricing={pricing} competitions={competitions} />
       {/* Données structurées : identité du site, sans note ni avis (aucune donnée inventée). */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData()).replace(/</g, "\\u003c") }} />
     </>

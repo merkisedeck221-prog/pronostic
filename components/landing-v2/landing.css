@@ -430,3 +430,17 @@
 .pxl .plan.photo>img.bg{z-index:0}
 .pxl .cta .ctabg{object-position:72% 50%}
 .pxl .why-row .card:not(.wide) .shade{background:rgba(4,38,68,.66)}
+/* ---------- Logos des championnats + photos des pronostics ---------- */
+.pxl .lg-item{display:inline-flex;align-items:center;gap:8px}
+.pxl .lg-dot{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:#fff;flex:none}
+.pxl .lg-dot img{width:16px;height:16px;object-fit:contain}
+.pxl .hero-avatars{gap:10px}
+.pxl .lg-tile{position:absolute;z-index:2;top:50%;left:50%;transform:translate(-50%,-80%);width:112px;height:112px;border-radius:28px;background:#fff;display:grid;place-items:center;box-shadow:0 18px 40px rgba(0,0,0,.35);transition:transform .6s var(--ease)}
+.pxl .coach:hover .lg-tile{transform:translate(-50%,-84%) scale(1.04)}
+.pxl .lg-tile img{width:72px;height:72px;object-fit:contain}
+.pxl .mk.has-img:before{display:none}
+.pxl .mk img{object-fit:cover}
+.pxl .mk-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,38,68,.88) 0%,rgba(4,38,68,.35) 45%,rgba(4,38,68,.8) 100%)}
+.pxl .mk .code,.pxl .mk .num,.pxl .mk .glass{z-index:2}
+@media (max-width:1100px){.pxl .lg-tile{width:88px;height:88px;border-radius:22px}.pxl .lg-tile img{width:56px;height:56px}}
+.pxl .lg-dot{width:28px;height:28px}.pxl .lg-dot img{width:20px;height:20px}
