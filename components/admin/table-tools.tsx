@@ -90,12 +90,12 @@ export function Field({ label, children }: { label: string; children: ReactNode 
 }
 
 export const inputClass =
-  "h-9 rounded-lg border border-white/15 bg-pronex-night px-2.5 text-sm text-foreground outline-none transition focus-visible:border-pronex-pink/60 focus-visible:ring-2 focus-visible:ring-pronex-pink/25";
+  "h-9 rounded-xl border border-border bg-card px-2.5 text-sm text-foreground outline-none transition focus-visible:border-[#042644] focus-visible:ring-2 focus-visible:ring-[#c9f13e]/60";
 
 const STAT_TONES = {
-  default: "border-white/10 bg-card",
-  pink: "border-pronex-pink/30 bg-linear-to-br from-pronex-pink/15 to-card",
-  violet: "border-pronex-violet/30 bg-linear-to-br from-pronex-violet/15 to-card",
+  default: "border-border bg-card",
+  pink: "pxa-dark border-transparent bg-[#042644]",
+  violet: "pxa-dark border-transparent bg-[#042644]",
   warning: "border-warning/40 bg-warning/10",
 } as const;
 
@@ -114,9 +114,9 @@ export function Stat({
   tone?: keyof typeof STAT_TONES;
 }) {
   return (
-    <div className={cn("min-w-0 space-y-1 rounded-xl border p-4 [overflow-wrap:anywhere]", STAT_TONES[tone])}>
+    <div className={cn("min-w-0 space-y-1 rounded-[20px] border p-4 [overflow-wrap:anywhere]", STAT_TONES[tone])}>
       <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-        {Icon ? <Icon className={cn("size-3.5", tone === "violet" ? "text-pronex-violet" : tone === "warning" ? "text-warning" : "text-pronex-pink")} aria-hidden /> : null}
+        {Icon ? <Icon className={cn("size-3.5", tone === "pink" || tone === "violet" ? "text-[#c9f13e]" : tone === "warning" ? "text-warning" : "text-pronex-pink")} aria-hidden /> : null}
         {label}
       </p>
       <p className="font-heading text-2xl font-bold tabular-nums">{value}</p>
@@ -132,7 +132,7 @@ export function AdminPage({ title, description, children, actions }: { title: st
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-2">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{title}</h1>
-          <div aria-hidden className="h-1 w-12 rounded-full bg-linear-to-r from-pronex-pink/85 to-pronex-violet" />
+          <div aria-hidden className="h-1 w-12 rounded-full bg-[#c9f13e]" />
           {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
         </div>
         {actions}

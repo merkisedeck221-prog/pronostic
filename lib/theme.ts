@@ -1,8 +1,9 @@
 /**
- * Thème de l'interface : sombre PRONEX (par défaut) ou clair noir et blanc.
- * Choix mémorisé sur l'appareil ; appliqué avant l'affichage par THEME_SCRIPT.
+ * Thème de l'interface (27/11/2026) : clair (design PRONEX) ou sombre « Carbone ».
+ * Classe `pxdark` sur <html>. Choix mémorisé sur l'appareil ; sans choix, le
+ * thème suit le réglage du téléphone ou de l'ordinateur. Appliqué avant
+ * l'affichage (aucun flash) par THEME_SCRIPT. La landing n'est pas concernée.
  */
 export const THEME_STORAGE_KEY = "pronex-theme";
-
-/** Script inséré dans <head> : applique le thème mémorisé avant le premier rendu (aucun flash). */
-export const THEME_SCRIPT = `try{if(localStorage.getItem("${THEME_STORAGE_KEY}")==="light"){var d=document.documentElement;d.classList.remove("dark");d.classList.add("light");d.style.colorScheme="light";}}catch(e){}`;
+export const DARK_CLASS = "pxdark";
+export const THEME_SCRIPT = `try{var t=localStorage.getItem("${THEME_STORAGE_KEY}");if(t==="dark"||(t!=="light"&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.classList.add("${DARK_CLASS}");}}catch(e){}`;

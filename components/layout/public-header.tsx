@@ -4,6 +4,7 @@ import { useEffect, useId, useState } from "react";
 import Link from "next/link";
 import { MenuIcon, XIcon } from "lucide-react";
 import { PronexMark } from "@/components/layout/pronex-mark";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 /** Sections de la landing (ancres valables depuis toutes les pages publiques). */
 const NAV = [
@@ -54,6 +55,7 @@ export function PublicHeader() {
           </nav>
 
           <div className="flex items-center gap-1.5">
+            <ThemeToggle />
             <Link href="/connexion" className="hidden h-[42px] items-center rounded-full px-4 text-[15px] text-[#fff] transition-colors hover:bg-[#fff]/10 sm:flex">
               Connexion
             </Link>

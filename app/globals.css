@@ -665,3 +665,98 @@ body.pxa-body {
   font-weight: 500;
   letter-spacing: -0.04em;
 }
+/* Administration (design PRONEX) : tableaux et cartes mobiles aux couleurs claires. */
+:is(.pxa, .pxa-body) [data-admin-content] tbody tr:hover {
+  background-color: rgb(4 38 68 / 0.03);
+}
+@media (max-width: 767.98px) {
+  :is(.pxa, .pxa-body) [data-admin-content] tbody tr,
+  :is(.pxa, .pxa-body) [data-admin-content] tbody tr:last-child {
+    border: 1px solid rgb(4 38 68 / 0.1);
+    border-radius: 20px;
+  }
+  :is(.pxa, .pxa-body) [data-admin-content] td {
+    border-bottom-color: rgb(4 38 68 / 0.06);
+  }
+}
+
+/*
+ * Thème sombre « Carbone » (27/11/2026, proposition B validée par le porteur) :
+ * classe `pxdark` sur <html> (lib/theme.ts). Même design, fond presque noir,
+ * cartes anthracite, citron pour les actions. La landing (.pxl) n'est pas touchée.
+ */
+html.pxdark :is(.pxa, .pxa-body) {
+  color-scheme: dark;
+  --background: #0b0c0e;
+  --foreground: #ffffff;
+  --card: #16181c;
+  --card-foreground: #ffffff;
+  --popover: #16181c;
+  --popover-foreground: #ffffff;
+  --primary: #c9f13e;
+  --primary-foreground: #000000;
+  --secondary: #1f2227;
+  --secondary-foreground: #ffffff;
+  --muted: #1f2227;
+  --muted-foreground: rgb(255 255 255 / 64%);
+  --accent: #1f2227;
+  --accent-foreground: #ffffff;
+  --destructive: #f87171;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --border: rgb(255 255 255 / 9%);
+  --input: rgb(255 255 255 / 16%);
+  --ring: #c9f13e;
+  --chart-1: #c9f13e;
+  --chart-2: #4f8fd9;
+  --chart-3: #8fa3b8;
+  --chart-4: #50606f;
+  --chart-5: #2c3440;
+  --pronex-night: #16181c;
+  --pronex-pink: #c9f13e;
+  --pronex-violet: #c9f13e;
+  --pronex-gray: rgb(255 255 255 / 64%);
+  --color-white: #ffffff;
+  --color-violet-100: #eef9c8;
+  --color-violet-200: #d6f84f;
+  --color-pink-200: #d6f84f;
+  --color-pink-300: #c9f13e;
+  --color-red-400: #f87171;
+}
+html.pxdark :is(.pxa, .pxa-body) [data-slot="input"],
+html.pxdark :is(.pxa, .pxa-body) [data-slot="select-trigger"],
+html.pxdark :is(.pxa, .pxa-body) [data-slot="textarea"] {
+  background: #1f2227;
+  border-color: rgb(255 255 255 / 14%);
+}
+html.pxdark :is(.pxa, .pxa-body) [data-slot="input"]:focus-visible {
+  border-color: #c9f13e;
+}
+/* En-têtes en pilule : anthracite au lieu du bleu nuit. */
+html.pxdark :is(.pxa, .pxa-body) header > div[class*="bg-[#042644]"] {
+  background: #16181c;
+  border: 1px solid rgb(255 255 255 / 8%);
+}
+/* Bouton bleu nuit standard → anthracite clair, texte blanc. */
+html.pxdark :is(.pxa, .pxa-body) [data-slot="button"]:not(.btn-hero) {
+  --tw-ring-color: rgb(201 241 62 / 50%);
+}
+html.pxdark :is(.pxa, .pxa-body) .text-on-accent {
+  color: #000;
+}
+html.pxdark :is(.pxa, .pxa-body) .pronex-panel {
+  background: #16181c;
+  border-color: rgb(255 255 255 / 8%);
+}
+html.pxdark :is(.pxa, .pxa-body) [data-admin-content] tbody tr:hover {
+  background-color: rgb(255 255 255 / 0.03);
+}
+@media (max-width: 767.98px) {
+  html.pxdark :is(.pxa, .pxa-body) [data-admin-content] tbody tr,
+  html.pxdark :is(.pxa, .pxa-body) [data-admin-content] tbody tr:last-child {
+    border-color: rgb(255 255 255 / 0.1);
+  }
+  html.pxdark :is(.pxa, .pxa-body) [data-admin-content] td {
+    border-bottom-color: rgb(255 255 255 / 0.06);
+  }
+}

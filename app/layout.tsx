@@ -57,7 +57,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`dark ${geistSans.variable} ${geistMono.variable} ${exo2.variable} ${interTight.variable} h-full font-sans antialiased`}
     >
       <head>
-        {/* Thème choisi sur l'appareil, appliqué avant l'affichage (aucun flash) */}
+        {/* Thème clair / sombre choisi sur l'appareil, appliqué avant l'affichage */}
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body className="min-h-full flex flex-col">
