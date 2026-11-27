@@ -8,7 +8,7 @@ Phase 12. Cette liste se remplit au fur et à mesure : ✅ fait · ⏳ en cours 
 |---|---|
 | Projet Supabase de **production** | `pronostics` (réf. `pgeytactmugqskdzsxnw`, `eu-west-1`) — confirmé par le porteur le 18/11/2026 |
 | Projet Supabase de développement | **aucun** : l'ancienne base de dev est devenue la production. Les tests d'intégration et Playwright refusent de la viser (`tests/guard.ts`) et sont désactivés en CI (variable `RUN_INTEGRATION_TESTS`). Pour les réactiver : créer un projet de dev séparé. |
-| Projet Vercel | `pronostic` (alias actuel `pronostic-brown.vercel.app`) |
+| Projet Vercel | `pronostic`, adresse officielle **`pronex.vercel.app`** depuis le 27/11/2026 (l'ancien alias `pronostic-brown.vercel.app` reste actif et sert encore à Supabase Cron, secret Vault `app_url`) |
 | Branche de production | `main` |
 
 ---
@@ -74,8 +74,8 @@ select tablename, count(*) from pg_policies where schemaname = 'public' group by
 
 | Champ | Valeur |
 |---|---|
-| Site URL | `https://pronostic-brown.vercel.app` (ou votre domaine, étape 8) |
-| Redirect URLs | `https://pronostic-brown.vercel.app/auth/callback` et, si domaine, `https://<votre-domaine>/auth/callback` |
+| Site URL | `https://pronex.vercel.app` (ou votre domaine, étape 8) |
+| Redirect URLs | `https://pronex.vercel.app/auth/callback` (garder aussi `https://pronostic-brown.vercel.app/auth/callback`) et, si domaine, `https://<votre-domaine>/auth/callback` |
 
 ### 3.2 Modèles d'e-mails en français (👤 *Authentication* → *Emails* → *Templates*)
 
@@ -123,7 +123,7 @@ Sans SMTP personnalisé, Supabase **n'envoie les e-mails qu'aux membres de l'éq
 | `NEXT_PUBLIC_SUPABASE_URL` | ✅ déjà posée par l'intégration (`https://pgeytactmugqskdzsxnw.supabase.co`) | non |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ déjà posée par l'intégration | non (publique) |
 | `SUPABASE_SERVICE_ROLE_KEY` | ✅ déjà posée par l'intégration | **oui** |
-| `NEXT_PUBLIC_APP_URL` | `https://pronostic-brown.vercel.app` (ou votre domaine) | non |
+| `NEXT_PUBLIC_APP_URL` | `https://pronex.vercel.app` (posé le 27/11/2026 ; ou votre domaine) | non |
 | `DEFAULT_TIMEZONE` | `Africa/Porto-Novo` | non |
 | `API_FOOTBALL_KEY` | votre clé API-Football (forfait Pro) | **oui** |
 | `API_FOOTBALL_DAILY_BUDGET` | `7000` (forfait Pro = 7 500 requêtes/jour, marge de sécurité) | non |

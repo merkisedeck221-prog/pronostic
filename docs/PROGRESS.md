@@ -1247,3 +1247,9 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
 - Contrôles : 10 pages × 2 formats en clair sans débordement ; axe (WCAG A/AA) sans violation sur 14 pages hors numéros décoratifs masqués aux lecteurs d'écran (01-04, numérotation de la FAQ, déjà pâles en sombre) ; 396 tests Vitest, lint, typecheck, build OK.
 - Aucune migration, aucune donnée, aucun changement de permission.
 
+## Adresse officielle pronex.vercel.app (27/11/2026)
+
+- Demande du porteur : l'adresse de la plateforme devient **https://pronex.vercel.app** (domaine ajouté au projet Vercel `pronostic`, `NEXT_PUBLIC_APP_URL` mis à jour en production puis redéploiement : adresse canonique, Open Graph, sitemap, robots, liens des e-mails).
+- L'ancienne adresse `pronostic-brown.vercel.app` reste active (même déploiement) ; Supabase Cron l'utilise encore (secret Vault `app_url`), aucun changement en base.
+- 👤 À faire par le porteur : Supabase → projet `pronostics` → *Authentication* → *URL Configuration* : Site URL `https://pronex.vercel.app`, ajouter `https://pronex.vercel.app/auth/callback` aux Redirect URLs.
+
