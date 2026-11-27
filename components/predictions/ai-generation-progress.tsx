@@ -161,7 +161,7 @@ export function AiGenerationProgress({
             <button
               type="button"
               onClick={onShowResult}
-              className="inline-flex h-11 items-center justify-center rounded-xl bg-linear-to-r from-pronex-pink/85 to-pronex-violet px-5 text-sm font-semibold text-white shadow-[0_0_28px_-10px] shadow-pronex-pink/70 transition hover:brightness-110"
+              className="inline-flex h-11 items-center justify-center rounded-xl bg-linear-to-r from-pronex-pink/85 to-pronex-violet px-5 text-sm font-semibold text-on-accent shadow-[0_0_28px_-10px] shadow-pronex-pink/70 transition hover:brightness-110"
             >
               Voir les pronostics
             </button>

@@ -227,10 +227,10 @@ export function WeeklyChart({
                     <p className="font-semibold text-foreground">
                       Semaine du {weekLabel(w.week_start)}
                     </p>
-                    <p className="mt-2 flex justify-between text-[#4ade80]">
+                    <p className="mt-2 flex justify-between text-success">
                       Gagnés <span className="tabular-nums">{w.won}</span>
                     </p>
-                    <p className="flex justify-between text-[#f87171]">
+                    <p className="flex justify-between text-red-400">
                       Perdus <span className="tabular-nums">{w.lost}</span>
                     </p>
                     <p className="flex justify-between text-muted-foreground">

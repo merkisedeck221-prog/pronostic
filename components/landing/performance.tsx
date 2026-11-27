@@ -235,7 +235,7 @@ const TONES = {
     value: "text-foreground",
   },
   lost: {
-    icon: "text-[#f87171]",
+    icon: "text-red-400",
     bar: "bg-[#f87171]/80",
     value: "text-foreground",
   },
@@ -321,7 +321,7 @@ function Segmented<T extends string>({
           className={cn(
             "tap-target rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors",
             value === option.id
-              ? "bg-pronex-violet text-white"
+              ? "bg-pronex-violet text-on-accent"
               : "text-muted-foreground hover:bg-white/5 hover:text-foreground",
           )}
         >

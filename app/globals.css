@@ -47,10 +47,13 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
   /* Identité PRONEX (page de recharge ; reste du site lors de la phase design). */
-  --color-pronex-night: #080b20;
-  --color-pronex-pink: #ff1493;
-  --color-pronex-violet: #a000ff;
-  --color-pronex-gray: #9ca3af;
+  /* Reliées à des variables pour permettre le thème clair (noir et blanc). */
+  --color-pronex-night: var(--pronex-night);
+  --color-pronex-pink: var(--pronex-pink);
+  --color-pronex-violet: var(--pronex-violet);
+  --color-pronex-gray: var(--pronex-gray);
+  /* Texte posé sur un fond d'accent (boutons, pastilles) : blanc dans les deux thèmes. */
+  --color-on-accent: #ffffff;
   /* États officiels (design system PRONEX, 26/11/2026). */
   --color-success: var(--success);
   --color-warning: var(--warning);
@@ -100,6 +103,65 @@
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: rgb(255 255 255 / 10%);
   --sidebar-ring: #ff1493;
+  --pronex-night: #080b20;
+  --pronex-pink: #ff1493;
+  --pronex-violet: #a000ff;
+  --pronex-gray: #9ca3af;
+}
+
+/*
+ * Thème clair « noir et blanc » (décision du porteur, 26/11/2026), activé par la
+ * classe .light sur <html> (bouton ThemeToggle, choix mémorisé sur l'appareil).
+ * Le rose et le violet deviennent noir ; le « blanc » des textes et bordures
+ * devient noir ; les fonds deviennent blancs. Seuls le logo et les couleurs
+ * d'état restent en couleur (assombries pour rester lisibles sur fond blanc).
+ */
+html.light {
+  color-scheme: light;
+  --background: #f6f6f7;
+  --foreground: #0a0a0a;
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+  --primary: #0a0a0a;
+  --primary-foreground: #ffffff;
+  --secondary: #efeff1;
+  --secondary-foreground: #0a0a0a;
+  --muted: #f1f1f3;
+  --muted-foreground: #55555d;
+  --accent: #ececef;
+  --accent-foreground: #0a0a0a;
+  --destructive: #dc2626;
+  --success: #166534;
+  --warning: #b45309;
+  --border: rgb(0 0 0 / 10%);
+  --input: rgb(0 0 0 / 16%);
+  --ring: #0a0a0a;
+  --chart-1: #0a0a0a;
+  --chart-2: #3f3f46;
+  --chart-3: #71717a;
+  --chart-4: #a1a1aa;
+  --chart-5: #d4d4d8;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0a0a0a;
+  --sidebar-primary: #0a0a0a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ececef;
+  --sidebar-accent-foreground: #0a0a0a;
+  --sidebar-border: rgb(0 0 0 / 10%);
+  --sidebar-ring: #0a0a0a;
+  --pronex-night: #ffffff;
+  --pronex-pink: #0a0a0a;
+  --pronex-violet: #0a0a0a;
+  --pronex-gray: #55555d;
+  /* Couleurs Tailwind utilisées comme « texte clair sur fond sombre » : inversées. */
+  --color-white: #0a0a0a;
+  --color-violet-100: #18181b;
+  --color-violet-200: #27272a;
+  --color-pink-200: #18181b;
+  --color-pink-300: #27272a;
+  --color-red-400: #dc2626;
 }
 
 @layer base {
@@ -123,6 +185,26 @@
     @apply font-sans;
     scroll-behavior: smooth;
   }
+  html.light body {
+    background-image: none;
+  }
+}
+
+/* Thème clair : pas de lueurs néon ni d'ombres colorées (style noir et blanc sobre). */
+html.light [class*="drop-shadow-["],
+html.light [class*="[filter:drop-shadow"] {
+  filter: none !important;
+}
+html.light [class*="[text-shadow:"] {
+  text-shadow: none !important;
+}
+html.light [class*="shadow-[0_0"] {
+  box-shadow: none !important;
+}
+/* Logos : version adaptée au thème (le logotype a des lettres blanches). */
+html.light .theme-dark-only,
+html:not(.light) .theme-light-only {
+  display: none !important;
 }
 /*
  * Impression (reçus) : thème clair sur papier, sans en-tête, navigation ni
@@ -413,4 +495,22 @@ main#contenu > * {
 }
 .pronex-fade {
   animation: pronex-fade 0.35s ease-out both;
+}
+
+/* Thème clair : panneaux et effets de survol en noir et blanc. */
+html.light .pronex-panel {
+  border: 1px solid rgb(0 0 0 / 0.12);
+  background: var(--card);
+  box-shadow: 0 18px 40px -28px rgb(0 0 0 / 0.35);
+}
+html.light .pronex-pitch {
+  background-image:
+    linear-gradient(to right, rgb(0 0 0 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(0 0 0 / 0.05) 1px, transparent 1px);
+}
+@media (hover: hover) and (pointer: fine) {
+  html.light .pronex-lift:hover {
+    border-color: rgb(0 0 0 / 0.3);
+    box-shadow: 0 14px 32px -22px rgb(0 0 0 / 0.45);
+  }
 }

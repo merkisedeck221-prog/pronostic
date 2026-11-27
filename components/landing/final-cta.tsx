@@ -1,3 +1,4 @@
+import { Wordmark } from "@/components/layout/wordmark";
 import Image from "next/image";
 import Link from "next/link";
 import { Reveal } from "@/components/landing/reveal";
@@ -31,13 +32,7 @@ export function LandingFinalCta() {
         </div>
 
         <Reveal className="max-w-2xl space-y-6">
-          <Image
-            src="/brand/pronex-wordmark.webp"
-            alt="PRONEX"
-            width={995}
-            height={138}
-            className="h-auto w-32 opacity-90"
-          />
+          <Wordmark className="h-auto w-32 opacity-90" />
           <h2
             id="cta-titre"
             className="font-heading text-3xl leading-tight font-extrabold tracking-tight [text-shadow:0_2px_18px_rgb(8_11_32_/_0.65)] sm:text-4xl lg:text-5xl"

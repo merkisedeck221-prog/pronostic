@@ -4,6 +4,7 @@ import { useEffect, useId, useState } from "react";
 import Link from "next/link";
 import { MenuIcon, XIcon } from "lucide-react";
 import { Brand } from "@/components/layout/brand";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -52,6 +53,7 @@ export function PublicHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle className="hidden min-[360px]:flex" />
           <Link href="/connexion" className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "hidden sm:inline-flex pointer-coarse:h-11")}>
             Se connecter
           </Link>
@@ -93,6 +95,10 @@ export function PublicHeader() {
           >
             Se connecter
           </Link>
+          <div className="mt-3 flex items-center justify-between rounded-xl border border-white/10 px-3 py-1 min-[360px]:hidden">
+            <span className="text-sm text-muted-foreground">Thème</span>
+            <ThemeToggle className="border-0" />
+          </div>
         </nav>
       </div>
     </header>
