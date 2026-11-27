@@ -1281,3 +1281,10 @@ Audit du moteur (lecture complète de `lib/ai`, `lib/generation`, tâches `build
 - Correction (migration `20261127190000_cron_avoid_idle_race.sql`, base de test puis essai annulé puis production) : `sync-fixtures` à :06, `sync-standings` à :36, `sync-competitions` à :16 (1 minute après un autre appel, connexion encore active). Même fréquence, même budget d'appels.
 - À vérifier : lancement de 05:06 UTC du 28/11 (ligne `sync_runs` attendue, statut « partial » tant que l'offre API-Football est gratuite).
 
+## Administration au design PRONEX (27/11/2026)
+
+- Demande du porteur : l'administration et ses menus suivent le design de la landing, de la connexion et de l'espace utilisateur.
+- `app/admin/layout.tsx` en zone `.pxa` (+ `DesignScope`) : en-tête en pilule bleu nuit (logo, pastille citron « Administration », nom de l'admin, « Retour à l'application »), barre latérale en carte blanche (élément actif bleu nuit, icône citron, groupes Contenu / Ventes / Système), menu replié sur téléphone en carte blanche ; tuiles chiffrées mises en avant en bleu nuit ; champs et badges aux couleurs du design ; cartes mobiles des tableaux aux bordures claires.
+- Thème clair et bouton de thème supprimés (`lib/theme.ts`, `components/layout/theme-toggle.tsx`, script de démarrage) : un seul design sur tout le site.
+- Contrôles : 14 pages admin sur ordinateur et iPhone 14 sans débordement ni erreur ; axe WCAG A/AA sans violation (admin et pages utilisateur) ; 399 tests, lint, typecheck, build.
+

@@ -665,3 +665,17 @@ body.pxa-body {
   font-weight: 500;
   letter-spacing: -0.04em;
 }
+/* Administration (design PRONEX) : tableaux et cartes mobiles aux couleurs claires. */
+:is(.pxa, .pxa-body) [data-admin-content] tbody tr:hover {
+  background-color: rgb(4 38 68 / 0.03);
+}
+@media (max-width: 767.98px) {
+  :is(.pxa, .pxa-body) [data-admin-content] tbody tr,
+  :is(.pxa, .pxa-body) [data-admin-content] tbody tr:last-child {
+    border: 1px solid rgb(4 38 68 / 0.1);
+    border-radius: 20px;
+  }
+  :is(.pxa, .pxa-body) [data-admin-content] td {
+    border-bottom-color: rgb(4 38 68 / 0.06);
+  }
+}
